@@ -16,6 +16,13 @@ export const AuthForm = ({ mode, onSubmit }: AuthFormProps) => {
     <div className="w-full max-w-sm space-y-6 rounded-xl border bg-card p-6 shadow-sm">
       {/* Header */}
       <div className="space-y-1 text-center">
+        <div>
+          <img
+            src="/Taskflow.svg"
+            alt="TaskFlow Logo"
+            className="m-auto h-12 w-12"
+          />
+        </div>
         <h1 className="text-2xl font-semibold tracking-tight">
           {isLogin ? "Sign in to TaskFlow" : "Create your  account"}
         </h1>
