@@ -8,26 +8,17 @@ export function App() {
   return (
     <>
       <Routes>
-          <Route 
-            path="/"
-            element={
-                <AuthGuard>
-                    <Workspace/>
-                </AuthGuard>
-            }
-          />
-          <Route 
-            path="/login"
-            element={
-                <Login/>
-            }
-          />
-          <Route 
-            path="/register"
-            element={
-                <Register/>
-            }
-          />
+        <Route
+          path="/"
+          element={
+            <AuthGuard>
+              <Workspace />
+            </AuthGuard>
+          }
+        />
+
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
       </Routes>
     </>
   );

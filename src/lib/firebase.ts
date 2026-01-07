@@ -3,13 +3,13 @@ import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyBtjc5Cw168pdyvEIRuoo-5YHtlQNXa9pE",
-  authDomain: "taskflow-7.firebaseapp.com",
-  projectId: "taskflow-7",
-  storageBucket: "taskflow-7.firebasestorage.app",
-  messagingSenderId: "1000029298004",
-  appId: "1:1000029298004:web:efe522a5c58cfc47843cc1",
-  measurementId: "G-ZVJ3KZT9D9"
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID
 };
 
 // Initialize Firebase
