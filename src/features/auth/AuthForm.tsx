@@ -2,15 +2,64 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
-import { Link } from "react-router"
+import { Link, useNavigate } from "react-router"
+import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
+import {
+  loginSchema,
+  registerSchema,
+  type LoginFormData,
+  type RegisterFormData,
+} from "@/validation/auth"
+import { Spinner } from "@/components/ui/spinner"
+import { signInWithGoogle } from "@/utils/SigninWithGoogle"
+import { toast } from "sonner"
 
-type AuthFormProps = {
+type AuthFormProps<T> = {
   mode: "login" | "register"
-  onSubmit?: () => void
+  onSubmit?: (data: T) => void | Promise<void>
 }
 
-export const AuthForm = ({ mode, onSubmit }: AuthFormProps) => {
+export const AuthForm = <T extends LoginFormData | RegisterFormData>({ mode, onSubmit }: AuthFormProps<T>) => {
   const isLogin = mode === "login"
+  const navigate = useNavigate()
+
+  // Use appropriate schema and type based on mode
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<LoginFormData | RegisterFormData>({
+    resolver: zodResolver(isLogin ? loginSchema : registerSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+      ...(isLogin ? {} : { confirmPassword: "" }),
+    },
+  })
+
+  const onSubmitHandler = async (data: T) => {
+    try {
+      if (onSubmit) {
+        await onSubmit(data)
+      }
+    } catch (error) {
+      console.error("Form submission error:", error)
+    }
+  }
+
+  const handleGoogleSignIn = async () => {
+    try {
+      const user = await signInWithGoogle();
+      if(user?.email) {
+        toast.success("Signed in successfully with Google!");
+        navigate("/", { replace: true });
+      }
+    } catch (error) {
+      toast.error(`Google sign-in failed: ${(error as Error).message}`);
+      console.error("Google sign-in error:", error);
+    }
+  }
 
   return (
     <div className="w-full max-w-sm space-y-6 rounded-xl border bg-card p-6 shadow-sm">
@@ -34,7 +83,7 @@ export const AuthForm = ({ mode, onSubmit }: AuthFormProps) => {
       </div>
 
       {/* Google */}
-      <Button variant="outline" className="w-full gap-2">
+      <Button variant="outline" className="w-full gap-2" onClick={handleGoogleSignIn}>
          <svg
             xmlns="http://www.w3.org/2000/svg"
             width="15.64"
@@ -69,25 +118,39 @@ export const AuthForm = ({ mode, onSubmit }: AuthFormProps) => {
       </div>
 
       {/* Email form */}
-      <form
-        className="space-y-4"
-        onSubmit={(e) => {
-          e.preventDefault()
-          onSubmit?.()
-        }}
-      >
+      <form className="space-y-4" onSubmit={handleSubmit(onSubmitHandler as any)}>
         <div className="space-y-2">
           <Label htmlFor="email">Email</Label>
-          <Input id="email" type="email" placeholder="you@company.com" />
+          <Input
+            {...register("email")}
+            id="email"
+            type="email"
+            placeholder="you@company.com"
+            disabled={isSubmitting}
+            aria-invalid={errors.email ? "true" : "false"}
+          />
+          {errors.email && (
+            <p className="text-sm text-red-600" role="alert">
+              {errors.email.message}
+            </p>
+          )}
         </div>
 
         <div className="space-y-2">
           <Label htmlFor="password">Password</Label>
           <Input
+            {...register("password")}
             id="password"
             type="password"
             placeholder="••••••••"
+            disabled={isSubmitting}
+            aria-invalid={errors.password ? "true" : "false"}
           />
+          {errors.password && (
+            <p className="text-sm text-red-600" role="alert">
+              {errors.password.message}
+            </p>
+          )}
         </div>
 
         {/* Register-only field */}
@@ -95,15 +158,34 @@ export const AuthForm = ({ mode, onSubmit }: AuthFormProps) => {
           <div className="space-y-2">
             <Label htmlFor="confirm">Confirm password</Label>
             <Input
+              {...register("confirmPassword")}
               id="confirm"
               type="password"
               placeholder="••••••••"
+              disabled={isSubmitting}
+              aria-invalid={
+                "confirmPassword" in errors && errors.confirmPassword
+                  ? "true"
+                  : "false"
+              }
             />
+            {"confirmPassword" in errors && errors.confirmPassword && (
+              <p className="text-sm text-red-600" role="alert">
+                {errors.confirmPassword.message}
+              </p>
+            )}
           </div>
         )}
 
-        <Button className="w-full" type="submit">
-          {isLogin ? "Sign in" : "Create account"}
+        <Button className="w-full" type="submit" disabled={isSubmitting}>
+          {isSubmitting ? (
+            <Spinner className="mx-auto" />
+          ) : isLogin ? (
+            "Sign in"
+          ) : (
+            "Create account"
+          )
+          }
         </Button>
       </form>
 
@@ -111,7 +193,7 @@ export const AuthForm = ({ mode, onSubmit }: AuthFormProps) => {
       <p className="text-center text-xs text-muted-foreground">
         {isLogin ? (
           <>
-            Don’t have an account?{" "}
+            Don't have an account?{" "}
             <Link to="/register" className="underline cursor-pointer">
               Sign up
             </Link>
