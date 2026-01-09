@@ -1,7 +1,7 @@
-import { getWorkspace } from "./workspace/workspace.read";
+import { checkUserWorkspaces } from "./workspace/workspace.read";
 import { createUserProfile } from "./users/users.create";
 
 
 
 
-export { getWorkspace, createUserProfile };
+export { checkUserWorkspaces, createUserProfile };

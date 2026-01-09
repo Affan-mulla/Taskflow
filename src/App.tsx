@@ -1,16 +1,20 @@
 import { Route, Routes } from "react-router";
-import AuthGuard from "./features/auth/AuthGuard";
+import AuthGuard from "./components/guards/AuthGuard";
 import Workspace from "./features/workspace/Workspace";
 import Login from "./features/auth/Login";
 import Register from "./features/auth/Register";
 import VerifyEmail from "./features/auth/VerifyEmail";
+import CreateWorkspace from "./features/workspace/CreateWorkspace";
+import AppGuard from "./components/guards/AppGuard";
 
 export function App() {
   return (
     <>
       <Routes>
+
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+
         <Route
           path="/verify-email"
           element={
@@ -20,11 +24,22 @@ export function App() {
           }
         />
 
+        <Route 
+        path="/onboarding/workspace"
+        element={
+          <AuthGuard>
+            <CreateWorkspace />
+          </AuthGuard>
+        }
+        />
+
         <Route
           path="/"
           element={
             <AuthGuard>
-              <Workspace />
+              <AppGuard>
+                <Workspace />
+              </AppGuard>
             </AuthGuard>
           }
         />
