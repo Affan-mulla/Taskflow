@@ -1,12 +1,29 @@
+import { useUser } from "@/hooks/useUsers";
 import { auth } from "@/lib/firebase";
-import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import { deleteUser, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 
 export async function signInWithGoogle() {
+  const { createUser } = useUser();
   try {
     const googleProvider = new GoogleAuthProvider();
     googleProvider.setCustomParameters({ prompt: "select_account" });
 
     const result = await signInWithPopup(auth, googleProvider);
+
+    if (result.user && result.user.email) {
+      const user = await createUser(result.user.uid, {
+        email: result.user.email,
+        name: result.user.displayName || "Unnamed User",
+        createdAt:
+          result.user.metadata.creationTime || new Date().toISOString(),
+        avatar: result.user.photoURL || undefined,
+      });
+
+      if (user.success === false) {
+        await deleteUser(result.user);
+        throw new Error(user.error);
+      }
+    }
 
     return result.user;
   } catch (err: any) {

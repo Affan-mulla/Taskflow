@@ -1,13 +1,11 @@
-import { Button } from '@/components/ui/button'
-import { auth } from '@/lib/firebase'
-import { signOut } from 'firebase/auth'
-import { toast } from 'sonner'
+import { Button } from "@/components/ui/button";
+import { auth } from "@/lib/firebase";
+import { signOut } from "firebase/auth";
 
 const Workspace = () => {
+
   const handleLogout = async() => {
-    await signOut(auth)
-    toast.success("Logged out successfully")
-    
+    await signOut(auth);
   }
   return (
     <div>
@@ -15,6 +13,7 @@ const Workspace = () => {
         Logout
       </Button>
       {auth.currentUser?.email}
+      Workspace
     </div>
   )
 }

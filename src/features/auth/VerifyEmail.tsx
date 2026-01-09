@@ -41,6 +41,7 @@ const VerifyEmail = () => {
 
   // Countdown timer effect
   useEffect(() => {
+    
     if (cooldown <= 0) return;
 
     const timer = setInterval(() => {

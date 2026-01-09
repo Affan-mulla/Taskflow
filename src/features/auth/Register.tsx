@@ -1,5 +1,6 @@
 import {
   createUserWithEmailAndPassword,
+  deleteUser,
   sendEmailVerification,
 } from "firebase/auth";
 import { AuthForm } from "./AuthForm";
@@ -7,9 +8,11 @@ import type { RegisterFormData } from "@/validation/auth";
 import { auth } from "@/lib/firebase";
 import { toast } from "sonner";
 import { useNavigate } from "react-router";
+import { useUser } from "@/hooks/useUsers";
 
 const Register = () => {
   const router = useNavigate();
+  const { createUser } = useUser();
 
   const handleRegister = async (data: RegisterFormData) => {
     try {
@@ -25,6 +28,21 @@ const Register = () => {
         data.password
       );
 
+      if (userCredential.user && userCredential.user.email) {
+        const user = await createUser(
+          userCredential.user.uid,{
+            email: userCredential.user.email,
+            name: userCredential.user.displayName ,
+            createdAt: userCredential.user.metadata.creationTime || new Date().toISOString(),
+            avatar: userCredential.user.photoURL || undefined,
+          }
+        );
+        if (user.success === false) {
+          await deleteUser(userCredential.user);
+          toast.error(`User creation failed: ${user.error}`);
+          return;
+        }
+      }
       // Send verification email
       await sendEmailVerification(userCredential.user);
 
