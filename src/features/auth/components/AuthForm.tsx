@@ -1,7 +1,7 @@
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Separator } from "@/components/ui/separator"
+import { Button } from "@/shared/components/ui/button"
+import { Input } from "@/shared/components/ui/input"
+import { Label } from "@/shared/components/ui/label"
+import { Separator } from "@/shared/components/ui/separator"
 import { Link, useNavigate } from "react-router"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -10,9 +10,9 @@ import {
   registerSchema,
   type LoginFormData,
   type RegisterFormData,
-} from "@/validation/auth"
-import { Spinner } from "@/components/ui/spinner"
-import { signInWithGoogle } from "@/utils/SigninWithGoogle"
+} from "@/features/auth/validation/auth"
+import { Spinner } from "@/shared/components/ui/spinner"
+import { signInWithGoogle } from "@/shared/utils/SigninWithGoogle"
 import { toast } from "sonner"
 
 type AuthFormProps<T> = {

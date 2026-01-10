@@ -1,5 +1,5 @@
-import { Spinner } from "@/components/ui/spinner";
-import useAuth from "@/hooks/useAuth"
+import { Spinner } from "@/shared/components/ui/spinner";
+import useAuth from "@/features/auth/hooks/useAuth"
 import { Navigate, useLocation } from "react-router"
 
 

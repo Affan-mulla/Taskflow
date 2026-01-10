@@ -1,11 +1,12 @@
+import Login from "@/features/auth/pages/Login";
+import Register from "@/features/auth/pages/Register";
 import { Route, Routes } from "react-router";
-import AuthGuard from "./components/guards/AuthGuard";
-import Workspace from "./features/workspace/Workspace";
-import Login from "./features/auth/Login";
-import Register from "./features/auth/Register";
-import VerifyEmail from "./features/auth/VerifyEmail";
-import CreateWorkspace from "./features/workspace/CreateWorkspace";
-import AppGuard from "./components/guards/AppGuard";
+import AuthGuard from "./router/guards/AuthGuard";
+import CreateWorkspace from "@/features/workspace/components/CreateWorkspace";
+import AppGuard from "./router/guards/AppGuard";
+import Workspace from "@/features/workspace/pages/Workspace";
+import VerifyEmail from "@/features/auth/pages/VerifyEmail";
+
 
 export function App() {
   return (

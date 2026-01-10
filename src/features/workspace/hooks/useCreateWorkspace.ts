@@ -1,5 +1,5 @@
 import { createWorkspace } from "@/db";
-import type { workspaceSchemaType } from "@/validation/createWorkspace";
+import type { workspaceSchemaType } from "@/features/workspace/validation/createWorkspace";
 import { useState } from "react";
 
 export const useCreateWorkspace = () => {

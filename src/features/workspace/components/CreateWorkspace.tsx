@@ -1,21 +1,21 @@
-import { Button } from "@/components/ui/button";
+import { Button } from "@/shared/components/ui/button";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Spinner } from "@/components/ui/spinner";
-import { useCreateWorkspace } from "@/hooks/useCreateWorkspace";
-import { useDebounce } from "@/hooks/useDebounce";
-import { useIsUrlUnique } from "@/hooks/useIsUrlUnique";
+} from "@/shared/components/ui/card";
+import { Input } from "@/shared/components/ui/input";
+import { Label } from "@/shared/components/ui/label";
+import { Spinner } from "@/shared/components/ui/spinner";
+import { useCreateWorkspace } from "@/features/workspace/hooks/useCreateWorkspace";
+import { useDebounce } from "@/shared/hooks/useDebounce";
+import { useIsUrlUnique } from "@/features/workspace/hooks/useIsUrlUnique";
 import {
   workspaceSchema,
   type workspaceSchemaType,
-} from "@/validation/createWorkspace";
+} from "@/features/workspace/validation/createWorkspace";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AddSquareIcon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
@@ -23,7 +23,6 @@ import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router";
 import { toast } from "sonner";
-import z from "zod";
 
 const CreateWorkspace = () => {
   const { loading, createWorkspaceHandler } = useCreateWorkspace();

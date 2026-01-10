@@ -1,5 +1,5 @@
 import { isWorkspaceUrlUnique } from "@/db";
-import { createSlugUrl } from "@/utils/createSlugUrl";
+import { createSlugUrl } from "@/shared/utils/createSlugUrl";
 import { useState } from "react";
 
 export const useIsUrlUnique = () => {

@@ -1,5 +1,5 @@
 import { db } from "@/lib/firebase";
-import type { UserProfileData } from "@/types/db";
+import type { UserProfileData } from "@/shared/types/db";
 import {  doc, setDoc } from "firebase/firestore";
 
 export async function createUserProfile(userId: string, profileData: UserProfileData) {

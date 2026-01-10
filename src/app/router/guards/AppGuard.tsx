@@ -1,7 +1,8 @@
 import { Navigate } from "react-router";
-import { useWorkspaceCheck } from "@/hooks/useWorkspace";
-import useAuth from "@/hooks/useAuth";
-import { Spinner } from "@/components/ui/spinner";
+
+import useAuth from "@/features/auth/hooks/useAuth";
+import { Spinner } from "@/shared/components/ui/spinner";
+import { useWorkspaceCheck } from "@/features/workspace/hooks/useWorkspace";
 
 const AppGuard = ({ children }: { children: React.ReactNode }) => {
   const { user, loading: authLoading } = useAuth();

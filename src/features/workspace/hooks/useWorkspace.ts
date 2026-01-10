@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { checkUserWorkspaces } from "@/db";
-import useAuth from "./useAuth";
-
+import useAuth from "@/features/auth/hooks/useAuth";
 export function useWorkspaceCheck() {
   const { user } = useAuth();
   const [workspaceIds, setWorkspaceIds] = useState<string[] | null>(null);

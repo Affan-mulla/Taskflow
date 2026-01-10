@@ -1,5 +1,5 @@
 import { createUserProfile } from "@/db";
-import type { UserProfileData } from "@/types/db";
+import type { UserProfileData } from "@/shared/types/db";
 
 type UseUserReturn = {
     createUser: (userId: string, profileData: UserProfileData) => Promise<{ data?: any, success: boolean, error?: string }>;

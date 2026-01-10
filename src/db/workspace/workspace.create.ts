@@ -1,6 +1,6 @@
 import { auth, db } from "@/lib/firebase";
-import { createSlugUrl } from "@/utils/createSlugUrl";
-import type { workspaceSchemaType } from "@/validation/createWorkspace";
+import { createSlugUrl } from "@/shared/utils/createSlugUrl";
+import type { workspaceSchemaType } from "@/features/workspace/validation/createWorkspace";
 import {
   addDoc,
   collection,

@@ -1,4 +1,4 @@
-import { useUser } from "@/hooks/useUsers";
+import { useUser } from "@/features/auth/hooks/useUsers";
 import { auth } from "@/lib/firebase";
 import { deleteUser, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 

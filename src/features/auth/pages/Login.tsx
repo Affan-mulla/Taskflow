@@ -1,7 +1,7 @@
 
 import { signInWithEmailAndPassword } from "firebase/auth";
-import { AuthForm } from "./AuthForm";
-import type { LoginFormData } from "@/validation/auth";
+import { AuthForm } from "./components/AuthForm";
+import type { LoginFormData } from "@/features/auth/validation/auth";
 import { auth } from "@/lib/firebase";
 import { toast } from "sonner";
 import { useNavigate } from "react-router";
