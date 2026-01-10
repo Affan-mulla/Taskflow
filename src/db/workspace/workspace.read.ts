@@ -1,5 +1,6 @@
 import { db } from "@/lib/firebase";
 import {
+  collection,
   collectionGroup,
   getDocs,
   query,
@@ -28,5 +29,20 @@ export async function checkUserWorkspaces(userId: string): Promise<(string | und
   } catch (error) {
     console.error('Error fetching workspaces:', error);
     throw new Error('Failed to fetch workspaces. Please try again.');
+  }
+}
+
+export async function isWorkspaceUrlUnique(workspaceUrl: string): Promise<boolean> {
+  try {
+    const q = query(
+      collection(db, "workspaces"),
+      where("workspaceUrl", "==", workspaceUrl)
+    );
+
+    const snapshot = await getDocs(q);
+    return snapshot.empty; // true if workspaceUrl is unique, false if not
+  } catch (error) {
+    console.error('Error checking workspace URL:', error);
+    throw new Error('Failed to check workspace URL. Please try again.');
   }
 }

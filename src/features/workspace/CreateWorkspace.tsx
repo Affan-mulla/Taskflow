@@ -10,6 +10,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Spinner } from "@/components/ui/spinner";
 import { useCreateWorkspace } from "@/hooks/useCreateWorkspace";
+import { useDebounce } from "@/hooks/useDebounce";
+import { useIsUrlUnique } from "@/hooks/useIsUrlUnique";
 import {
   workspaceSchema,
   type workspaceSchemaType,
@@ -17,17 +19,21 @@ import {
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AddSquareIcon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
+import { useNavigate } from "react-router";
 import { toast } from "sonner";
-import z, { slugify } from "zod";
+import z from "zod";
 
 const CreateWorkspace = () => {
   const { loading, createWorkspaceHandler } = useCreateWorkspace();
+  const navigate = useNavigate();
 
   const {
     register,
     handleSubmit,
     formState: { errors },
+    watch,
   } = useForm<workspaceSchemaType>({
     resolver: zodResolver(workspaceSchema),
     defaultValues: {
@@ -36,11 +42,28 @@ const CreateWorkspace = () => {
     },
   });
 
+  const workspaceUrl = watch("workspaceUrl");
+  const { debounce } = useDebounce(workspaceUrl || "");
+  const { loading: urlLoading, isUrlUnique, unique } = useIsUrlUnique();
+
+  useEffect(() => {
+    // Workspace URL unique check
+    if (debounce) {
+      isUrlUnique(debounce);
+    }
+  }, [debounce]);
+  
   const onSubmit = async (data: workspaceSchemaType) => {
+    // Prevent submission if URL is not unique
+    if (unique === false) {
+      toast.error("This workspace URL is not available. Please choose another.");
+      return;
+    }
+
     try {
       const formatedData = {
         workspaceName: data.workspaceName,
-        workspaceUrl: z.string().with(slugify()).parse(data.workspaceUrl),
+        workspaceUrl: data.workspaceUrl,
       };
 
       const res = await createWorkspaceHandler(formatedData);
@@ -52,6 +75,7 @@ const CreateWorkspace = () => {
 
       if (res?.success) {
         toast.success("Workspace created successfully!");
+        navigate(`/workspace/${data.workspaceUrl}`, { replace: true });
       }
     } catch (error) {
       toast.error("Workspace creation failed. Please try again.");
@@ -112,13 +136,35 @@ const CreateWorkspace = () => {
                   {errors?.workspaceUrl?.message}
                 </p>
               )}
+              {
+                urlLoading && <p className="text-xs text-muted-foreground">Checking availability...</p>
+              }
+              {!errors.workspaceUrl && workspaceUrl && !urlLoading && (
+                <>
+                  {unique === false && (
+                    <p className="text-xs text-red-600">
+                      This workspace URL is not available.
+                    </p>
+                  )}
+                  {unique === true && (
+                    <p className="text-xs text-green-600">
+                      ✓ This workspace URL is available.
+                    </p>
+                  )}
+                </>
+              )}
               <p className="text-xs text-muted-foreground">
                 You can change this later in settings.
               </p>
             </div>
 
-            <Button className="w-full mt-4" size="lg" type="submit">
-              {loading ? ( 
+            <Button 
+              className="w-full mt-4" 
+              size="lg" 
+              type="submit"
+              disabled={loading || (unique === false && workspaceUrl !== "")}
+            >
+              {loading ? (
                 <>
                   <Spinner /> Creating workspace ...
                 </>

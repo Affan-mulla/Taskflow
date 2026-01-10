@@ -1,4 +1,5 @@
 import { auth, db } from "@/lib/firebase";
+import { createSlugUrl } from "@/utils/createSlugUrl";
 import type { workspaceSchemaType } from "@/validation/createWorkspace";
 import {
   addDoc,
@@ -11,7 +12,6 @@ import {
   getDocs,
 } from "firebase/firestore";
 
-
 export const createWorkspace = async (data: workspaceSchemaType) : Promise<{ workspaceId?: string; success: boolean, error?: string } | undefined > =>  {
   try {
     const user = auth.currentUser;
@@ -20,9 +20,12 @@ export const createWorkspace = async (data: workspaceSchemaType) : Promise<{ wor
       success: false
     };
 
+    // Slugify the URL for consistency
+    const slugifiedUrl = createSlugUrl(data.workspaceUrl);
+
     const uniqueSlug = query(
       collection(db, "workspaces"),
-      where("workspaceUrl", "==", data.workspaceUrl)
+      where("workspaceUrl", "==", slugifiedUrl)
     );
 
     const snapshot = await getDocs(uniqueSlug);
@@ -35,13 +38,14 @@ export const createWorkspace = async (data: workspaceSchemaType) : Promise<{ wor
     // Create workspace (auto ID)
     const workspaceRef = await addDoc(collection(db, "workspaces"), {
       name: data.workspaceName,
-      workspaceUrl: data.workspaceUrl,
+      workspaceUrl: slugifiedUrl,
       createdBy: user.uid,
       createdAt: serverTimestamp(),
     });
 
     // Add creator as OWNER in members subcollection
     await setDoc(doc(db, "workspaces", workspaceRef.id, "members", user.uid), {
+      userId: user.uid,
       role: "OWNER",
       joinedAt: serverTimestamp(),
     });
