@@ -5,9 +5,9 @@ import AuthGuard from "./router/guards/AuthGuard";
 import CreateWorkspace from "@/features/workspace/components/CreateWorkspace";
 import AppGuard from "./router/guards/AppGuard";
 import RootGuard from "./router/guards/RootGuard";
-import Workspace from "@/features/workspace/pages/Workspace";
 import VerifyEmail from "@/features/auth/pages/VerifyEmail";
 import LandingPage from "@/Pages/LandingPage";
+import WorkspaceLayout from "@/features/workspace/pages/WorkspaceLayout";
 
 
 export function App() {
@@ -44,11 +44,20 @@ export function App() {
           element={
             <AuthGuard>
               <AppGuard>
-                <Workspace />
+                <WorkspaceLayout />
               </AppGuard>
             </AuthGuard>
           }
-        />
+        >
+          <Route path="/:workspaceUrl/projects" element={<div>Projects Page</div>} />
+          
+          <Route path="/:workspaceUrl//projects/:projectId/boards" element={<div>Boards Page</div>} />
+          <Route path="/:workspaceUrl//projects/:projectId/tasks" element={<div>Boards Page</div>} />
+          <Route path="/:workspaceUrl/tasks" element={<div>Tasks Page</div>} />
+          <Route path="/:workspaceUrl/settings" element={<div>Settings Page</div>} />
+          <Route path="/:workspaceUrl/boards" element={<div>Boards Page</div>} />
+
+        </Route>
       </Routes>
     </>
   );

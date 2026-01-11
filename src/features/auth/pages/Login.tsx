@@ -22,7 +22,7 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-linear-to-b from-foreground/5 to-background ">
+    <div className="min-h-screen w-full flex items-center justify-center bg-linear-to-b from-foreground/5 to-background ">
       <AuthForm<LoginFormData> mode="login" onSubmit={handleLogin} />
     </div>
   );

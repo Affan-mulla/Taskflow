@@ -1,14 +1,14 @@
-import { Button } from "@/shared/components/ui/button";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/shared/components/ui/card";
-import { Input } from "@/shared/components/ui/input";
-import { Label } from "@/shared/components/ui/label";
-import { Spinner } from "@/shared/components/ui/spinner";
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Spinner } from "@/components/ui/spinner";
 import { useCreateWorkspace } from "@/features/workspace/hooks/useCreateWorkspace";
 import { useDebounce } from "@/shared/hooks/useDebounce";
 import { useIsUrlUnique } from "@/features/workspace/hooks/useIsUrlUnique";

@@ -1,6 +1,6 @@
 import { Navigate } from "react-router";
 import useAuth from "@/features/auth/hooks/useAuth";
-import { Spinner } from "@/shared/components/ui/spinner";
+import { Spinner } from "@/components/ui/spinner";
 import { useWorkspace } from "@/features/workspace/hooks/useWorkspace";
 
 const AppGuard = ({ children }: { children: React.ReactNode }) => {

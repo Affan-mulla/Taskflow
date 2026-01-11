@@ -1,6 +1,6 @@
 import { Navigate } from "react-router";
 import useAuth from "@/features/auth/hooks/useAuth";
-import { Spinner } from "@/shared/components/ui/spinner";
+import { Spinner } from "@/components/ui/spinner";
 import { useWorkspace } from "@/features/workspace/hooks/useWorkspace";
 
 /**
@@ -34,7 +34,7 @@ const RootGuard = ({ children }: { children: React.ReactNode }) => {
 
   // User is authenticated and has workspace(s) - redirect to first workspace
   if (workspace && workspace.length > 0) {
-    return <Navigate to={`/${workspace[0].workspaceUrl}`} replace />;
+    return <Navigate to={`/${workspace[0].workspaceUrl}/projects`} replace />;
   }
 
   // Fallback to children (should not reach here)

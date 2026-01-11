@@ -5,16 +5,21 @@ import "./index.css";
 
 import { BrowserRouter } from "react-router";
 import { ThemeProvider } from "./shared/providers/ThemeProvider";
-import { Toaster } from "./shared/components/ui/sonner";
+
 import App from "./app/App.tsx";
+import { SidebarProvider } from "./components/ui/sidebar.tsx";
+import { Toaster } from "./components/ui/sonner.tsx";
+
 
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <BrowserRouter>
       <ThemeProvider>
+        <SidebarProvider>
         <App /> 
         <Toaster/>
+        </SidebarProvider>
       </ThemeProvider>
     </BrowserRouter>
   </StrictMode>
