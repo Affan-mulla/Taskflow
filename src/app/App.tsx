@@ -4,14 +4,19 @@ import { Route, Routes } from "react-router";
 import AuthGuard from "./router/guards/AuthGuard";
 import CreateWorkspace from "@/features/workspace/components/CreateWorkspace";
 import AppGuard from "./router/guards/AppGuard";
+import RootGuard from "./router/guards/RootGuard";
 import Workspace from "@/features/workspace/pages/Workspace";
 import VerifyEmail from "@/features/auth/pages/VerifyEmail";
+import LandingPage from "@/Pages/LandingPage";
 
 
 export function App() {
   return (
     <>
       <Routes>
+        <Route path="/" element={
+          <RootGuard><LandingPage /></RootGuard>} />
+
 
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
@@ -35,7 +40,7 @@ export function App() {
         />
 
         <Route
-          path="/"
+          path="/:workspaceUrl"
           element={
             <AuthGuard>
               <AppGuard>

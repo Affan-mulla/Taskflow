@@ -2,12 +2,14 @@ import { db } from "@/lib/firebase";
 import {
   collection,
   collectionGroup,
+  doc,
+  getDoc,
   getDocs,
   query,
   where,
 } from "firebase/firestore";
 
-export async function checkUserWorkspaces(userId: string): Promise<(string | undefined)[]> {
+export async function getUserWorkspacesIds(userId: string): Promise<(string | undefined)[]> {
   try {
     const q = query(
       collectionGroup(db, "members"),
@@ -45,4 +47,24 @@ export async function isWorkspaceUrlUnique(workspaceUrl: string): Promise<boolea
     console.error('Error checking workspace URL:', error);
     throw new Error('Failed to check workspace URL. Please try again.');
   }
+}
+
+
+
+export async function getWorkspacesByIds(
+  workspaceIds: string[]
+) : Promise<any[]> {
+  console.log(workspaceIds);
+  const getAllWorkspaces = Promise.all(
+    workspaceIds.map(async (id) => {
+      const docRef = doc(db, "workspaces", id);
+      const docSnap = await getDoc(docRef);
+      if (docSnap.exists()) {
+        return { id: docSnap.id, ...docSnap.data() };
+      } else {
+        return null;
+      }
+    })
+  );
+  return getAllWorkspaces;
 }

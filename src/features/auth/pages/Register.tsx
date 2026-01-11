@@ -3,12 +3,13 @@ import {
   deleteUser,
   sendEmailVerification,
 } from "firebase/auth";
-import { AuthForm } from "./components/AuthForm";
+
 import type { RegisterFormData } from "@/features/auth/validation/auth";
 import { auth } from "@/lib/firebase";
 import { toast } from "sonner";
 import { useNavigate } from "react-router";
 import { useUser } from "@/features/auth/hooks/useUsers";
+import { AuthForm } from "../components/AuthForm";
 
 const Register = () => {
   const router = useNavigate();
