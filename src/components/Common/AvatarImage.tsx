@@ -1,7 +1,7 @@
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 
 
-const AvatarImg = ({ src, alt }: { src: string; alt: string }) => {
+const AvatarImg = ({ src, alt }: { src?: string; alt: string }) => {
   const FallbackName = alt
     .split(" ")
     .map((n) => n[0])

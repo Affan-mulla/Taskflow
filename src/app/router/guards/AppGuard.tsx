@@ -12,7 +12,7 @@ const AppGuard = ({ children }: { children: React.ReactNode }) => {
   }
 
   if (authLoading || workspaceLoading || !user) {
-    return <div className="min-h-screen flex items-center justify-center"><Spinner /></div>;
+    return <div className="min-h-screen flex items-center justify-center w-full"><Spinner /></div>;
   }
 
   if (!workspace || workspace.length === 0) {

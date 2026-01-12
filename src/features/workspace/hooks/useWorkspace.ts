@@ -1,18 +1,10 @@
 import { useEffect, useState } from "react";
-import { getUserWorkspacesIds, getWorkspacesByIds } from "@/db";
+import { getUserWorkspacesIds } from "@/db";
 import useAuth from "@/features/auth/hooks/useAuth";
-
-interface Workspace {
-  id: string;
-  workspaceName: string;
-  workspaceUrl: string;
-  createdAt: string;
-  // add other fields as necessary
-}
 
 export function useWorkspace() {
   const { user, loading: authLoading } = useAuth();
-  const [workspace, setWorkspace] = useState<Workspace[] | null>(null);
+  const [workspace, setWorkspace] = useState<string[] | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
@@ -20,10 +12,8 @@ export function useWorkspace() {
     let isMounted = true;
 
     const fetchWorkspaces = async () => {
-      // 1️⃣ Wait until auth finishes
       if (authLoading) return;
 
-      // 2️⃣ Auth finished but no user
       if (!user) {
         if (isMounted) {
           setWorkspace([]);
@@ -42,9 +32,8 @@ export function useWorkspace() {
 
         if (!isMounted) return;
 
-        const allWorkspaces = await getWorkspacesByIds(ids);
         if (isMounted) {
-          setWorkspace(allWorkspaces);
+          setWorkspace(ids);
         }
       } catch (err) {
         if (isMounted) {

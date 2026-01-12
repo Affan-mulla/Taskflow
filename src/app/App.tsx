@@ -16,8 +16,10 @@ import ProjectPage from "@/features/projects/pages/ProjectPage";
 import ProjectBoardPage from "@/features/projects/pages/ProjectBoardPage";
 import ProjectTaskPage from "@/features/projects/pages/ProjectTaskPage";
 import ProjectOverviewPage from "@/features/projects/pages/ProjectOverviewPage";
+import { useGetUserProfile } from "@/features/auth/hooks/useGetUserProfile";
 
 export function App() {
+  useGetUserProfile();
   return (
     <Routes>
       {/* Public Routes */}
@@ -50,7 +52,7 @@ export function App() {
         }
       />
 
-      {/* Workspace Routes (Auth + Membership Required) */}
+      {/* Workspace Routes (Auth Required) */}
       <Route
         path="/:workspaceUrl"
         element={

@@ -54,7 +54,6 @@ export async function isWorkspaceUrlUnique(workspaceUrl: string): Promise<boolea
 export async function getWorkspacesByIds(
   workspaceIds: string[]
 ) : Promise<any[]> {
-  console.log(workspaceIds);
   const getAllWorkspaces = Promise.all(
     workspaceIds.map(async (id) => {
       const docRef = doc(db, "workspaces", id);

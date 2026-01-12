@@ -21,8 +21,19 @@ import { Button } from "../ui/button";
 
 import ThemeToggler from "../Common/ThemeToggler";
 import AvatarImg from "../Common/AvatarImage";
+import { signOut } from "firebase/auth";
+import { auth } from "@/lib/firebase";
+import { useWorkspaceStore } from "@/shared/store/store.workspace";
 
-const UserDropdown = () => {
+const UserDropdown = ({userName, avatar }: {userName: string, avatar?: string}) => {
+
+  const {activeWorkspace,workspaces} = useWorkspaceStore();
+
+  const handleLogout = async () => {
+    // Implement logout functionality here
+    await signOut(auth);
+  }
+  
   return (
     <SidebarMenu className="w-full">
       <SidebarMenuItem className="w-full">
@@ -45,16 +56,16 @@ const UserDropdown = () => {
             >
               {/* Avatar with its own subtle depth */}
               <div className="relative flex aspect-square size-9 items-center justify-center rounded-lg border border-border/50 bg-background shadow-sm overflow-hidden group-hover:scale-105 transition-transform">
-                <AvatarImg src="https://github.com/shadcn.png" alt="@marcel" />
+                <AvatarImg src={avatar} alt={userName} />
               </div>
 
               {/* Typography with improved weight and spacing */}
               <div className="grid flex-1 text-left leading-tight">
                 <span className="truncate font-semibold text-sm tracking-tight text-foreground/90">
-                  @marcel
+                  {userName}
                 </span>
                 <span className="truncate text-[11px] font-medium uppercase tracking-wider opacity-50">
-                  Personal
+                  {activeWorkspace ? activeWorkspace.workspaceName : "No Workspace"}
                 </span>
               </div>
 
@@ -78,13 +89,12 @@ const UserDropdown = () => {
           >
             {/* Header Profile Section */}
             <div className="flex items-center gap-3 p-3 mb-2">
-              <Avatar className="h-12 w-12 rounded-xl">
-                <AvatarImage src="https://github.com/shadcn.png" />
-                <AvatarFallback>M</AvatarFallback>
-              </Avatar>
+              <div className="size-10">
+                <AvatarImg src={avatar} alt={userName} />
+              </div>
               <div className="flex flex-col">
-                <span className="text-base font-semibold">@marcel</span>
-                <span className="text-xs text-muted-foreground">Personal</span>
+                <span className="text-base font-semibold">{userName}</span>
+                <span className="text-xs text-muted-foreground">{activeWorkspace?.workspaceName}</span>
               </div>
               <div className="ml-auto">
                 <ThemeToggler />
@@ -99,18 +109,19 @@ const UserDropdown = () => {
               </p>
 
               <div className="space-y-1">
-                <DropdownMenuItem className="flex items-center gap-3 p-1 rounded-lg hover:bg-card/80 cursor-pointer transition-colors">
+                {workspaces.map((workspace) => (
+                  <DropdownMenuItem className="flex items-center gap-3 p-1 rounded-lg hover:bg-card/80 cursor-pointer transition-colors" key={workspace.id}>
                   <div className="size-8">
                     <AvatarImg
-                      src="https://github.com/shadcn.png"
-                      alt="@marcel"
+                      src={"/Taskflow.svg"} // Use workspace logo here
+                      alt={workspace.workspaceName}  
                     />
                   </div>
                   <span className="flex-1 font-medium text-sm">
-                    Marcel workspace
+                    {workspace.workspaceName}
                   </span>
                 </DropdownMenuItem>
-
+                ))} 
                 <div className="flex items-center justify-between gap-2 p-1 pt-2">
                   <Button className=" w-full " size="sm">
                     <HugeiconsIcon icon={PlusSignIcon} className="size-4" />
@@ -129,7 +140,7 @@ const UserDropdown = () => {
 
             <DropdownMenuSeparator className="my-2" />
 
-            <DropdownMenuItem variant="destructive">
+            <DropdownMenuItem variant="destructive" onClick={handleLogout}>
               <HugeiconsIcon
                 icon={Logout01Icon}
                 className="size-5 text-muted-foreground"

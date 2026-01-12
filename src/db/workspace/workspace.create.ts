@@ -37,7 +37,7 @@ export const createWorkspace = async (data: workspaceSchemaType) : Promise<{ wor
 
     // Create workspace (auto ID)
     const workspaceRef = await addDoc(collection(db, "workspaces"), {
-      name: data.workspaceName,
+      workspaceName: data.workspaceName,
       workspaceUrl: slugifiedUrl,
       createdBy: user.uid,
       createdAt: serverTimestamp(),

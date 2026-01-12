@@ -74,7 +74,7 @@ const CreateWorkspace = () => {
 
       if (res?.success) {
         toast.success("Workspace created successfully!");
-        navigate(`/workspace/${data.workspaceUrl}`, { replace: true });
+        navigate(`/${data.workspaceUrl}`, { replace: true });
       }
     } catch (error) {
       toast.error("Workspace creation failed. Please try again.");
