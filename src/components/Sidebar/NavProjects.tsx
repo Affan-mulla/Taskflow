@@ -16,9 +16,10 @@ import {
   AndroidFreeIcons, 
   ArrowDown01Icon, 
   Task02Icon, 
-  Layers01Icon 
+  Layers01Icon, 
+  Layout
 } from "@hugeicons/core-free-icons";
-import { useLocation, useNavigate } from "react-router";
+import { useLocation, useNavigate, useParams } from "react-router";
 import { useState } from "react";
 
 interface ProjectItem {
@@ -37,36 +38,64 @@ interface Project {
 
 const NavProjects = () => {
   const { pathname } = useLocation();
+  const { workspaceUrl } = useParams(); // Get from URL instead of hardcoding
   const navigate = useNavigate();
   const bgActive = "bg-sidebar-accent border border-sidebar-border shadow text-foreground";
   const [isMainOpen, setIsMainOpen] = useState(true);
   const [openProjects, setOpenProjects] = useState<Record<string, boolean>>({});
 
+  // TODO: Replace with real data from Firestore
   const projects: Project[] = [
     {
-      workspaceUrl : "axon-123",
+      workspaceUrl: workspaceUrl || "axon-123",
       id: "AXO",
       name: "Axon-123",
       icon: AndroidFreeIcons,
       items: [
         {
+          icon: Layout,
+          label: "Overview",
+          url: "overview", // ✅ Fixed
+        },
+        {
           icon: Task02Icon,
           label: "Tasks",
-          url: "/tasks",
+          url: "tasks", // ✅ Fixed
         },
         {
           icon: Layers01Icon,
           label: "Board",
-          url: "/boards",
+          url: "board", // ✅ Fixed
         },
       ],
-    }
+    },
+     {
+      workspaceUrl: workspaceUrl || "axon-123",
+      id: "PJB",
+      name: "Project Beta",
+      icon: AndroidFreeIcons,
+      items: [
+        {
+          icon: Layout,
+          label: "Overview",
+          url: "overview", // ✅ Fixed
+        },
+        {
+          icon: Task02Icon,
+          label: "Tasks",
+          url: "tasks", // ✅ Fixed
+        },
+        {
+          icon: Layers01Icon,
+          label: "Board",
+          url: "board", // ✅ Fixed
+        },
+      ],
+    },
   ];
 
-  const isItemActive = (projectId: string, itemUrl: string) => {
-    const pathParts = pathname.split("/").filter(Boolean);
-    if (pathParts.length !== 4) return false;
-    return pathParts[1] === "projects" && pathParts[2] === projectId && pathParts[3] === itemUrl.split("/")[1];
+  const isItemActive = (workspaceUrl: string, projectId: string, itemUrl: string) => {
+    return pathname === `/${workspaceUrl}/projects/${projectId}/${itemUrl}`;
   };
 
   return (
@@ -92,7 +121,7 @@ const NavProjects = () => {
                     onOpenChange={(open) => setOpenProjects(prev => ({ ...prev, [project.id]: open }))}
                   >
                     <CollapsibleTrigger className={"w-full"}>
-                      <SidebarMenuButton className="text-muted-foreground w-full">
+                      <SidebarMenuButton className=" w-full">
                         <HugeiconsIcon
                           icon={project.icon}
                           strokeWidth={2}
@@ -112,11 +141,11 @@ const NavProjects = () => {
                           <SidebarMenuItem key={item.url}>
                             <SidebarMenuButton
                               className={`pl-6 ${
-                                isItemActive(project.id, item.url)
+                                isItemActive(project.workspaceUrl, project.id, item.url)
                                   ? bgActive
                                   : "text-muted-foreground"
                               }`}
-                              onClick={() => navigate(`/${project.workspaceUrl}/projects/${project.id}${item.url}`)}
+                              onClick={() => navigate(`/${project.workspaceUrl}/projects/${project.id}/${item.url}`)}
                             >
                               <HugeiconsIcon
                                 icon={item.icon}

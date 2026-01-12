@@ -1,65 +1,91 @@
+import { Navigate, Route, Routes } from "react-router";
 import Login from "@/features/auth/pages/Login";
 import Register from "@/features/auth/pages/Register";
-import { Route, Routes } from "react-router";
+import VerifyEmail from "@/features/auth/pages/VerifyEmail";
+
 import AuthGuard from "./router/guards/AuthGuard";
-import CreateWorkspace from "@/features/workspace/components/CreateWorkspace";
 import AppGuard from "./router/guards/AppGuard";
 import RootGuard from "./router/guards/RootGuard";
-import VerifyEmail from "@/features/auth/pages/VerifyEmail";
+import NotFoundPage from "@/Pages/NotFoundPage";
 import LandingPage from "@/Pages/LandingPage";
+import CreateWorkspace from "@/features/workspace/components/CreateWorkspace";
 import WorkspaceLayout from "@/features/workspace/pages/WorkspaceLayout";
-
+import Settings from "@/Pages/Settings";
+import ProjectListPage from "@/features/projects/pages/ProjectListPage";
+import ProjectPage from "@/features/projects/pages/ProjectPage";
+import ProjectBoardPage from "@/features/projects/pages/ProjectBoardPage";
+import ProjectTaskPage from "@/features/projects/pages/ProjectTaskPage";
+import ProjectOverviewPage from "@/features/projects/pages/ProjectOverviewPage";
 
 export function App() {
   return (
-    <>
-      <Routes>
-        <Route path="/" element={
-          <RootGuard><LandingPage /></RootGuard>} />
+    <Routes>
+      {/* Public Routes */}
+      <Route
+        path="/"
+        element={
+          <RootGuard>
+            <LandingPage />
+          </RootGuard>
+        }
+      />
+      <Route path="/login" element={<Login />} />
+      <Route path="/register" element={<Register />} />
 
-
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-
-        <Route
-          path="/verify-email"
-          element={
-            <AuthGuard>
-              <VerifyEmail />
-            </AuthGuard>
-          }
-        />
-
-        <Route 
+      {/* Auth-Only Routes */}
+      <Route
+        path="/verify-email"
+        element={
+          <AuthGuard>
+            <VerifyEmail />
+          </AuthGuard>
+        }
+      />
+      <Route
         path="/onboarding/workspace"
         element={
           <AuthGuard>
             <CreateWorkspace />
           </AuthGuard>
         }
-        />
+      />
 
-        <Route
-          path="/:workspaceUrl"
-          element={
-            <AuthGuard>
-              <AppGuard>
-                <WorkspaceLayout />
-              </AppGuard>
-            </AuthGuard>
-          }
-        >
-          <Route path="/:workspaceUrl/projects" element={<div>Projects Page</div>} />
-          
-          <Route path="/:workspaceUrl//projects/:projectId/boards" element={<div>Boards Page</div>} />
-          <Route path="/:workspaceUrl//projects/:projectId/tasks" element={<div>Boards Page</div>} />
-          <Route path="/:workspaceUrl/tasks" element={<div>Tasks Page</div>} />
-          <Route path="/:workspaceUrl/settings" element={<div>Settings Page</div>} />
-          <Route path="/:workspaceUrl/boards" element={<div>Boards Page</div>} />
+      {/* Workspace Routes (Auth + Membership Required) */}
+      <Route
+        path="/:workspaceUrl"
+        element={
+          <AuthGuard>
+            <AppGuard>
+              <WorkspaceLayout />
+            </AppGuard>
+          </AuthGuard>
+        }
+      >
+        {/* Default workspace view */}
+        <Route index element={<Navigate to="projects" replace />} />
+        <Route path="tasks" element={<div>Task</div>} />
+        <Route path="boards" element={<div>Boards</div>} />
+        {/* Projects */}
+        <Route path="projects" element={<ProjectListPage />} />
+        <Route path="projects/:projectId" element={<ProjectPage />}>
+          {/* Default to overview when landing on project */}
+          <Route index element={<Navigate to="overview" replace />} />
 
+          <Route path="overview" element={<ProjectOverviewPage />} />
+          <Route path="board" element={<ProjectBoardPage />} />
+          <Route path="tasks" element={<ProjectTaskPage />} />
         </Route>
-      </Routes>
-    </>
+
+        {/* Workspace Settings */}
+        <Route path="settings" element={<Settings />} />
+
+        {/* 404 within workspace */}
+        <Route path="*" element={<NotFoundPage />} />
+      </Route>
+
+      {/* Global 404 */}
+      <Route path="*" element={<NotFoundPage />} />
+    </Routes>
   );
 }
 

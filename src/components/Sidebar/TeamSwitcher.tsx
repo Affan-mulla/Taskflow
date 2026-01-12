@@ -21,6 +21,7 @@ import {
 import { SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "../ui/sidebar";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
+import AvatarImg from "../ui/AvatarImage";
 
 const UserDropdown = () => {
   return (
@@ -32,7 +33,7 @@ const UserDropdown = () => {
               size="lg"
               className="
       relative w-full h-14 px-3
-      bg-gradient-to-b from-background/50 to-background/80
+      bg-linear-to-b from-background/50 to-background/80
       backdrop-blur-md
       border border-border/60 
       rounded-xl
@@ -65,7 +66,7 @@ const UserDropdown = () => {
               </div>
 
               {/* Subtle Inner Glow (Optional for Dark Mode) */}
-              <div className="absolute inset-0 rounded-xl pointer-events-none ring-1 ring-inset ring-white/[0.05]" />
+              <div className="absolute inset-0 rounded-xl pointer-events-none ring-1 ring-inset ring-primary/10" />
             </SidebarMenuButton>
           </DropdownMenuTrigger>
 
@@ -150,13 +151,6 @@ const DropdownItem = ({ icon, label }: { icon: any; label: string }) => (
     <HugeiconsIcon icon={icon} className="size-5 text-muted-foreground" />
     <span className="font-medium text-[15px]">{label}</span>
   </DropdownMenuItem>
-);
-
-const AvatarImg = ({ src, alt }: { src: string; alt: string }) => (
-  <Avatar className=" rounded-lg size-fit">
-    <AvatarImage src={src} alt={alt} />
-    <AvatarFallback className="rounded-lg">M</AvatarFallback>
-  </Avatar>
 );
 
 export default UserDropdown;
