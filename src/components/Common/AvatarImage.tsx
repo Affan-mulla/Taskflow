@@ -1,4 +1,5 @@
-import { Avatar, AvatarFallback, AvatarImage } from "./avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+
 
 const AvatarImg = ({ src, alt }: { src: string; alt: string }) => {
   const FallbackName = alt

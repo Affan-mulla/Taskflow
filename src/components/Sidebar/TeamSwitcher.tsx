@@ -4,7 +4,6 @@ import {
   Settings02Icon,
   Logout01Icon,
   PlusSignIcon,
-  SparklesIcon,
   UnfoldMoreIcon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
@@ -14,14 +13,14 @@ import {
   DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 import { SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "../ui/sidebar";
-import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
-import AvatarImg from "../ui/AvatarImage";
+
+import ThemeToggler from "../Common/ThemeToggler";
+import AvatarImg from "../Common/AvatarImage";
 
 const UserDropdown = () => {
   return (
@@ -35,9 +34,8 @@ const UserDropdown = () => {
       relative w-full h-14 px-3
       bg-linear-to-b from-background/50 to-background/80
       backdrop-blur-md
-      border border-border/60 
+      border border-foreground/20
       rounded-xl
-      shadow-[0_1px_2px_rgba(0,0,0,0.05),0_4_12_rgba(0,0,0,0.05)]
       hover:bg-accent/50 hover:border-border
       transition-all duration-200 ease-in-out
       data-[state=open]:bg-accent 
@@ -66,7 +64,7 @@ const UserDropdown = () => {
               </div>
 
               {/* Subtle Inner Glow (Optional for Dark Mode) */}
-              <div className="absolute inset-0 rounded-xl pointer-events-none ring-1 ring-inset ring-primary/10" />
+              <div className="absolute inset-px rounded-[10px] shadow-[inset_0_0_2px_1px_rgba(0,0,0,0.2)] dark:shadow-[inset_0_0_2px_2px_rgba(255,255,255,0.1)]" aria-hidden="true" />
             </SidebarMenuButton>
           </DropdownMenuTrigger>
 
@@ -88,6 +86,9 @@ const UserDropdown = () => {
                 <span className="text-base font-semibold">@marcel</span>
                 <span className="text-xs text-muted-foreground">Personal</span>
               </div>
+              <div className="ml-auto">
+                <ThemeToggler />
+              </div>
             </div>
             <DropdownMenuSeparator className="my-2 " />
 
@@ -101,9 +102,9 @@ const UserDropdown = () => {
                 <DropdownMenuItem className="flex items-center gap-3 p-1 rounded-lg hover:bg-card/80 cursor-pointer transition-colors">
                   <div className="size-8">
                     <AvatarImg
-                    src="https://github.com/shadcn.png"
-                    alt="@marcel"
-                  />
+                      src="https://github.com/shadcn.png"
+                      alt="@marcel"
+                    />
                   </div>
                   <span className="flex-1 font-medium text-sm">
                     Marcel workspace
@@ -128,9 +129,7 @@ const UserDropdown = () => {
 
             <DropdownMenuSeparator className="my-2" />
 
-            <DropdownMenuItem
-              variant="destructive"
-            >
+            <DropdownMenuItem variant="destructive">
               <HugeiconsIcon
                 icon={Logout01Icon}
                 className="size-5 text-muted-foreground"
@@ -152,5 +151,7 @@ const DropdownItem = ({ icon, label }: { icon: any; label: string }) => (
     <span className="font-medium text-[15px]">{label}</span>
   </DropdownMenuItem>
 );
+
+
 
 export default UserDropdown;
