@@ -12,15 +12,18 @@ import {
   CollapsibleTrigger,
 } from "../ui/collapsible";
 import { HugeiconsIcon, type IconSvgElement } from "@hugeicons/react";
-import { 
-  AndroidFreeIcons, 
-  ArrowDown01Icon, 
-  Task02Icon, 
-  Layers01Icon, 
-  Layout
+import {
+  AndroidFreeIcons,
+  ArrowDown01Icon,
+  Task02Icon,
+  Layers01Icon,
+  Layout,
+  Add01Icon,
 } from "@hugeicons/core-free-icons";
 import { useLocation, useNavigate, useParams } from "react-router";
 import { useState } from "react";
+import { Button } from "../ui/button";
+import AddProject from "../Common/AddProject";
 
 interface ProjectItem {
   icon: IconSvgElement;
@@ -37,135 +40,181 @@ interface Project {
 }
 
 const NavProjects = () => {
-  const { pathname } = useLocation();
   const { workspaceUrl } = useParams(); // Get from URL instead of hardcoding
-  const navigate = useNavigate();
-  const bgActive = "bg-sidebar-accent border border-sidebar-border shadow text-foreground";
+
   const [isMainOpen, setIsMainOpen] = useState(true);
-  const [openProjects, setOpenProjects] = useState<Record<string, boolean>>({});
 
   // TODO: Replace with real data from Firestore
   const projects: Project[] = [
-    {
-      workspaceUrl: workspaceUrl || "axon-123",
-      id: "AXO",
-      name: "Axon-123",
-      icon: AndroidFreeIcons,
-      items: [
-        {
-          icon: Layout,
-          label: "Overview",
-          url: "overview", // ✅ Fixed
-        },
-        {
-          icon: Task02Icon,
-          label: "Tasks",
-          url: "tasks", // ✅ Fixed
-        },
-        {
-          icon: Layers01Icon,
-          label: "Board",
-          url: "board", // ✅ Fixed
-        },
-      ],
-    },
-     {
-      workspaceUrl: workspaceUrl || "axon-123",
-      id: "PJB",
-      name: "Project Beta",
-      icon: AndroidFreeIcons,
-      items: [
-        {
-          icon: Layout,
-          label: "Overview",
-          url: "overview", // ✅ Fixed
-        },
-        {
-          icon: Task02Icon,
-          label: "Tasks",
-          url: "tasks", // ✅ Fixed
-        },
-        {
-          icon: Layers01Icon,
-          label: "Board",
-          url: "board", // ✅ Fixed
-        },
-      ],
-    },
+    // {
+    //   workspaceUrl: workspaceUrl || "axon-123",
+    //   id: "AXO",
+    //   name: "Axon-123",
+    //   icon: AndroidFreeIcons,
+    //   items: [
+    //     {
+    //       icon: Layout,
+    //       label: "Overview",
+    //       url: "overview", // ✅ Fixed
+    //     },
+    //     {
+    //       icon: Task02Icon,
+    //       label: "Tasks",
+    //       url: "tasks", // ✅ Fixed
+    //     },
+    //     {
+    //       icon: Layers01Icon,
+    //       label: "Board",
+    //       url: "board", // ✅ Fixed
+    //     },
+    //   ],
+    // },
+    // {
+    //   workspaceUrl: workspaceUrl || "axon-123",
+    //   id: "PJB",
+    //   name: "Project Beta",
+    //   icon: AndroidFreeIcons,
+    //   items: [
+    //     {
+    //       icon: Layout,
+    //       label: "Overview",
+    //       url: "overview", // ✅ Fixed
+    //     },
+    //     {
+    //       icon: Task02Icon,
+    //       label: "Tasks",
+    //       url: "tasks", // ✅ Fixed
+    //     },
+    //     {
+    //       icon: Layers01Icon,
+    //       label: "Board",
+    //       url: "board", // ✅ Fixed
+    //     },
+    //   ],
+    // },
   ];
-
-  const isItemActive = (workspaceUrl: string, projectId: string, itemUrl: string) => {
-    return pathname === `/${workspaceUrl}/projects/${projectId}/${itemUrl}`;
-  };
 
   return (
     <SidebarGroup>
       <SidebarContent>
-        <Collapsible defaultOpen={true} onOpenChange={setIsMainOpen}>
-          <CollapsibleTrigger className={"w-full flex justify-between items-center"}>
+        <Collapsible
+          defaultOpen={true}
+          onOpenChange={setIsMainOpen}
+          disabled={projects.length === 0}
+        >
+          <CollapsibleTrigger
+            className={"w-full flex justify-between items-center"}
+          >
             <SidebarGroupLabel className="w-full hover:bg-accent">
               Your Projects
-              <HugeiconsIcon
-                icon={ArrowDown01Icon}
-                className={`size-2 ml-auto text-muted-foreground transition-transform ${isMainOpen ? 'rotate-180' : ''}`}
-                strokeWidth={2}
-              />
+              {projects.length > 0 && (
+                <HugeiconsIcon
+                  icon={ArrowDown01Icon}
+                  className={`size-2 ml-auto text-muted-foreground transition-transform ${
+                    isMainOpen ? "rotate-180" : ""
+                  }`}
+                  strokeWidth={2}
+                />
+              )}
             </SidebarGroupLabel>
           </CollapsibleTrigger>
           <CollapsibleContent>
             <SidebarMenu className="space-y-1 mt-2 w-full">
-              {projects.map((project) => (
-                <SidebarMenuItem key={project.id} className="w-full">
-                  <Collapsible 
-                    className={"w-full"} 
-                    onOpenChange={(open) => setOpenProjects(prev => ({ ...prev, [project.id]: open }))}
-                  >
-                    <CollapsibleTrigger className={"w-full"}>
-                      <SidebarMenuButton className=" w-full">
-                        <HugeiconsIcon
-                          icon={project.icon}
-                          strokeWidth={2}
-                          className="size-5 text-muted-foreground"
-                        />
-                        <span className="font-medium">{project.name}</span>
-                        <HugeiconsIcon
-                          icon={ArrowDown01Icon}
-                          strokeWidth={2}
-                          className={`size-2 ml-auto text-muted-foreground transition-transform ${openProjects[project.id] ? 'rotate-180' : ''}`}
-                        />
-                      </SidebarMenuButton>
-                    </CollapsibleTrigger>
-                    <CollapsibleContent>
-                      <SidebarMenu className="space-y-1 mt-2">
-                        {project.items.map((item) => (
-                          <SidebarMenuItem key={item.url}>
-                            <SidebarMenuButton
-                              className={`pl-6 ${
-                                isItemActive(project.workspaceUrl, project.id, item.url)
-                                  ? bgActive
-                                  : "text-muted-foreground"
-                              }`}
-                              onClick={() => navigate(`/${project.workspaceUrl}/projects/${project.id}/${item.url}`)}
-                            >
-                              <HugeiconsIcon
-                                icon={item.icon}
-                                strokeWidth={2}
-                                className="size-5"
-                              />
-                              <span className="font-medium">{item.label}</span>
-                            </SidebarMenuButton>
-                          </SidebarMenuItem>
-                        ))}
-                      </SidebarMenu>
-                    </CollapsibleContent>
-                  </Collapsible>
-                </SidebarMenuItem>
-              ))}
+              {projects &&
+                projects.map((project) => (
+                  <SidebarMenuItem key={project.id} className="w-full">
+                    <CollapsibleProject project={project} />
+                  </SidebarMenuItem>
+                ))}
             </SidebarMenu>
           </CollapsibleContent>
         </Collapsible>
+        {projects.length === 0 && <NoProjectPlaceholder />}
       </SidebarContent>
     </SidebarGroup>
+  );
+};
+
+const CollapsibleProject = ({ project }: { project: Project }) => {
+  const { pathname } = useLocation();
+  const navigate = useNavigate();
+  const [openProjects, setOpenProjects] = useState<Record<string, boolean>>({});
+  const bgActive =
+    "bg-sidebar-accent border border-sidebar-border shadow text-foreground";
+  const isItemActive = (
+    workspaceUrl: string,
+    projectId: string,
+    itemUrl: string
+  ) => {
+    return pathname === `/${workspaceUrl}/projects/${projectId}/${itemUrl}`;
+  };
+
+  return (
+    <Collapsible
+      className={"w-full"}
+      onOpenChange={(open) =>
+        setOpenProjects((prev) => ({ ...prev, [project.id]: open }))
+      }
+    >
+      <CollapsibleTrigger className={"w-full"}>
+        <SidebarMenuButton className=" w-full">
+          <HugeiconsIcon
+            icon={project.icon}
+            strokeWidth={2}
+            className="size-5 text-muted-foreground"
+          />
+          <span className="font-medium">{project.name}</span>
+          <HugeiconsIcon
+            icon={ArrowDown01Icon}
+            strokeWidth={2}
+            className={`size-2 ml-auto text-muted-foreground transition-transform ${
+              openProjects[project.id] ? "rotate-180" : ""
+            }`}
+          />
+        </SidebarMenuButton>
+      </CollapsibleTrigger>
+      <CollapsibleContent>
+        <SidebarMenu className="space-y-1 mt-2">
+          {project.items.map((item) => (
+            <SidebarMenuItem key={item.url}>
+              <SidebarMenuButton
+                className={`pl-6 ${
+                  isItemActive(project.workspaceUrl, project.id, item.url)
+                    ? bgActive
+                    : "text-muted-foreground"
+                }`}
+                onClick={() =>
+                  navigate(
+                    `/${project.workspaceUrl}/projects/${project.id}/${item.url}`
+                  )
+                }
+              >
+                <HugeiconsIcon
+                  icon={item.icon}
+                  strokeWidth={2}
+                  className="size-5"
+                />
+                <span className="font-medium">{item.label}</span>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          ))}
+        </SidebarMenu>
+      </CollapsibleContent>
+    </Collapsible>
+  );
+};
+
+const NoProjectPlaceholder = () => {
+  return (
+    <div className="mx-2 mt-2 rounded-lg border-[1.5px] border-dashed border-border bg-muted/40 p-3 text-center">
+      <p className="text-sm font-medium">No projects yet</p>
+      <p className="text-xs text-muted-foreground mt-1">
+        Create a project to organize tasks and boards.
+      </p>
+      <div className="mt-2 w-full">
+        <AddProject />
+      </div>
+    </div>
   );
 };
 
