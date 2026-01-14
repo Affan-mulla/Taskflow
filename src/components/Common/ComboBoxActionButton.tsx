@@ -19,7 +19,6 @@ import {
 } from "@/components/ui/popover";
 import { Checkbox } from "@/components/ui/checkbox";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { Separator } from "../ui/separator";
 import AvatarImg from "./AvatarImage";
 import AvatarGroupWithCount from "../ui/avatar-group-with-count";
 
@@ -28,6 +27,8 @@ interface MenuOption {
   label: string;
   icon: any;
   color?: string;
+  avatarUrl?: string;
+  email?: string;
 }
 
 interface ComboboxActionButtonProps {
@@ -75,11 +76,11 @@ export function ComboboxActionButton({
           className={!selectedItem ? "text-muted-foreground" : ""}
         >
          {
-            label === "Lead" && selectedItem?.value ? (
+            label === "Lead" && selectedItem ? (
               <div className="size-5">
                 <AvatarImg
-                  src={selectedItem ? "/Taskflow.svg" : undefined}
-                  alt={selectedItem ? selectedItem.label : "Lead"}
+                  src={selectedItem.avatarUrl || "/Taskflow.svg"}
+                  alt={selectedItem.label}
                 />
               </div>
             ) : ( <HugeiconsIcon
@@ -128,7 +129,10 @@ export function ComboboxActionButton({
 
                   {label === "Lead" ? (
                     <div className="w-4 h-4">
-                      <AvatarImg src="/Taskflow.svg" alt="Members" />
+                      <AvatarImg 
+                        src={item.avatarUrl || "/Taskflow.svg"} 
+                        alt={item.label} 
+                      />
                     </div>
                   ) : (
                     <HugeiconsIcon
@@ -160,6 +164,8 @@ interface ComboboxMultiSelectProps {
   value: string[];
   onChange: (value: string[]) => void;
   defaultValue?: string[];
+  leadId?: string | null;
+  onLeadRemove?: () => void;
 }
 
 /**
@@ -172,10 +178,18 @@ export function ComboboxMultiSelect({
   value,
   onChange,
   defaultValue = [],
+  leadId = null,
+  onLeadRemove,
 }: ComboboxMultiSelectProps) {
   const [open, setOpen] = React.useState(false);
 
   const handleSelect = (itemValue: string) => {
+    // If clicking on the lead, remove them as lead
+    if (itemValue === leadId) {
+      onLeadRemove?.();
+      return;
+    }
+
     const isSelected = value.includes(itemValue);
     const newValue = isSelected
       ? value.filter((v) => v !== itemValue)
@@ -184,12 +198,20 @@ export function ComboboxMultiSelect({
     onChange(newValue);
   };
 
-  const selectedCount = value.length;
-  const allSelected = selectedCount === menu.length;
-  const noneSelected = selectedCount === 0;
+  // Include lead in visual count and display
+  const leadMember = leadId ? menu.find((m) => m.value === leadId) : null;
+  const selectedMembers = menu.filter((member) => value.includes(member.value));
+  
+  // For button display, only show selected members (not lead)
+  const selectedAvatarUrls = selectedMembers.map(
+    (member) => member.avatarUrl || "/Taskflow.svg"
+  );
+
+  const totalCount = value.length;
+  const noneSelected = totalCount === 0;
 
   // Determine button label
-  const buttonLabel = selectedCount > 0 ? `${label} ${selectedCount}` : label;
+  const buttonLabel = totalCount > 0 ? `${label} ${totalCount}` : label;
 
   const buttonClassName = noneSelected ? "text-muted-foreground" : "";
 
@@ -211,7 +233,10 @@ export function ComboboxMultiSelect({
             />
           ) : (
             <div className="flex items-center gap-1">
-              <AvatarGroupWithCount avatarUrls={value.map((v) => "/Taskflow.svg")} maxCount={2} />
+              <AvatarGroupWithCount 
+                avatarUrls={selectedAvatarUrls} 
+                maxCount={2} 
+              />
             </div>
           )}
 
@@ -236,6 +261,8 @@ export function ComboboxMultiSelect({
 
               {menu.map((item) => {
                 const isSelected = value.includes(item.value);
+                const isLead = item.value === leadId;
+                const isChecked = isSelected || isLead;
 
                 return (
                   <CommandItem
@@ -245,18 +272,27 @@ export function ComboboxMultiSelect({
                     className="cursor-pointer"
                   >
                   <Checkbox
-                      checked={isSelected}
+                      checked={isChecked}
                       onCheckedChange={() => handleSelect(item.value)}
                       className="mr-2"
                     />
 
                     <div className="w-4 h-4">
-                      <AvatarImg src="/Taskflow.svg" alt="Members" />
+                      <AvatarImg 
+                        src={item.avatarUrl || "/Taskflow.svg"} 
+                        alt={item.label} 
+                      />
                     </div>
 
                     <span className="flex-1 text-sm font-medium">
                       {item.label}
                     </span>
+
+                    {isLead && (
+                      <span className="text-xs text-muted-foreground bg-muted px-1.5 py-0.5 rounded">
+                        Lead
+                      </span>
+                    )}
                   </CommandItem>
                 );
               })}

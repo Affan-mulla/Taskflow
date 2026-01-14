@@ -67,3 +67,32 @@ export async function getWorkspacesByIds(
   );
   return getAllWorkspaces;
 }
+
+export async function getWorkspaceMembers(
+  workspaceId: string
+): Promise<any[]> {
+  try {
+    const membersRef = collection(db, "workspaces", workspaceId, "members");
+    const snapshot = await getDocs(membersRef);
+    const members = snapshot.docs.map((doc) => doc.data());
+    console.log("Fetched members for workspace", workspaceId, members);
+
+    const userData = await Promise.all(
+      members.map(async (member) => {
+        const userRef = doc(db, "users", member.userId);
+        const userSnap = await getDoc(userRef);
+        if (userSnap.exists()) {
+          return { ...member, userName : userSnap.data().name, avatarUrl: userSnap.data().avatar, email: userSnap.data().email };
+        } else {
+          return member; // return member data even if user data is missing
+        }
+      })
+    );
+    console.log("Combined member and user data:", userData);
+    return userData;
+
+  } catch (error) {
+    console.error("Error fetching workspace members:", error);
+    throw new Error("Failed to fetch workspace members. Please try again.");
+  }
+}

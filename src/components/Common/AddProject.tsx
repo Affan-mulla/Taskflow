@@ -29,8 +29,10 @@ import { HugeiconsIcon } from "@hugeicons/react";
 import { Separator } from "../ui/separator";
 import { ComboboxActionButton, ComboboxMultiSelect } from "./ComboBoxActionButton";
 import { CalendarButton } from "./CalendarButton";
+import { useWorkspaceStore } from "@/shared/store/store.workspace";
 
 const AddProject = () => {
+  const { members: workspaceMembers } = useWorkspaceStore();
   // Status options
   const statusOptions = [
     { value: "planned", label: "Planned", icon: Progress01FreeIcons },
@@ -47,22 +49,20 @@ const AddProject = () => {
     { value: "high", label: "High", icon: FullSignalIcon },
   ];
 
-  // Lead options (single select)
-  const leadOptions = [
-    { value: "john-doe", label: "John Doe", icon: UserIcon },
-    { value: "jane-smith", label: "Jane Smith", icon: UserIcon },
-    { value: "bob-johnson", label: "Bob Johnson", icon: UserIcon },
-    { value: "alice-brown", label: "Alice Brown", icon: UserIcon },
-  ];
+  // Transform workspace members into menu options
+  const membersOptions = useMemo(
+    () =>
+      workspaceMembers.map((member) => ({
+        value: member.userId,
+        label: member.userName,
+        icon: UserIcon,
+        avatarUrl: member.avatarUrl,
+        email: member.email,
+      })),
+    [workspaceMembers]
+  );
 
-  // Members options (multi-select)
-  const membersOptions = [
-    { value: "john-doe", label: "John Doe", icon: UserGroupIcon },
-    { value: "jane-smith", label: "Jane Smith", icon: UserGroupIcon },
-    { value: "bob-johnson", label: "Bob Johnson", icon: UserGroupIcon },
-    { value: "alice-brown", label: "Alice Brown", icon: UserGroupIcon },
-    { value: "charlie-wilson", label: "Charlie Wilson", icon: UserGroupIcon },
-  ];
+  console.log("Members Options:", membersOptions);
 
   // Form state
   const [projectName, setProjectName] = useState("");
@@ -73,27 +73,50 @@ const AddProject = () => {
   const [status, setStatus] = useState<string | null>(null);
   const [priority, setPriority] = useState<string | null>(null);
 
+  // Date fields
+  const [startDate, setStartDate] = useState<Date | undefined>(undefined);
+  const [targetDate, setTargetDate] = useState<Date | undefined>(undefined);
+
   // Lead single-select (can be null)
   const [lead, setLead] = useState<string | null>(null);
 
-  // Members multi-select
-  const [members, setMembers] = useState<string[]>([]);
+  // Members multi-select with interaction tracking
+  const [selectedMembers, setSelectedMembers] = useState<string[]>([]);
+  const [membersTouched, setMembersTouched] = useState(false);
+
+  // Handle lead change - Lead is independent of members
+  const handleLeadChange = (newLead: string | null) => {
+    setLead(newLead);
+  };
 
   // Handle members field interaction
   const handleMembersChange = (newMembers: string[]) => {
-    setMembers(newMembers);
+    // Mark as touched on first interaction
+    if (!membersTouched) {
+      setMembersTouched(true);
+    }
+    setSelectedMembers(newMembers);
   };
 
   const handleCreateProject = async () => {
-    // Prepare project data
+    // Determine access type based on user interaction
+    // If user never touched members field → unrestricted (all workspace members)
+    // If user interacted with members field → restricted to selected members
+    const access = membersTouched
+      ? { type: "restricted" as const, memberIds: selectedMembers }
+      : { type: "unrestricted" as const };
+
+    // Prepare project data with explicit intent
     const projectData = {
       name: projectName,
       summary: projectSummary,
       description: description,
       status: status || undefined,
       priority: priority || undefined,
-      lead: lead, // Can be null
-      members: members, // Only selected members
+      startDate: startDate || undefined,
+      targetDate: targetDate || undefined,
+      lead: lead, // null or userId - independent of members
+      access, // Explicit access intent for backend
     };
 
     console.log("Creating project:", projectData);
@@ -107,8 +130,11 @@ const AddProject = () => {
     setDescription("");
     setStatus(null);
     setPriority(null);
+    setStartDate(undefined);
+    setTargetDate(undefined);
     setLead(null);
-    setMembers([]);
+    setSelectedMembers([]);
+    setMembersTouched(false);
   };
 
   return (
@@ -188,22 +214,24 @@ const AddProject = () => {
 
             {/* Lead - single select, can be null */}
             <ComboboxActionButton
-              menu={leadOptions}
+              menu={membersOptions}
               label="Lead"
               value={lead}
-              onChange={setLead}
+              onChange={handleLeadChange}
             />
 
             {/* Members - multi-select, starts empty */}
             <ComboboxMultiSelect
               menu={membersOptions}
               label="Members"
-              value={members}
+              value={selectedMembers}
               onChange={handleMembersChange}
+              leadId={lead}
+              onLeadRemove={() => setLead(null)}
             />
 
-            <CalendarButton type="Start" />
-            <CalendarButton type="Target" />
+            <CalendarButton type="Start" date={startDate} onDateChange={setStartDate} />
+            <CalendarButton type="Target" date={targetDate} onDateChange={setTargetDate} />
           </div>
 
           <Separator />

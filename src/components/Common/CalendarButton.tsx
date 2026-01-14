@@ -12,9 +12,11 @@ import {
 import { HugeiconsIcon } from "@hugeicons/react"
 import { CalendarBlockIcon, CalendarCheckOut01Icon } from "@hugeicons/core-free-icons"
 
-export function CalendarButton({    type}: {type: string}) {
-  const [date, setDate] = React.useState<Date>()
-
+export function CalendarButton({ type, date, onDateChange }: { 
+  type: string; 
+  date?: Date | undefined; 
+  onDateChange?: (date: Date | undefined) => void;
+}) {
   return (
     <Popover>
       <PopoverTrigger>
@@ -24,13 +26,13 @@ export function CalendarButton({    type}: {type: string}) {
             size={"sm"}
         >
          {
-            type === "Target" ? <HugeiconsIcon icon={CalendarCheckOut01Icon} strokeWidth={2} className="size-4 text-muted-foreground"/> : <HugeiconsIcon icon={CalendarBlockIcon} strokeWidth={2} className="size-4 text-muted-foreground"     />
+            type === "Target" ? <HugeiconsIcon icon={CalendarBlockIcon} strokeWidth={2} className="size-4 text-muted-foreground"/> : <HugeiconsIcon icon={CalendarCheckOut01Icon} strokeWidth={2} className="size-4 text-muted-foreground"     />
          }
           {date ? format(date, "PPP") : type}
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-auto p-0">
-        <Calendar mode="single" selected={date} onSelect={setDate} />
+        <Calendar mode="single" selected={date} onSelect={onDateChange} />
       </PopoverContent>
     </Popover>
   )
