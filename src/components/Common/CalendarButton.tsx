@@ -24,9 +24,9 @@ export function CalendarButton({    type}: {type: string}) {
             size={"sm"}
         >
          {
-            type === "Target" ? <HugeiconsIcon icon={CalendarCheckOut01Icon} strokeWidth={2} className="text-muted-foreground"/> : <HugeiconsIcon icon={CalendarBlockIcon} strokeWidth={2} className="text-muted-foreground"     />
+            type === "Target" ? <HugeiconsIcon icon={CalendarCheckOut01Icon} strokeWidth={2} className="size-4 text-muted-foreground"/> : <HugeiconsIcon icon={CalendarBlockIcon} strokeWidth={2} className="size-4 text-muted-foreground"     />
          }
-          {date ? format(date, "PPP") : <span>{type}</span>}
+          {date ? format(date, "PPP") : type}
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-auto p-0">
