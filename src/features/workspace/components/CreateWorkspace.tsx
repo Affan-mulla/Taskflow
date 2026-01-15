@@ -69,7 +69,6 @@ const CreateWorkspace = () => {
 
       if (res?.error) {
         toast.error(res.error);
-        console.log(res.error);
       }
 
       if (res?.success) {

@@ -10,6 +10,17 @@ export async function createProject(data: AddProjectPayload) {
     }
 
     // Format project data for Firestore
+    // 
+    // PROJECT-LEVEL ACCESS DISABLED:
+    // The 'members' field is no longer written to Firestore.
+    // Access control is now workspace-level only - all workspace members
+    // can access all projects within that workspace.
+    //
+    // To re-enable project-level member selection:
+    // 1. Uncomment the 'members' field below
+    // 2. Update transformToPayload in addProject.ts
+    // 3. Re-enable the Members UI in AddProject.tsx
+    //
     const projectData = {
       workspaceId: data.workspaceId,
       name: data.name,
@@ -20,7 +31,8 @@ export async function createProject(data: AddProjectPayload) {
       startDate: data.startDate,
       targetDate: data.targetDate,
       lead: data.lead,
-      members: data.access.type === "restricted" ? data.access.members : [],
+      // PROJECT-LEVEL MEMBERS DISABLED - Uncomment to re-enable:
+      // members: data.access.type === "restricted" ? data.access.members : [],
       // Metadata
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
@@ -34,8 +46,6 @@ export async function createProject(data: AddProjectPayload) {
       "projects"
     );
     const docRef = await addDoc(projectsRef, projectData);
-
-    console.log("Project created successfully with ID:", docRef.id);
 
     return {
       success: true,

@@ -28,7 +28,9 @@ import {
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { Separator } from "../ui/separator";
-import { ComboboxActionButton, ComboboxMultiSelect } from "./ComboBoxActionButton";
+import { ComboboxActionButton } from "./ComboBoxActionButton";
+// NOTE: ComboboxMultiSelect import removed - project-level member selection disabled
+// import { ComboboxMultiSelect } from "./ComboBoxActionButton";
 import { CalendarButton } from "./CalendarButton";
 import { useWorkspaceStore } from "@/shared/store/store.workspace";
 import {
@@ -39,6 +41,7 @@ import {
   transformToPayload,
 } from "@/features/projects/validation/addProject";
 import { useCreateProject } from "@/features/projects/hooks/useCreateProject";
+import { Spinner } from "../ui/spinner";
 
 // Status options configuration
 const STATUS_OPTIONS = [
@@ -80,16 +83,20 @@ const AddProject = () => {
     control,
     handleSubmit,
     reset,
-    watch,
-    setValue,
+    // NOTE: watch and setValue preserved for future project-level member selection
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    watch: _watch,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    setValue: _setValue,
     formState: { errors, isSubmitting },
   } = useForm<AddProjectFormInput, unknown, AddProjectFormValues>({
     resolver: zodResolver(addProjectSchema),
     defaultValues: defaultFormValues,
   });
 
-  // Watch lead value for members component
-  const leadValue = watch("lead");
+  // NOTE: leadValue watch removed - project-level member selection disabled
+  // Uncomment if re-enabling project-level members:
+  // const leadValue = watch("lead");
 
   // Show toast notifications for validation errors
   useEffect(() => {
@@ -99,9 +106,7 @@ const AddProject = () => {
     
     if (errorMessages.length > 0) {
       errorMessages.forEach((message) => {
-        toast.error(message as string,{
-          closeButton: true,
-        });
+        toast.error(message as string);
       });
     }
   }, [errors]);
@@ -112,7 +117,6 @@ const AddProject = () => {
     if (!activeWorkspace?.id) {
       toast.error("No workspace selected", {
         description: "Please select a workspace before creating a project.",
-        closeButton: true,
       });
       return;
     }
@@ -142,22 +146,23 @@ const AddProject = () => {
     }
   };
 
-  // Handle lead removal from members component
-  const handleLeadRemove = () => {
-    setValue("lead", null);
-  };
+  // NOTE: handleLeadRemove disabled - project-level member selection disabled
+  // Uncomment if re-enabling project-level members:
+  // const handleLeadRemove = () => {
+  //   setValue("lead", null);
+  // };
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogTrigger>
-        <Button className="gap-2" size="sm">
+      <DialogTrigger className={"w-full"}>
+        <Button className="gap-2 w-full" size="sm">
           <HugeiconsIcon icon={Add01Icon} strokeWidth={2} className="size-4" />
           Add Project
         </Button>
       </DialogTrigger>
 
       <DialogContent
-        className="max-w-3xl! w-full overflow-hidden border border-border bg-card"
+        className="max-w-2xl! w-full overflow-hidden border border-border bg-card"
         showCloseButton={false}
       >
         <form onSubmit={handleSubmit(onSubmit)}>
@@ -272,8 +277,19 @@ const AddProject = () => {
                 )}
               />
 
-              {/* Members - multi-select */}
-              <Controller
+              {/* 
+                PROJECT-LEVEL MEMBER SELECTION - DISABLED
+                ==========================================
+                Project-level access control has been disabled in favor of 
+                workspace-level access. All workspace members can access all projects.
+                
+                To re-enable project-level member selection:
+                1. Uncomment the Controller below
+                2. Update transformToPayload in addProject.ts to use membersTouched logic
+                3. Update projects.create.ts to write members array to Firestore
+                4. Re-enable access field handling in the data model
+              */}
+              {/* <Controller
                 name="members"
                 control={control}
                 render={({ field }) => (
@@ -290,7 +306,7 @@ const AddProject = () => {
                     onLeadRemove={handleLeadRemove}
                   />
                 )}
-              />
+              /> */}
 
               {/* Start Date */}
               <Controller
@@ -345,7 +361,7 @@ const AddProject = () => {
                 </Button>
               </DialogClose>
               <Button type="submit" size="sm" disabled={isSubmitting || createLoading}>
-                {isSubmitting || createLoading ? "Creating..." : "Create project"}
+                {isSubmitting || createLoading ? <><Spinner /> Creating...</> : "Create project"}
               </Button>
             </div>
           </DialogFooter>

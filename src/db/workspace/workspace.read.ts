@@ -75,7 +75,6 @@ export async function getWorkspaceMembers(
     const membersRef = collection(db, "workspaces", workspaceId, "members");
     const snapshot = await getDocs(membersRef);
     const members = snapshot.docs.map((doc) => doc.data());
-    console.log("Fetched members for workspace", workspaceId, members);
 
     const userData = await Promise.all(
       members.map(async (member) => {
@@ -88,7 +87,6 @@ export async function getWorkspaceMembers(
         }
       })
     );
-    console.log("Combined member and user data:", userData);
     return userData;
 
   } catch (error) {

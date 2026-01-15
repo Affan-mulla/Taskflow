@@ -171,6 +171,20 @@ interface ComboboxMultiSelectProps {
 /**
  * ComboboxMultiSelect - Multi-select dropdown component
  * Used for Members selection (multiple users, default all if not touched)
+ * 
+ * NOTE: PROJECT-LEVEL MEMBER SELECTION DISABLED
+ * =============================================
+ * This component is currently not rendered in AddProject.tsx.
+ * Project-level access control has been disabled in favor of 
+ * workspace-level access. All workspace members can access all projects.
+ * 
+ * This component is preserved for potential future re-enablement of
+ * project-level member selection. Do not delete.
+ * 
+ * To re-enable:
+ * 1. Uncomment the Controller in AddProject.tsx
+ * 2. Update transformToPayload in addProject.ts
+ * 3. Update projects.create.ts to write members to Firestore
  */
 export function ComboboxMultiSelect({
   menu,

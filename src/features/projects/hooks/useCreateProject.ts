@@ -17,7 +17,6 @@ export const useCreateProject = () => {
       if (result.success) {
         toast.success("Project created successfully!", {
           description: `"${payload.name}" has been added to your workspace.`,
-          closeButton: true,
         });
         return { success: true, projectId: result.projectId };
       } else {
@@ -25,7 +24,6 @@ export const useCreateProject = () => {
         setError(errorMsg);
         toast.error("Failed to create project", {
           description: errorMsg,
-          closeButton: true,
         });
         return { success: false, error: errorMsg };
       }
@@ -34,7 +32,6 @@ export const useCreateProject = () => {
       setError(errorMsg);
       toast.error("Failed to create project", {
         description: errorMsg,
-        closeButton: true,
       });
       return { success: false, error: errorMsg };
     } finally {

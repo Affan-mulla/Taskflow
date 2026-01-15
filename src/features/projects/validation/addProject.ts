@@ -63,6 +63,7 @@ export type ProjectAccess =
 
 /**
  * Payload shape sent to the backend after form transformation
+ * Note: workspaceId is added at the component level before calling createProject
  */
 export interface AddProjectPayload {
   workspaceId: string;
@@ -78,18 +79,36 @@ export interface AddProjectPayload {
 }
 
 /**
+ * Partial payload returned from transformToPayload (without workspaceId)
+ * The workspaceId is added at the component level
+ */
+export type TransformedProjectPayload = Omit<AddProjectPayload, "workspaceId">;
+
+/**
  * Transform form values into API payload
- * Handles the membersTouched logic for access determination
+ * 
+ * PROJECT-LEVEL ACCESS DISABLED:
+ * Access is now always "all" - workspace-level access control only.
+ * All workspace members can access all projects.
+ * 
+ * To re-enable project-level member selection:
+ * 1. Uncomment the membersTouched logic below
+ * 2. Update the access assignment to use the conditional
+ * 3. Re-enable the Members UI in AddProject.tsx
  */
 export function transformToPayload(
   formValues: AddProjectFormValues
-): AddProjectPayload {
+): TransformedProjectPayload {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { membersTouched, members, ...rest } = formValues;
 
-  // Determine access based on membersTouched
-  const access: ProjectAccess = membersTouched
-    ? { type: "restricted", members }
-    : { type: "all" };
+  // PROJECT-LEVEL ACCESS DISABLED - Always use workspace-level access
+  // Original logic preserved for future re-enablement:
+  // const access: ProjectAccess = membersTouched
+  //   ? { type: "restricted", members }
+  //   : { type: "all" };
+  
+  const access: ProjectAccess = { type: "all" };
 
   return {
     name: rest.name,
