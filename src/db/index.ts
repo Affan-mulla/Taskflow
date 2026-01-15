@@ -3,7 +3,7 @@ import { createUserProfile } from "./users/users.create";
 import { createWorkspace } from "./workspace/workspace.create";
 import { getUserProfile } from "./users/users.read";
 import { createProject } from "./projects/projects.create";
+import { getWorkspaceProjects } from "./projects/projects.read";
 
 
-
-export { getUserWorkspacesIds, isWorkspaceUrlUnique, createUserProfile, createWorkspace, getWorkspacesByIds, getUserProfile, getWorkspaceMembers, createProject };
+export { getUserWorkspacesIds, isWorkspaceUrlUnique, createUserProfile, createWorkspace, getWorkspacesByIds, getUserProfile, getWorkspaceMembers, createProject, getWorkspaceProjects };

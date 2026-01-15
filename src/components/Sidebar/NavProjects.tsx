@@ -13,17 +13,20 @@ import {
 } from "../ui/collapsible";
 import { HugeiconsIcon, type IconSvgElement } from "@hugeicons/react";
 import {
-  AndroidFreeIcons,
   ArrowDown01Icon,
   Task02Icon,
   Layers01Icon,
   Layout,
-  Add01Icon,
+  Folder01Icon,
+  FolderOpen,
+  ArrowRight01Icon,
 } from "@hugeicons/core-free-icons";
 import { useLocation, useNavigate, useParams } from "react-router";
 import { useState } from "react";
-import { Button } from "../ui/button";
 import AddProject from "../Common/AddProject";
+import { useWorkspaceStore } from "@/shared/store/store.workspace";
+import { Skeleton } from "../ui/skeleton";
+import { createSlugUrl } from "@/shared/utils/createSlugUrl";
 
 interface ProjectItem {
   icon: IconSvgElement;
@@ -31,7 +34,7 @@ interface ProjectItem {
   url: string;
 }
 
-interface Project {
+interface ProjectUI {
   id: string;
   workspaceUrl: string;
   name: string;
@@ -40,59 +43,49 @@ interface Project {
 }
 
 const NavProjects = () => {
-  const { workspaceUrl } = useParams(); // Get from URL instead of hardcoding
-
+  const { workspaceUrl } = useParams();
+  const {
+    projects: storeProjects,
+    projectsLoading,
+    activeWorkspace,
+  } = useWorkspaceStore();
   const [isMainOpen, setIsMainOpen] = useState(true);
 
-  // TODO: Replace with real data from Firestore
-  const projects: Project[] = [
-    // {
-    //   workspaceUrl: workspaceUrl || "axon-123",
-    //   id: "AXO",
-    //   name: "Axon-123",
-    //   icon: AndroidFreeIcons,
-    //   items: [
-    //     {
-    //       icon: Layout,
-    //       label: "Overview",
-    //       url: "overview", // ✅ Fixed
-    //     },
-    //     {
-    //       icon: Task02Icon,
-    //       label: "Tasks",
-    //       url: "tasks", // ✅ Fixed
-    //     },
-    //     {
-    //       icon: Layers01Icon,
-    //       label: "Board",
-    //       url: "board", // ✅ Fixed
-    //     },
-    //   ],
-    // },
-    // {
-    //   workspaceUrl: workspaceUrl || "axon-123",
-    //   id: "PJB",
-    //   name: "Project Beta",
-    //   icon: AndroidFreeIcons,
-    //   items: [
-    //     {
-    //       icon: Layout,
-    //       label: "Overview",
-    //       url: "overview", // ✅ Fixed
-    //     },
-    //     {
-    //       icon: Task02Icon,
-    //       label: "Tasks",
-    //       url: "tasks", // ✅ Fixed
-    //     },
-    //     {
-    //       icon: Layers01Icon,
-    //       label: "Board",
-    //       url: "board", // ✅ Fixed
-    //     },
-    //   ],
-    // },
-  ];
+  const projects: ProjectUI[] = storeProjects.map((project) => ({
+    id: project.id || "",
+    workspaceUrl: activeWorkspace?.workspaceUrl || workspaceUrl || "",
+    name: project.name,
+    icon: Folder01Icon,
+    items: [
+      {
+        icon: Layout,
+        label: "Overview",
+        url: "overview",
+      },
+      {
+        icon: Task02Icon,
+        label: "Tasks",
+        url: "tasks",
+      },
+      {
+        icon: Layers01Icon,
+        label: "Board",
+        url: "board",
+      },
+    ],
+  }));
+
+  if (projectsLoading) {
+    return (
+      <SidebarGroup>
+        <SidebarContent className="px-2 space-y-2">
+          <Skeleton className="h-4 w-24 mb-2" />
+          <Skeleton className="h-8 w-full" />
+          <Skeleton className="h-8 w-full" />
+        </SidebarContent>
+      </SidebarGroup>
+    );
+  }
 
   return (
     <SidebarGroup>
@@ -109,9 +102,9 @@ const NavProjects = () => {
               Your Projects
               {projects.length > 0 && (
                 <HugeiconsIcon
-                  icon={ArrowDown01Icon}
+                  icon={ArrowRight01Icon}
                   className={`size-2 ml-auto text-muted-foreground transition-transform ${
-                    isMainOpen ? "rotate-180" : ""
+                    isMainOpen ? "rotate-90" : ""
                   }`}
                   strokeWidth={2}
                 />
@@ -129,13 +122,13 @@ const NavProjects = () => {
             </SidebarMenu>
           </CollapsibleContent>
         </Collapsible>
-        {projects.length === 0 && <NoProjectPlaceholder />}
+        {projects.length === 0 && !projectsLoading && <NoProjectPlaceholder />}
       </SidebarContent>
     </SidebarGroup>
   );
 };
 
-const CollapsibleProject = ({ project }: { project: Project }) => {
+const CollapsibleProject = ({ project }: { project: ProjectUI }) => {
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const [openProjects, setOpenProjects] = useState<Record<string, boolean>>({});
@@ -143,10 +136,11 @@ const CollapsibleProject = ({ project }: { project: Project }) => {
     "bg-sidebar-accent border border-sidebar-border shadow text-foreground";
   const isItemActive = (
     workspaceUrl: string,
-    projectId: string,
+    projectName: string,
     itemUrl: string
   ) => {
-    return pathname === `/${workspaceUrl}/projects/${projectId}/${itemUrl}`;
+    const projectSlug = createSlugUrl(projectName);
+    return pathname === `/${workspaceUrl}/projects/${projectSlug}/${itemUrl}`;
   };
 
   return (
@@ -159,16 +153,16 @@ const CollapsibleProject = ({ project }: { project: Project }) => {
       <CollapsibleTrigger className={"w-full"}>
         <SidebarMenuButton className=" w-full">
           <HugeiconsIcon
-            icon={project.icon}
+            icon={openProjects[project.id] ? FolderOpen : Folder01Icon}
             strokeWidth={2}
             className="size-5 text-muted-foreground"
           />
           <span className="font-medium">{project.name}</span>
           <HugeiconsIcon
-            icon={ArrowDown01Icon}
+            icon={ArrowRight01Icon}
             strokeWidth={2}
             className={`size-2 ml-auto text-muted-foreground transition-transform ${
-              openProjects[project.id] ? "rotate-180" : ""
+              openProjects[project.id] ? "rotate-90" : ""
             }`}
           />
         </SidebarMenuButton>
@@ -179,13 +173,13 @@ const CollapsibleProject = ({ project }: { project: Project }) => {
             <SidebarMenuItem key={item.url}>
               <SidebarMenuButton
                 className={`pl-6 ${
-                  isItemActive(project.workspaceUrl, project.id, item.url)
+                  isItemActive(project.workspaceUrl, project.name, item.url)
                     ? bgActive
                     : "text-muted-foreground"
                 }`}
                 onClick={() =>
                   navigate(
-                    `/${project.workspaceUrl}/projects/${project.id}/${item.url}`
+                    `/${project.workspaceUrl}/projects/${createSlugUrl(project.name)}/${item.url}`
                   )
                 }
               >
