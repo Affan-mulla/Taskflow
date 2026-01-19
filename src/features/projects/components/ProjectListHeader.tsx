@@ -1,11 +1,11 @@
 import AddProject from "@/components/Common/AddProject";
-import FilterComponent from "@/components/Common/Filter";
+import { ProjectFilter, FilterSummary } from "./ProjectFilter";
+import type { FilterValue, FilterCategory } from "./ProjectFilter";
+import type { MemberOption } from "./projects.types";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import {
-  Add01Icon,
   CubeIcon,
-  Filter,
   FilterHorizontalIcon,
   Folder01Icon,
 } from "@hugeicons/core-free-icons";
@@ -20,7 +20,7 @@ interface ProjectNavbarProps {
   onAddProject?: () => void;
 }
 
-function ProjectNavbar({ projectName, onAddProject }: ProjectNavbarProps) {
+function ProjectNavbar({ projectName }: ProjectNavbarProps) {
   return (
     <div className="px-3 sm:px-4 md:px-6 py-3 w-full flex items-center justify-between gap-3">
       <div className="min-w-0 flex items-center gap-3">
@@ -62,25 +62,47 @@ function ProjectNavbar({ projectName, onAddProject }: ProjectNavbarProps) {
 
 interface ProjectFilterBarProps {
   projectCount: number;
-  onFilter?: () => void;
+  members?: MemberOption[];
+  filters?: FilterValue[];
+  onFiltersChange?: (filters: FilterValue[]) => void;
+  onRemoveFilter?: (category: FilterCategory, value: string | Date) => void;
+  onRemoveCategory?: (category: FilterCategory) => void;
   onDisplaySettings?: () => void;
 }
 
 function ProjectFilterBar({ 
   projectCount, 
-  onFilter, 
+  members = [],
+  filters = [],
+  onFiltersChange,
+  onRemoveFilter,
+  onRemoveCategory,
   onDisplaySettings 
 }: ProjectFilterBarProps) {
   return (
     <div className="px-3 sm:px-4 md:px-6 py-2 w-full flex items-center justify-between gap-3">
-      <div className="min-w-0 flex items-center gap-2 text-xs text-muted-foreground">
-        <span className="truncate">{projectCount} projects</span>
-        <span className="hidden sm:inline">•</span>
-        <span className="hidden sm:inline truncate">Click a row to open</span>
+      <div className="min-w-0 flex items-center gap-2">
+        <div className="text-xs text-muted-foreground whitespace-nowrap">
+          <span className="truncate">{projectCount} projects</span>
+          <span className="hidden sm:inline mx-1.5">•</span>
+          <span className="hidden sm:inline truncate">Click a row to open</span>
+        </div>
+        
+        {filters.length > 0 && onRemoveFilter && (
+          <>
+            <Separator orientation="vertical" className="h-4 hidden sm:block" />
+            <FilterSummary 
+              filters={filters} 
+              members={members}
+              onRemoveFilter={onRemoveFilter}
+              onRemoveCategory={onRemoveCategory}
+            />
+          </>
+        )}
       </div>
 
       <div className="shrink-0 flex items-center gap-2">
-        <FilterComponent onFilter={onFilter}/>
+        <ProjectFilter filters={filters} members={members} onFiltersChange={onFiltersChange}/>
         <Button size="sm" variant="outline" className="group gap-2" onClick={onDisplaySettings}>
           <HugeiconsIcon
             icon={FilterHorizontalIcon}
@@ -101,8 +123,12 @@ function ProjectFilterBar({
 export interface ProjectListHeaderProps {
   projectCount: number;
   projectName?: string;
+  members?: MemberOption[];
+  filters?: FilterValue[];
   onAddProject?: () => void;
-  onFilter?: () => void;
+  onFiltersChange?: (filters: FilterValue[]) => void;
+  onRemoveFilter?: (category: FilterCategory, value: string | Date) => void;
+  onRemoveCategory?: (category: FilterCategory) => void;
   onDisplaySettings?: () => void;
 }
 
@@ -113,8 +139,12 @@ export interface ProjectListHeaderProps {
 export function ProjectListHeader({
   projectCount,
   projectName,
+  members,
+  filters,
   onAddProject,
-  onFilter,
+  onFiltersChange,
+  onRemoveFilter,
+  onRemoveCategory,
   onDisplaySettings,
 }: ProjectListHeaderProps) {
   return (
@@ -123,7 +153,11 @@ export function ProjectListHeader({
       <Separator className="bg-border/60" />
       <ProjectFilterBar
         projectCount={projectCount}
-        onFilter={onFilter}
+        members={members}
+        filters={filters}
+        onFiltersChange={onFiltersChange}
+        onRemoveFilter={onRemoveFilter}
+        onRemoveCategory={onRemoveCategory}
         onDisplaySettings={onDisplaySettings}
       />
       <Separator className="bg-border/60" />
