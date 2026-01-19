@@ -37,6 +37,7 @@ interface ComboboxActionButtonProps {
   value?: string | null;
   onChange?: (value: string | null) => void;
   mode?: "single"; // Currently supports single-select
+  showLabel?: boolean; // Whether to show label alongside icon in button
 }
 
 /**
@@ -49,6 +50,7 @@ export function ComboboxActionButton({
   value = null,
   onChange,
   mode = "single",
+  showLabel = true,
 }: ComboboxActionButtonProps) {
   const [open, setOpen] = React.useState(false);
 
@@ -94,9 +96,11 @@ export function ComboboxActionButton({
           />)
          }
 
-          <span className="truncate">
-            {selectedItem ? selectedItem.label : label}
-          </span>
+          {showLabel && (
+            <span className="truncate">
+              {selectedItem ? selectedItem.label : label}
+            </span>
+          )}
         </Button>
       </PopoverTrigger>
 
