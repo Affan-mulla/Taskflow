@@ -15,16 +15,7 @@ import {
   Add01Icon,
   PackageIcon,
   UserIcon,
-  Close,
-  Progress03Icon,
-  Progress01FreeIcons,
-  CheckmarkCircle01Icon,
-  CancelCircleIcon,
-  LowSignalIcon,
-  MediumSignalIcon,
-  FullSignalIcon,
-  AlertSquareIcon,
-  DashedLine01Icon,
+  Close
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { Separator } from "../ui/separator";
@@ -42,23 +33,7 @@ import {
 } from "@/features/projects/validation/addProject";
 import { useCreateProject } from "@/features/projects/hooks/useCreateProject";
 import { Spinner } from "../ui/spinner";
-
-// Status options configuration
-const STATUS_OPTIONS = [
-  { value: "planned", label: "Planned", icon: Progress01FreeIcons },
-  { value: "in-progress", label: "In Progress", icon: Progress03Icon },
-  { value: "completed", label: "Completed", icon: CheckmarkCircle01Icon },
-  { value: "cancelled", label: "Cancelled", icon: CancelCircleIcon },
-] as const;
-
-// Priority options configuration
-const PRIORITY_OPTIONS = [
-  { value: "none", label: "No Priority", icon: DashedLine01Icon },
-  { value: "urgent", label: "Urgent", icon: AlertSquareIcon },
-  { value: "high", label: "High", icon: FullSignalIcon },
-  { value: "medium", label: "Medium", icon: MediumSignalIcon },
-  { value: "low", label: "Low", icon: LowSignalIcon },
-] as const;
+import { PRIORITY_CONFIG, STATUS_CONFIG } from "@/features/projects/components";
 
 const AddProject = ({btnVariant} : {btnVariant: string}) => {
   const [open, setOpen] = useState(false);
@@ -241,7 +216,7 @@ const AddProject = ({btnVariant} : {btnVariant: string}) => {
                 control={control}
                 render={({ field }) => (
                   <ComboboxActionButton
-                    menu={STATUS_OPTIONS as unknown as Array<{ value: string; label: string; icon: any }>}
+                    menu={Object.values(STATUS_CONFIG) as Array<{ value: string; label: string; icon: any; color?: string }>}
                     label="Status"
                     value={field.value}
                     onChange={field.onChange}
@@ -255,7 +230,7 @@ const AddProject = ({btnVariant} : {btnVariant: string}) => {
                 control={control}
                 render={({ field }) => (
                   <ComboboxActionButton
-                    menu={PRIORITY_OPTIONS as unknown as Array<{ value: string; label: string; icon: any }>}
+                    menu={Object.values(PRIORITY_CONFIG) as Array<{ value: string; label: string; icon: any; color?: string }>}
                     label="Priority"
                     value={field.value}
                     onChange={field.onChange}

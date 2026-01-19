@@ -1,4 +1,5 @@
 import AddProject from "@/components/Common/AddProject";
+import FilterComponent from "@/components/Common/Filter";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import {
@@ -79,14 +80,7 @@ function ProjectFilterBar({
       </div>
 
       <div className="shrink-0 flex items-center gap-2">
-        <Button size="sm" variant="ghost" className="group gap-2" onClick={onFilter}>
-          <HugeiconsIcon
-            icon={Filter}
-            strokeWidth={2}
-            className="size-4 text-muted-foreground group-hover:text-foreground"
-          />
-          Filter
-        </Button>
+        <FilterComponent onFilter={onFilter}/>
         <Button size="sm" variant="outline" className="group gap-2" onClick={onDisplaySettings}>
           <HugeiconsIcon
             icon={FilterHorizontalIcon}
