@@ -1,3 +1,4 @@
+import AddProject from "@/components/Common/AddProject";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import {
@@ -48,11 +49,7 @@ function ProjectNavbar({ projectName, onAddProject }: ProjectNavbarProps) {
       </div>
 
       <div className="shrink-0 flex items-center gap-2">
-        <Button variant="outline" size="sm" className="gap-2" onClick={onAddProject}>
-          <HugeiconsIcon icon={Add01Icon} strokeWidth={2} className="size-4" />
-          <span className="hidden sm:inline">Add Project</span>
-          <span className="sm:hidden">Add</span>
-        </Button>
+        <AddProject btnVariant="outline"/>
       </div>
     </div>
   );

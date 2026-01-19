@@ -206,7 +206,7 @@ const NoProjectPlaceholder = () => {
         Create a project to organize tasks and boards.
       </p>
       <div className="mt-2 w-full">
-        <AddProject />
+        <AddProject btnVariant="default"/>
       </div>
     </div>
   );

@@ -13,7 +13,7 @@ export function ProjectTableHeader() {
         GRID_MD +
         " " +
         GRID_LG +
-        " items-center px-3 py-2 text-[11px] font-medium text-muted-foreground"
+        " items-center px-3 py-2 text-xs font-medium text-muted-foreground border-b border-border/70 bg-muted/20"
       }
     >
       <div className="flex items-center gap-2 min-w-0">

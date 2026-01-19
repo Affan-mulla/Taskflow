@@ -60,7 +60,7 @@ const PRIORITY_OPTIONS = [
   { value: "low", label: "Low", icon: LowSignalIcon },
 ] as const;
 
-const AddProject = () => {
+const AddProject = ({btnVariant} : {btnVariant: string}) => {
   const [open, setOpen] = useState(false);
   const { members: workspaceMembers, activeWorkspace } = useWorkspaceStore();
   const { loading: createLoading, createProject } = useCreateProject();
@@ -155,7 +155,7 @@ const AddProject = () => {
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger className={"w-full"}>
-        <Button className="gap-2 w-full" size="sm">
+        <Button className="gap-2 w-full" size="sm" variant={btnVariant as any}>
           <HugeiconsIcon icon={Add01Icon} strokeWidth={2} className="size-4" />
           Add Project
         </Button>
