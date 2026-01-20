@@ -67,7 +67,6 @@ interface ProjectFilterBarProps {
   onFiltersChange?: (filters: FilterValue[]) => void;
   onRemoveFilter?: (category: FilterCategory, value: string | Date) => void;
   onRemoveCategory?: (category: FilterCategory) => void;
-  onDisplaySettings?: () => void;
 }
 
 function ProjectFilterBar({ 
@@ -77,7 +76,6 @@ function ProjectFilterBar({
   onFiltersChange,
   onRemoveFilter,
   onRemoveCategory,
-  onDisplaySettings 
 }: ProjectFilterBarProps) {
   return (
     <div className="px-3 sm:px-4 md:px-6 py-2 w-full flex items-center justify-between gap-3">
@@ -103,14 +101,6 @@ function ProjectFilterBar({
 
       <div className="shrink-0 flex items-center gap-2">
         <ProjectFilter filters={filters} members={members} onFiltersChange={onFiltersChange}/>
-        <Button size="sm" variant="outline" className="group gap-2" onClick={onDisplaySettings}>
-          <HugeiconsIcon
-            icon={FilterHorizontalIcon}
-            strokeWidth={2}
-            className="size-4 text-muted-foreground group-hover:text-foreground"
-          />
-          Display
-        </Button>
       </div>
     </div>
   );
@@ -129,7 +119,6 @@ export interface ProjectListHeaderProps {
   onFiltersChange?: (filters: FilterValue[]) => void;
   onRemoveFilter?: (category: FilterCategory, value: string | Date) => void;
   onRemoveCategory?: (category: FilterCategory) => void;
-  onDisplaySettings?: () => void;
 }
 
 /**
@@ -145,7 +134,6 @@ export function ProjectListHeader({
   onFiltersChange,
   onRemoveFilter,
   onRemoveCategory,
-  onDisplaySettings,
 }: ProjectListHeaderProps) {
   return (
     <div className="sticky top-0 z-10 bg-background/80 backdrop-blur supports-backdrop-filter:bg-background/60">
@@ -158,7 +146,6 @@ export function ProjectListHeader({
         onFiltersChange={onFiltersChange}
         onRemoveFilter={onRemoveFilter}
         onRemoveCategory={onRemoveCategory}
-        onDisplaySettings={onDisplaySettings}
       />
       <Separator className="bg-border/60" />
     </div>

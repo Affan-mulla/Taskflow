@@ -166,11 +166,6 @@ const ProjectListPage = () => {
     setFilters(filters.filter(f => f.category !== category));
   };
 
-  const handleDisplaySettings = () => {
-    // TODO: Open display settings
-    console.log("Open display settings");
-  };
-
   return (
     <div className="h-full w-full">
       <ProjectListHeader
@@ -181,7 +176,6 @@ const ProjectListPage = () => {
         onFiltersChange={handleFiltersChange}
         onRemoveFilter={handleRemoveFilter}
         onRemoveCategory={handleRemoveCategory}
-        onDisplaySettings={handleDisplaySettings}
       />
 
       <div className="px-3 sm:px-4 md:px-6 py-3">
