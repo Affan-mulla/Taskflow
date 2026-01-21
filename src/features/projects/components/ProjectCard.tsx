@@ -37,7 +37,7 @@ export function ProjectCard({ project, onClick }: ProjectCardProps) {
     >
       {/* Header Section */}
       <div className="flex items-center gap-3 mb-4">
-        <div className="flex-shrink-0 size-10 rounded-lg bg-secondary flex items-center justify-center border border-border">
+        <div className="shrink-0 size-10 rounded-lg bg-secondary flex items-center justify-center border border-border">
           <HugeiconsIcon
             icon={Folder01Icon}
             strokeWidth={2}

@@ -10,6 +10,7 @@ import {
   Folder01Icon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
+import { SidebarTrigger } from "@/components/ui/sidebar";
 
 // ============================================================================
 // ProjectNavbar
@@ -24,6 +25,9 @@ function ProjectNavbar({ projectName }: ProjectNavbarProps) {
   return (
     <div className="px-3 sm:px-4 md:px-6 py-3 w-full flex items-center justify-between gap-3">
       <div className="min-w-0 flex items-center gap-3">
+        <div>
+          <SidebarTrigger className={"text-muted-foreground"}/>
+        </div>
         <div className="flex items-center gap-2 min-w-0">
           <div className="shrink-0 size-6 rounded-md bg-primary/40 ring-1 ring-border/50 grid place-items-center">
             <HugeiconsIcon
