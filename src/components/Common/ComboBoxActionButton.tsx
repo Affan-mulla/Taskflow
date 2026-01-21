@@ -77,7 +77,6 @@ export function ComboboxActionButton({
           role="combobox"
           aria-expanded={open}
           size={"sm"}
-          className={!selectedItem ? "text-muted-foreground" : ""}
         >
          {
             label === "Lead" && selectedItem ? (
@@ -90,13 +89,11 @@ export function ComboboxActionButton({
             ) : ( <HugeiconsIcon
             icon={selectedItem?.icon || menu[0]?.icon}
             className={cn(
-              "size-4",
-              selectedItem?.color || "text-muted-foreground",
-              selectedItem?.value === "urgent" && "text-orange-400"
+              "size-4 ",
             )}
             strokeWidth={2}
           />)
-         }
+          }
 
           {showLabel && (
             <span className="truncate">
