@@ -2,6 +2,7 @@ import {
   AlertSquareIcon,
   CancelCircleIcon,
   CheckmarkCircle01Icon,
+  DashedLine01Icon,
   FullSignalIcon,
   LowSignalIcon,
   MediumSignalIcon,
@@ -13,7 +14,7 @@ import {
 // Types
 // ============================================================================
 
-export type ProjectPriority = "urgent" | "high" | "medium" | "low";
+export type ProjectPriority = "no-priority" | "urgent" | "high" | "medium" | "low";
 export type ProjectStatus = "planned" | "in-progress" | "completed" | "cancelled";
 
 export interface MemberOption {
@@ -51,6 +52,7 @@ export const STATUS_OPTIONS: MenuOption[] = [
 
 /** Priority options for inline editing */
 export const PRIORITY_OPTIONS: MenuOption[] = [
+  {value: "no-priority", label: "No Priority", icon: DashedLine01Icon},
   { value: "urgent", label: "Urgent", icon: AlertSquareIcon },
   { value: "high", label: "High", icon: FullSignalIcon },
   { value: "medium", label: "Medium", icon: MediumSignalIcon },
@@ -59,6 +61,7 @@ export const PRIORITY_OPTIONS: MenuOption[] = [
 
 /** Priority config for display pills */
 export const PRIORITY_CONFIG: Record<ProjectPriority, { label: string; icon: any }> = {
+  "no-priority": { label: "No Priority", icon: DashedLine01Icon },
   urgent: { label: "Urgent", icon: AlertSquareIcon },
   high: { label: "High", icon: FullSignalIcon },
   medium: { label: "Medium", icon: MediumSignalIcon },

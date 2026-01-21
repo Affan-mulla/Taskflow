@@ -3,6 +3,7 @@ import { UserIcon } from "@hugeicons/core-free-icons";
 import { useWorkspaceStore } from "@/shared/store/store.workspace";
 import type { Project } from "@/shared/types/db";
 import type { ProjectPriority, ProjectStatus, MemberOption } from "./projects.types";
+import { useUpdateProject } from "../hooks/useUpdateProject";
 
 interface UseProjectInlineEditReturn {
   /** Local project state with optimistic updates */
@@ -11,6 +12,8 @@ interface UseProjectInlineEditReturn {
   membersOptions: MemberOption[];
   /** Currently selected lead member */
   currentLead: MemberOption | undefined;
+  /** Loading state for any update operation */
+  isUpdating: boolean;
   /** Handlers for inline field updates */
   handlers: {
     onStatusChange: (value: string | null) => void;
@@ -30,6 +33,7 @@ interface UseProjectInlineEditReturn {
 export function useProjectInlineEdit(project: Project): UseProjectInlineEditReturn {
   const [localProject, setLocalProject] = useState<Project>(project);
   const { members: workspaceMembers } = useWorkspaceStore();
+  const { updatePriority, updateStatus, updateLead, updateTargetDate, loading } = useUpdateProject();
 
   // Transform workspace members for ComboboxActionButton
   const membersOptions = useMemo<MemberOption[]>(
@@ -53,46 +57,50 @@ export function useProjectInlineEdit(project: Project): UseProjectInlineEditRetu
   // Handlers for inline updates
   const onStatusChange = useCallback(
     (newStatus: string | null) => {
-      if (newStatus) {
+      if (newStatus && project.id) {
         setLocalProject((prev) => ({ ...prev, status: newStatus as ProjectStatus }));
-        // TODO: Persist to backend
+        updateStatus(project.id, newStatus as ProjectStatus);
       }
     },
-    []
+    [project.id, updateStatus]
   );
 
   const onPriorityChange = useCallback(
-    (newPriority: string | null) => {
-      if (newPriority) {
+    (newPriority: ProjectPriority | null | string) => {
+      if (newPriority && project.id) {
         setLocalProject((prev) => ({ ...prev, priority: newPriority as ProjectPriority }));
-        // TODO: Persist to backend
+        updatePriority(project.id, newPriority as ProjectPriority);
       }
     },
-    []
+    [project.id, updatePriority]
   );
 
   const onLeadChange = useCallback(
     (newLeadId: string | null) => {
-      if (newLeadId) {
+      if (newLeadId && project.id) {
         setLocalProject((prev) => ({ ...prev, lead: newLeadId }));
-        // TODO: Persist to backend
+        updateLead(project.id, newLeadId);
       }
     },
-    []
+    [project.id, updateLead]
   );
 
   const onTargetDateChange = useCallback(
     (newDate: Date | undefined) => {
-      setLocalProject((prev) => ({ ...prev, targetDate: newDate?.toISOString() }));
-      // TODO: Persist to backend
+      if (project.id) {
+        const isoDate = newDate?.toISOString();
+        setLocalProject((prev) => ({ ...prev, targetDate: isoDate }));
+        updateTargetDate(project.id, isoDate);
+      }
     },
-    []
+    [project.id, updateTargetDate]
   );
 
   return {
     localProject,
     membersOptions,
     currentLead,
+    isUpdating: loading,
     handlers: {
       onStatusChange,
       onPriorityChange,
