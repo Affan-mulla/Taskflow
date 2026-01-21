@@ -19,6 +19,7 @@ export function InlineStatusSelect({
   return (
     <div onClick={(e) => e.stopPropagation()}>
       <ComboboxActionButton
+      btnVariant="ghost"
         menu={STATUS_OPTIONS}
         label="Status"
         value={value || "planned"}

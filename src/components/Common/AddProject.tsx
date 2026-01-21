@@ -33,7 +33,7 @@ import {
 } from "@/features/projects/validation/addProject";
 import { useCreateProject } from "@/features/projects/hooks/useCreateProject";
 import { Spinner } from "../ui/spinner";
-import { PRIORITY_CONFIG, STATUS_CONFIG } from "@/features/projects/components";
+import { PRIORITY_OPTIONS, STATUS_OPTIONS } from "@/features/projects/components";
 
 const AddProject = ({btnVariant} : {btnVariant: string}) => {
   const [open, setOpen] = useState(false);
@@ -216,7 +216,7 @@ const AddProject = ({btnVariant} : {btnVariant: string}) => {
                 control={control}
                 render={({ field }) => (
                   <ComboboxActionButton
-                    menu={Object.values(STATUS_CONFIG) as Array<{ value: string; label: string; icon: any; color?: string }>}
+                    menu={STATUS_OPTIONS}
                     label="Status"
                     value={field.value}
                     onChange={field.onChange}
@@ -230,7 +230,7 @@ const AddProject = ({btnVariant} : {btnVariant: string}) => {
                 control={control}
                 render={({ field }) => (
                   <ComboboxActionButton
-                    menu={Object.values(PRIORITY_CONFIG) as Array<{ value: string; label: string; icon: any; color?: string }>}
+                    menu={PRIORITY_OPTIONS}
                     label="Priority"
                     value={field.value}
                     onChange={field.onChange}

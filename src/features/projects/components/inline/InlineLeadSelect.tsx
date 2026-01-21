@@ -22,6 +22,7 @@ export function InlineLeadSelect({
     <div onClick={(e) => e.stopPropagation()}>
       <ComboboxActionButton
         menu={members}
+        btnVariant="ghost"
         label="Lead"
         value={value || null}
         onChange={onChange}

@@ -12,10 +12,11 @@ import {
 import { HugeiconsIcon } from "@hugeicons/react"
 import { CalendarBlockIcon, CalendarCheckOut01Icon } from "@hugeicons/core-free-icons"
 
-export function CalendarButton({ type, date, onDateChange }: {   
+export function CalendarButton({ type, date, onDateChange, btnVariant = "outline" }: {   
   type: string; 
   date?: Date | undefined; 
   onDateChange?: (date: Date | undefined) => void;
+  btnVariant?: "outline" | "default" | "ghost";
 }) {
   // Ensure date is valid before formatting
   const validDate = date instanceof Date && !isNaN(date.getTime()) ? date : undefined;
@@ -24,7 +25,7 @@ export function CalendarButton({ type, date, onDateChange }: {
     <Popover>
       <PopoverTrigger>
         <Button
-          variant="outline"
+          variant={btnVariant}
           data-empty={!date}
             size={"sm"}
         >

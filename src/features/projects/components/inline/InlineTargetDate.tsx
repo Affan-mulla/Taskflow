@@ -14,6 +14,7 @@ export function InlineTargetDate({ value, onChange }: InlineTargetDateProps) {
   return (
     <div onClick={(e) => e.stopPropagation()}>
       <CalendarButton
+        btnVariant="ghost"
         type="Target"
         date={toDate(value)}
         onDateChange={onChange}

@@ -1,7 +1,19 @@
 import { HugeiconsIcon } from "@hugeicons/react";
-import { Calendar02Icon, Folder01Icon } from "@hugeicons/core-free-icons";
+import {
+  Calendar02Icon,
+  Folder01Icon,
+  UserIcon,
+} from "@hugeicons/core-free-icons";
 import type { Project } from "@/shared/types/db";
-import { GRID_MD, GRID_LG, PRIORITY_CONFIG, STATUS_CONFIG, type ProjectPriority, type ProjectStatus } from "./projects.types";
+import {
+  GRID_MD,
+  GRID_LG,
+  PRIORITY_CONFIG,
+  STATUS_CONFIG,
+  type ProjectPriority,
+  type ProjectStatus,
+  type MemberOption,
+} from "./projects.types";
 import { formatDate } from "./projects.utils";
 import { useProjectInlineEdit } from "./useProjectInlineEdit";
 import {
@@ -15,7 +27,13 @@ import {
 // Display Components (for mobile summary row)
 // ============================================================================
 
-function PriorityPill({ priority, compact }: { priority: ProjectPriority; compact?: boolean }) {
+function PriorityPill({
+  priority,
+  compact,
+}: {
+  priority: ProjectPriority;
+  compact?: boolean;
+}) {
   const config = PRIORITY_CONFIG[priority];
   if (!config) return null;
 
@@ -27,7 +45,13 @@ function PriorityPill({ priority, compact }: { priority: ProjectPriority; compac
   );
 }
 
-function StatusIndicator({ status, compact }: { status: ProjectStatus; compact?: boolean }) {
+function StatusIndicator({
+  status,
+  compact,
+}: {
+  status: ProjectStatus;
+  compact?: boolean;
+}) {
   const config = STATUS_CONFIG[status];
   if (!config) return null;
 
@@ -53,7 +77,8 @@ interface ProjectRowProps {
  * Uses CSS Grid for column alignment.
  */
 export function ProjectRow({ project, onClick }: ProjectRowProps) {
-  const { localProject, membersOptions, currentLead, handlers } = useProjectInlineEdit(project);
+  const { localProject, membersOptions, currentLead, handlers } =
+    useProjectInlineEdit(project);
 
   return (
     <div
@@ -69,27 +94,23 @@ export function ProjectRow({ project, onClick }: ProjectRowProps) {
       tabIndex={0}
     >
       {/* Project Name & Icon */}
-      <div className="flex items-center gap-3 min-w-0">
-        <div className="shrink-0 size-7 rounded-md bg-background/40 ring-1 ring-border/50 grid place-items-center">
+      <div className="flex items-start md:items-center gap-3 min-w-0">
+        <div className="shrink-0 size-7 rounded-md bg-background/40 ring-1 ring-border/50 grid place-items-center mt-0.5 md:mt-0">
           <HugeiconsIcon
             icon={Folder01Icon}
             strokeWidth={2}
             className="size-4 text-muted-foreground"
           />
         </div>
-        <div className="min-w-0">
+        <div className="min-w-0 flex-1">
           <div className="truncate text-sm font-medium text-foreground cursor-pointer hover:text-primary">
             {localProject.name}
           </div>
-          {/* Mobile-only summary (hidden on md+) */}
-          <div className="md:hidden mt-0.5 flex items-center gap-2 text-xs text-muted-foreground">
-            <PriorityPill priority={(localProject.priority as ProjectPriority) || "low"} compact />
-            <StatusIndicator status={(localProject.status as ProjectStatus) || "planned"} compact />
-            <span className="inline-flex items-center gap-1">
-              <HugeiconsIcon icon={Calendar02Icon} strokeWidth={2} className="size-3" />
-              {formatDate(localProject.targetDate)}
-            </span>
-          </div>
+          {/* Mobile-only summary */}
+          <MobileRow
+            localProject={localProject}
+            currentLead={currentLead || null}
+          />
         </div>
       </div>
 
@@ -128,3 +149,47 @@ export function ProjectRow({ project, onClick }: ProjectRowProps) {
     </div>
   );
 }
+
+const MobileRow = ({
+  localProject,
+  currentLead,
+}: {
+  localProject: Project;
+  currentLead: MemberOption | null;
+}) => {
+  return (
+    <div className="md:hidden mt-2 space-y-2">
+      {/* Status + Priority */}
+      <div className="flex items-center gap-3 text-xs text-muted-foreground">
+        <StatusIndicator
+          status={localProject.status as ProjectStatus}
+        />
+        <PriorityPill
+          priority={localProject.priority as ProjectPriority}
+          compact
+        />
+      </div>
+
+      {/* Lead + Date */}
+      <div className="flex items-center justify-between text-xs text-muted-foreground">
+        <span className="flex items-center gap-1">
+           <div className="size-4 rounded-full bg-muted flex items-center justify-center overflow-hidden">
+             {currentLead?.avatarUrl ? (
+               <img src={currentLead.avatarUrl} alt="" className="size-full object-cover" />
+             ) : (
+               <HugeiconsIcon icon={UserIcon} className="size-3" />
+             )}
+           </div>
+          {currentLead?.label ?? "No lead"}
+        </span>
+
+        {localProject.targetDate && (
+          <span className="flex items-center gap-1">
+            <HugeiconsIcon icon={Calendar02Icon} className="size-3" />
+            {formatDate(localProject.targetDate)}
+          </span>
+        )}
+      </div>
+    </div>
+  );
+};

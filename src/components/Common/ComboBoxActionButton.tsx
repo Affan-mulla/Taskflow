@@ -35,6 +35,7 @@ interface ComboboxActionButtonProps {
   menu: MenuOption[];
   label: string;
   value?: string | null;
+  btnVariant?: "outline" | "default" | "ghost";
   onChange?: (value: string | null) => void;
   mode?: "single"; // Currently supports single-select
   showLabel?: boolean; // Whether to show label alongside icon in button
@@ -47,6 +48,7 @@ interface ComboboxActionButtonProps {
 export function ComboboxActionButton({
   menu,
   label,
+  btnVariant = "outline",
   value = null,
   onChange,
   mode = "single",
@@ -71,7 +73,7 @@ export function ComboboxActionButton({
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger>
         <Button
-          variant="outline"
+          variant={btnVariant}
           role="combobox"
           aria-expanded={open}
           size={"sm"}

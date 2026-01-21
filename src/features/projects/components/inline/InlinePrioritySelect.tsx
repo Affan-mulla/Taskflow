@@ -19,6 +19,7 @@ export function InlinePrioritySelect({
   return (
     <div onClick={(e) => e.stopPropagation()}>
       <ComboboxActionButton
+        btnVariant="ghost"
         menu={PRIORITY_OPTIONS}
         label="Priority"
         value={value || "low"}
