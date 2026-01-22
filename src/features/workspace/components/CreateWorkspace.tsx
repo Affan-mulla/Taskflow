@@ -82,7 +82,7 @@ const CreateWorkspace = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-linear-to-b from-accent/10 via-accent/5 to-background px-4">
+    <div className="min-h-screen w-full flex items-center justify-center bg-linear-to-b from-accent/10 via-accent/5 to-background px-4">
       <Card className="w-full max-w-md shadow-lg">
         <CardHeader>
           <CardTitle className="text-2xl font-semibold">

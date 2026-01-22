@@ -24,6 +24,8 @@ import AvatarImg from "../Common/AvatarImage";
 import { signOut } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import { useWorkspaceStore } from "@/shared/store/store.workspace";
+import { Popover, PopoverContent, PopoverHeader, PopoverTrigger } from "../ui/popover";
+import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTrigger } from "../ui/alert-dialog";
 
 const UserDropdown = ({userName, avatar }: {userName: string, avatar?: string}) => {
 
@@ -61,10 +63,10 @@ const UserDropdown = ({userName, avatar }: {userName: string, avatar?: string}) 
 
               {/* Typography with improved weight and spacing */}
               <div className="grid flex-1 text-left leading-tight">
-                <span className="truncate font-semibold text-sm tracking-tight text-foreground/90">
-                  {userName}
+                <span className="truncate font-semibold text-xs tracking-tight text-muted-foreground">
+                  WORKSPACE
                 </span>
-                <span className="truncate text-[11px] font-medium uppercase tracking-wider opacity-50">
+                <span className="truncate text-sm font-medium uppercase tracking-wider ">
                   {activeWorkspace ? activeWorkspace.workspaceName : "No Workspace"}
                 </span>
               </div>
@@ -81,7 +83,7 @@ const UserDropdown = ({userName, avatar }: {userName: string, avatar?: string}) 
 
           <DropdownMenuContent
             className="
-            before:absolute before:inset-0  before:border-t before:border-l before:rounded-xl before:border-foreground/20 before:pointer-events-none
+            before:absolute before:inset-0  before:border-t-[0.5px] before:border-l-[0.5px] before:rounded-xl before:border-foreground/20 before:pointer-events-none
             w-70 rounded-xl p-2 shadow-[0_1px_2px_rgba(0,0,0,0.2)]  bg-linear-to-br from-card to-background backdrop-blur-xl"
             side="right"
             align="end"
@@ -134,7 +136,7 @@ const UserDropdown = ({userName, avatar }: {userName: string, avatar?: string}) 
             {/* General Navigation */}
             <DropdownMenuGroup className="space-y-1">
               <DropdownItem icon={UserIcon} label="Personal info" />
-              <DropdownItem icon={UserGroupIcon} label="Manage users" />
+              <DropdownItem icon={UserGroupIcon} label="Manage Users" />
               <DropdownItem icon={Settings02Icon} label="Settings" />
             </DropdownMenuGroup>
 
@@ -157,12 +159,11 @@ const UserDropdown = ({userName, avatar }: {userName: string, avatar?: string}) 
 // --- Helper Components ---
 
 const DropdownItem = ({ icon, label }: { icon: any; label: string }) => (
-  <DropdownMenuItem>
-    <HugeiconsIcon icon={icon} className="size-5 text-muted-foreground" />
-    <span className="font-medium text-[15px]">{label}</span>
+  <DropdownMenuItem className={"text-sm"}>
+    <HugeiconsIcon icon={icon} className="size-4 text-muted-foreground" strokeWidth={2} />
+    <span className="font-medium">{label}</span>
   </DropdownMenuItem>
 );
-
 
 
 export default UserDropdown;

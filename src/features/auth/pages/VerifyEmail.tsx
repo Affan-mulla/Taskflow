@@ -149,7 +149,7 @@ const VerifyEmail = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-linear-to-b from-foreground/5 to-background ">
+    <div className="min-h-screen flex items-center justify-center bg-linear-to-b from-foreground/5 to-background w-full ">
       <Card className="max-w-sm w-full">
         <CardHeader>
           <CardTitle className="text-2xl font-semibold">
