@@ -50,6 +50,15 @@ const Register = () => {
       // Notify user of successful registration
       if (userCredential.user) {
         toast.success("Registration successful! Please verify your email.");
+        
+        // Check for invite return URL
+        const inviteReturnUrl = sessionStorage.getItem('inviteReturnUrl');
+        if (inviteReturnUrl) {
+          // Don't clear it yet - will be handled after email verification
+          router("/verify-email");
+          return;
+        }
+        
         router("/verify-email");
       }
     } catch (error) {

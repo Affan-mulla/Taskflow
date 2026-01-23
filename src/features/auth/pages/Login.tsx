@@ -14,6 +14,15 @@ const Login = () => {
       const user = await signInWithEmailAndPassword(auth, data.email, data.password);
       if (user.user) {
         toast.success("Login successful! Welcome back.");
+        
+        // Check for invite return URL
+        const inviteReturnUrl = sessionStorage.getItem('inviteReturnUrl');
+        if (inviteReturnUrl) {
+          sessionStorage.removeItem('inviteReturnUrl');
+          router(inviteReturnUrl);
+          return;
+        }
+        
         router("/");
       }
     } catch (error) {

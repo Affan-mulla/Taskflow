@@ -67,6 +67,14 @@ const VerifyEmail = () => {
         await reload(auth.currentUser);
 
         if (auth.currentUser.emailVerified) {
+          // Check for invite return URL first
+          const inviteReturnUrl = sessionStorage.getItem('inviteReturnUrl');
+          if (inviteReturnUrl) {
+            sessionStorage.removeItem('inviteReturnUrl');
+            navigate(inviteReturnUrl, { replace: true });
+            return;
+          }
+          
           navigate("/", { replace: true });
         }
       } catch (error) {
@@ -95,6 +103,13 @@ const VerifyEmail = () => {
 
     if (auth.currentUser.emailVerified) {
       toast.info("Your email is already verified!");
+      // Check for invite return URL first
+      const inviteReturnUrl = sessionStorage.getItem('inviteReturnUrl');
+      if (inviteReturnUrl) {
+        sessionStorage.removeItem('inviteReturnUrl');
+        navigate(inviteReturnUrl, { replace: true });
+        return;
+      }
       navigate("/", { replace: true });
       return;
     }

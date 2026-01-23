@@ -2,6 +2,7 @@ import { Navigate, Route, Routes } from "react-router";
 import Login from "@/features/auth/pages/Login";
 import Register from "@/features/auth/pages/Register";
 import VerifyEmail from "@/features/auth/pages/VerifyEmail";
+import { InvitePage } from "@/features/invite";
 
 import AuthGuard from "./router/guards/AuthGuard";
 import AppGuard from "./router/guards/AppGuard";
@@ -34,6 +35,7 @@ export function App() {
       />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
+      <Route path="/invite" element={<InvitePage />} />
 
       {/* Auth-Only Routes */}
       <Route

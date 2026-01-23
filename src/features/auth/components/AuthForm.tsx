@@ -53,6 +53,15 @@ export const AuthForm = <T extends LoginFormData | RegisterFormData>({ mode, onS
       const user = await signInWithGoogle();
       if(user?.email) {
         toast.success("Signed in successfully with Google!");
+        
+        // Check for invite return URL
+        const inviteReturnUrl = sessionStorage.getItem('inviteReturnUrl');
+        if (inviteReturnUrl) {
+          sessionStorage.removeItem('inviteReturnUrl');
+          navigate(inviteReturnUrl, { replace: true });
+          return;
+        }
+        
         navigate("/", { replace: true });
       }
     } catch (error) {
