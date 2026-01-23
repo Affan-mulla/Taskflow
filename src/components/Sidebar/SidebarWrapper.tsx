@@ -15,7 +15,6 @@ import { useUserStore } from "@/shared/store/store.user"
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const {user, loading} = useUserStore()
-  console.log(user);
   
   return (
     <Sidebar  {...props}>
