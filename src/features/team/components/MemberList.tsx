@@ -15,7 +15,11 @@ interface SortConfig {
   direction: SortDirection;
 }
 
-const MembersList = () => {
+interface MembersListProps {
+  searchQuery?: string;
+}
+
+const MembersList = ({ searchQuery = "" }: MembersListProps) => {
   const { members, membersLoading } = useWorkspaceStore();
   const [sortConfig, setSortConfig] = useState<SortConfig>({
     key: "userName",
@@ -30,8 +34,21 @@ const MembersList = () => {
     }));
   };
 
+  // Filter members based on search query
+  const filteredMembers = useMemo(() => {
+    if (!searchQuery.trim()) return members;
+    
+    const query = searchQuery.toLowerCase();
+    return members.filter((member) => {
+      const nameMatch = member.userName?.toLowerCase().includes(query);
+      const emailMatch = member.email?.toLowerCase().includes(query);
+      return nameMatch || emailMatch;
+    });
+  }, [members, searchQuery]);
+
+  // Sort filtered members
   const sortedMembers = useMemo(() => {
-    return [...members].sort((a, b) => {
+    return [...filteredMembers].sort((a, b) => {
       const aValue = a[sortConfig.key];
       const bValue = b[sortConfig.key];
 
@@ -51,7 +68,7 @@ const MembersList = () => {
       const comparison = String(aValue).localeCompare(String(bValue));
       return sortConfig.direction === "asc" ? comparison : -comparison;
     });
-  }, [members, sortConfig]);
+  }, [filteredMembers, sortConfig]);
 
   const SortIcon = ({ active, direction }: { active: boolean; direction: SortDirection }) => {
     if (!active) return null;
@@ -67,7 +84,7 @@ const MembersList = () => {
   const HeaderButton = ({ label, sortKey, className }: { label: string; sortKey: SortKey; className?: string }) => (
     <div
       className={cn(
-        "flex items-center text-xs font-semibold text-muted-foreground hover:text-foreground cursor-pointer transition-colors select-none py-1",
+        "flex items-center text-xs font-semibold text-muted-foreground hover:text-foreground cursor-pointer transition-colors select-none py-2",
         className
       )}
       onClick={() => handleSort(sortKey)}
@@ -88,14 +105,23 @@ const MembersList = () => {
     return <div className="p-8 text-center text-muted-foreground text-sm">No members found.</div>;
   }
 
+  if (sortedMembers.length === 0 && searchQuery) {
+    return (
+      <div className="p-8 text-center text-muted-foreground text-sm">
+        No members found matching "{searchQuery}"
+      </div>
+    );
+  }
+
   return (
     <div className="w-full">
-      <div className="grid grid-cols-[3fr_2.5fr_1fr_1.5fr_1.5fr] border-b border-border/40 px-6 py-1 bg-accent">
+      {/* Desktop Header */}
+      <div className="hidden md:grid grid-cols-[3fr_2.5fr_1fr_1.5fr_1.5fr] border-b border-border/40 px-6 bg-muted/20">
         <HeaderButton label="Name" sortKey="userName" />
         <HeaderButton label="Email" sortKey="email" />
         <HeaderButton label="Role" sortKey="role" />
         <HeaderButton label="Joined" sortKey="joinedAt" />
-        <div className="flex items-center text-xs font-medium text-muted-foreground py-1 cursor-pointer hover:text-foreground transition-colors">
+        <div className="flex items-center text-xs font-medium text-muted-foreground py-2 cursor-pointer hover:text-foreground transition-colors">
           Last Active
         </div>
       </div>
@@ -114,42 +140,74 @@ const MembersList = () => {
              console.error("Date parse error", e);
           }
 
+          const formattedDate = joinedDate ? format(joinedDate, "MMM d, yyyy") : "-";
+
           return (
             <div
               key={member.userId}
-              className="grid grid-cols-[3fr_2.5fr_1fr_1.5fr_1.5fr] items-center px-6 py-3 border-b border-border/40 hover:bg-muted/30 transition-colors group cursor-default text-sm"
+              className="group border-b border-border/40 hover:bg-muted/30 transition-colors"
             >
-              <div className="flex items-center gap-3 pr-4">
-                <Avatar className="size-6 text-[10px]">
-                  <AvatarImage src={member.avatarUrl} alt={member.userName} />
-                  <AvatarFallback>{member.userName?.substring(0, 2).toUpperCase() || "??"}</AvatarFallback>
-                </Avatar>
-                <span className="font-medium truncate text-foreground/90">{member.userName}</span>
-              </div>
-              
-              <div className="truncate text-muted-foreground pr-4">
-                {member.email}
-              </div>
+                {/* Desktop Row */}
+                <div className="hidden md:grid grid-cols-[3fr_2.5fr_1fr_1.5fr_1.5fr] items-center px-6 py-3 text-sm">
+                    <div className="flex items-center gap-3 pr-4">
+                        <Avatar className="size-6 text-[10px]">
+                        <AvatarImage src={member.avatarUrl} alt={member.userName} />
+                        <AvatarFallback>{member.userName?.substring(0, 2).toUpperCase() || "??"}</AvatarFallback>
+                        </Avatar>
+                        <span className="font-medium truncate text-foreground/90">{member.userName}</span>
+                    </div>
+                    
+                    <div className="truncate text-muted-foreground pr-4">
+                        {member.email}
+                    </div>
 
-              <div className="pr-4">
-                 <span className={cn(
-                    "inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium capitalize",
-                    member.role === 'owner' ? "bg-primary/10 text-primary" : 
-                    member.role === 'admin' ? "bg-primary/50 text-primary" :
-                    "bg-muted text-muted-foreground"
-                 )}>
-                    {member.role}
-                 </span>
-              </div>
+                    <div className="pr-4">
+                        <span className={cn(
+                            "inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium capitalize border",
+                            member.role === 'admin' 
+                              ? "bg-primary/20 text-primary border-primary/40" 
+                              : "bg-muted/60 text-muted-foreground border-border/40"
+                        )}>
+                            {member.role}
+                        </span>
+                    </div>
 
-              <div className="text-muted-foreground/80 pr-4">
-                {joinedDate ? format(joinedDate, "MMM d, yyyy") : "-"}
-              </div>
+                    <div className="text-muted-foreground/80 pr-4">
+                        {formattedDate}
+                    </div>
 
-              <div className="text-muted-foreground/60">
-                 {/* Placeholder for Last Active as it's not in the store yet */}
-                 -
-              </div>
+                    <div className="text-muted-foreground/60">
+                        {/* Placeholder for Last Active */}
+                        -
+                    </div>
+                </div>
+
+                {/* Mobile Row */}
+                <div className="flex md:hidden items-center justify-between p-4">
+                    <div className="flex items-center gap-3 min-w-0">
+                         <Avatar className="size-9 text-xs">
+                            <AvatarImage src={member.avatarUrl} alt={member.userName} />
+                            <AvatarFallback>{member.userName?.substring(0, 2).toUpperCase() || "??"}</AvatarFallback>
+                        </Avatar>
+                        <div className="flex flex-col min-w-0">
+                            <span className="font-medium text-sm truncate text-foreground">{member.userName}</span>
+                            <span className="text-xs text-muted-foreground truncate">{member.email}</span>
+                        </div>
+                    </div>
+                    <div className="flex flex-col items-end gap-1 shrink-0">
+                         <span className={cn(
+                            "inline-flex items-center px-1.5 py-0.5 rounded text-[11px] font-medium capitalize border",
+                            member.role === 'admin' 
+                              ? "bg-primary/50 text-primary" 
+                              : "bg-muted/60 text-muted-foreground border-border/40"
+                        )}>
+                            {member.role}
+                        </span>
+                        <span className="text-[10px] text-muted-foreground">
+                            {formattedDate}
+                        </span>
+                    </div>
+                </div>
             </div>
           );
         })}

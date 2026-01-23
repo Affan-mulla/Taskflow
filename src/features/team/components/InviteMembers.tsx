@@ -1,6 +1,6 @@
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Spinner } from "@/components/ui/spinner";
@@ -11,8 +11,9 @@ import { Alert, Sent02Icon, UserPlus, X } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { useState } from "react";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 
-const InviteMembersItem = () => {
+const InviteMembersItem = ({ variant = "default" }: { variant?: "default" | "icon" }) => {
   const [inputValue, setInputValue] = useState("");
   const [emails, setEmails] = useState<
     Array<{ value: string; isValid: boolean }>
@@ -149,11 +150,15 @@ const InviteMembersItem = () => {
         if (!loading) setOpen(next);
       }}
     >
-      <AlertDialogTrigger>
-        <Button className="text-sm gap-2" onSelect={(e) => e.preventDefault()}>
-          <HugeiconsIcon strokeWidth={2} icon={UserPlus} className="size-4" />
-          <span className="font-medium">Invite members</span>
-        </Button>
+      <AlertDialogTrigger className={cn(buttonVariants({ variant: variant === "icon" ? "ghost" : "default", size: variant === "icon" ? "icon" : "default" }), variant === "icon" ? "shrink-0" : "text-sm gap-2")}>
+        {variant === "icon" ? (
+             <HugeiconsIcon strokeWidth={2} icon={UserPlus} className="size-5" />
+        ) : (
+          <>
+            <HugeiconsIcon strokeWidth={2} icon={UserPlus} className="size-4" />
+            <span className="font-medium">Invite members</span>
+          </>
+        )}
       </AlertDialogTrigger>
 
       <AlertDialogContent className="max-w-md w-full" aria-busy={loading}>
@@ -177,7 +182,7 @@ const InviteMembersItem = () => {
               onChange={handleInputChange}
               onKeyDown={handleKeyDown}
               onBlur={handleAddEmails}
-              className="w-full"
+              className="w-full text-sm"
               disabled={loading}
             />
             <p className="text-xs text-muted-foreground">Press Enter, comma, or semicolon to add.</p>
