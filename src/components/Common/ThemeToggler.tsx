@@ -17,7 +17,7 @@ const ThemeToggler = () => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger>
-        <Button variant="outline" size={"icon"}>
+        <Button variant="outline" size={"icon-sm"}>
           <HugeiconsIcon icon={currentTheme === "light" ? Sun : currentTheme === "dark" ? Moon : Monitor} className="size-4" />
         </Button>
       </DropdownMenuTrigger>

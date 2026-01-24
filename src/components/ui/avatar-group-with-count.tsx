@@ -13,7 +13,7 @@ function AvatarGroupWithCount({ avatarUrls, maxCount }: AvatarProps) {
         avatarUrls
           .map((url, index) => (
             <div key={index} className="size-5">
-              <AvatarImg src={url} alt={`Avatar ${index + 1}`} />
+              <AvatarImg src={url} fallbackText={`Avatar ${index + 1}`} />
             </div>
           ))
           .slice(0, maxCount)}

@@ -208,7 +208,7 @@ export function ProjectFilter({ filters = [], members = [], onFiltersChange }: P
                       <div className="mr-2 size-5">
                         <AvatarImg
                           src={member.avatarUrl || "/Taskflow.svg"}
-                          alt={member.label}
+                          fallbackText={member.label}
                         />
                       </div>
                       <span>{member.label}</span>

@@ -7,7 +7,6 @@ import {
   UnfoldMoreIcon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -24,17 +23,22 @@ import AvatarImg from "../Common/AvatarImage";
 import { signOut } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import { useWorkspaceStore } from "@/shared/store/store.workspace";
-import { Popover, PopoverContent, PopoverHeader, PopoverTrigger } from "../ui/popover";
-import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTrigger } from "../ui/alert-dialog";
+import { useNavigate } from "react-router";
+import { useIsMobile } from "@/shared/hooks/use-mobile";
 
 const UserDropdown = ({userName, avatar }: {userName: string, avatar?: string}) => {
 
   const {activeWorkspace,workspaces} = useWorkspaceStore();
+  const isMobile = useIsMobile();
 
   const handleLogout = async () => {
     // Implement logout functionality here
     await signOut(auth);
   }
+
+  const navigate = useNavigate();
+
+  console.log("Avatar URL:", avatar);
   
   return (
     <SidebarMenu className="w-full">
@@ -58,12 +62,15 @@ const UserDropdown = ({userName, avatar }: {userName: string, avatar?: string}) 
             >
               {/* Avatar with its own subtle depth */}
               <div className="relative flex aspect-square size-9 items-center justify-center rounded-lg border border-border/50 bg-background shadow-sm overflow-hidden group-hover:scale-105 transition-transform">
-                <AvatarImg src={avatar} alt={userName} />
+                <AvatarImg
+                  variant="workspace"
+                  fallbackText={activeWorkspace?.workspaceName || "No Workspace"}
+                />
               </div>
 
               {/* Typography with improved weight and spacing */}
               <div className="grid flex-1 text-left leading-tight">
-                <span className="truncate font-semibold text-xs tracking-tight text-muted-foreground">
+                <span className="truncate font-semibold text-[10px] tracking-tight text-muted-foreground">
                   WORKSPACE
                 </span>
                 <span className="truncate text-sm font-medium uppercase tracking-wider ">
@@ -83,16 +90,16 @@ const UserDropdown = ({userName, avatar }: {userName: string, avatar?: string}) 
 
           <DropdownMenuContent
             className="
-            before:absolute before:inset-0  before:border-t-[0.5px] before:border-l-[0.5px] before:rounded-xl before:border-foreground/20 before:pointer-events-none
-            w-70 rounded-xl p-2 shadow-[0_1px_2px_rgba(0,0,0,0.2)]  bg-linear-to-br from-card to-background backdrop-blur-xl"
-            side="right"
-            align="end"
-            sideOffset={12}
+            before:absolute before:inset-0  before:rounded-lg before:border-foreground/20 before:pointer-events-none
+             md:w-60 rounded-lg p-2 shadow-xl  bg-linear-to-br from-card to-background backdrop-blur-xl"
+            side={isMobile ? "bottom" : "right"}
+            align={isMobile ? "start" : "end"}
+            sideOffset={isMobile ? 8 : 12}
           >
             {/* Header Profile Section */}
-            <div className="flex items-center gap-3 p-3 mb-2">
-              <div className="size-10">
-                <AvatarImg src={avatar} alt={userName} />
+            <div className="flex items-center gap-3 px-2 py-1 mb-2">
+              <div className="size-8">
+                <AvatarImg src={avatar} fallbackText={userName} />
               </div>
               <div className="flex flex-col">
                 <span className="text-base font-semibold">{userName}</span>
@@ -105,7 +112,7 @@ const UserDropdown = ({userName, avatar }: {userName: string, avatar?: string}) 
             <DropdownMenuSeparator className="my-2 " />
 
             {/* Switch Workspaces Section (The Inset Box) */}
-            <div className="mx-1 mb-4 rounded-xl bg-background border border-border p-2">
+            <div className="mx-1 mb-2 rounded-xl bg-background border border-border p-2">
               <p className="text-xs font-medium text-muted-foreground mb-2 px-1">
                 Switch Workspaces
               </p>
@@ -113,10 +120,10 @@ const UserDropdown = ({userName, avatar }: {userName: string, avatar?: string}) 
               <div className="space-y-1">
                 {workspaces.map((workspace) => (
                   <DropdownMenuItem className="flex items-center gap-3 p-1 rounded-lg hover:bg-card/80 cursor-pointer transition-colors" key={workspace.id}>
-                  <div className="size-8">
+                  <div className="size-6">
                     <AvatarImg
-                      src={"/Taskflow.svg"} // Use workspace logo here
-                      alt={workspace.workspaceName}  
+                      variant="workspace"
+                      fallbackText={workspace.workspaceName}
                     />
                   </div>
                   <span className="flex-1 font-medium text-sm">
@@ -125,7 +132,7 @@ const UserDropdown = ({userName, avatar }: {userName: string, avatar?: string}) 
                 </DropdownMenuItem>
                 ))} 
                 <div className="flex items-center justify-between gap-2 p-1 pt-2">
-                  <Button className=" w-full " size="sm">
+                  <Button className=" w-full " size="sm" onClick={() => navigate('/onboarding/workspace')}>
                     <HugeiconsIcon icon={PlusSignIcon} className="size-4" />
                     Create new
                   </Button>

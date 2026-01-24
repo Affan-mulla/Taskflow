@@ -1,11 +1,11 @@
 
 import { useWorkspaceStore } from "@/shared/store/store.workspace";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { format } from "date-fns";
 import { useState, useMemo } from "react";
 import { ArrowDown01Icon, ArrowUp01Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { cn } from "@/lib/utils";
+import AvatarImg from "@/components/Common/AvatarImage";
 
 type SortDirection = "asc" | "desc";
 type SortKey = "userName" | "email" | "role" | "joinedAt";
@@ -150,10 +150,12 @@ const MembersList = ({ searchQuery = "" }: MembersListProps) => {
                 {/* Desktop Row */}
                 <div className="hidden md:grid grid-cols-[3fr_2.5fr_1fr_1.5fr_1.5fr] items-center px-6 py-3 text-sm">
                     <div className="flex items-center gap-3 pr-4">
-                        <Avatar className="size-6 text-[10px]">
-                        <AvatarImage src={member.avatarUrl} alt={member.userName} />
-                        <AvatarFallback>{member.userName?.substring(0, 2).toUpperCase() || "??"}</AvatarFallback>
-                        </Avatar>
+                        <div className="size-6">
+                            <AvatarImg 
+                                src={member.avatarUrl} 
+                                fallbackText={member.userName || "??"} 
+                            />
+                        </div>
                         <span className="font-medium truncate text-foreground/90">{member.userName}</span>
                     </div>
                     
@@ -185,10 +187,12 @@ const MembersList = ({ searchQuery = "" }: MembersListProps) => {
                 {/* Mobile Row */}
                 <div className="flex md:hidden items-center justify-between p-4">
                     <div className="flex items-center gap-3 min-w-0">
-                         <Avatar className="size-9 text-xs">
-                            <AvatarImage src={member.avatarUrl} alt={member.userName} />
-                            <AvatarFallback>{member.userName?.substring(0, 2).toUpperCase() || "??"}</AvatarFallback>
-                        </Avatar>
+                        <div className="size-9">
+                            <AvatarImg 
+                                src={member.avatarUrl} 
+                                fallbackText={member.userName || "??"} 
+                            />
+                        </div>
                         <div className="flex flex-col min-w-0">
                             <span className="font-medium text-sm truncate text-foreground">{member.userName}</span>
                             <span className="text-xs text-muted-foreground truncate">{member.email}</span>

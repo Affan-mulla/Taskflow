@@ -82,8 +82,8 @@ export function ComboboxActionButton({
             label === "Lead" && selectedItem ? (
               <div className="size-5">
                 <AvatarImg
-                  src={selectedItem.avatarUrl || "/Taskflow.svg"}
-                  alt={selectedItem.label}
+                  src={selectedItem.avatarUrl}
+                  fallbackText={selectedItem.label}
                 />
               </div>
             ) : ( <HugeiconsIcon
@@ -133,8 +133,8 @@ export function ComboboxActionButton({
                   {label === "Lead" ? (
                     <div className="w-4 h-4">
                       <AvatarImg 
-                        src={item.avatarUrl || "/Taskflow.svg"} 
-                        alt={item.label} 
+                        src={item.avatarUrl}
+                        fallbackText={item.label} 
                       />
                     </div>
                   ) : (
@@ -297,7 +297,7 @@ export function ComboboxMultiSelect({
                     <div className="w-4 h-4">
                       <AvatarImg 
                         src={item.avatarUrl || "/Taskflow.svg"} 
-                        alt={item.label} 
+                        fallbackText={item.label} 
                       />
                     </div>
 
