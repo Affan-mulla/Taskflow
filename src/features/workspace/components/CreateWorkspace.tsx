@@ -17,16 +17,24 @@ import {
   type workspaceSchemaType,
 } from "@/features/workspace/validation/createWorkspace";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { AddSquareIcon } from "@hugeicons/core-free-icons";
+import { AddSquareIcon, ArrowLeft01Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router";
 import { toast } from "sonner";
+import { useUserStore } from "@/shared/store/store.user";
+import { useWorkspaceStore } from "@/shared/store/store.workspace";
+import AvatarImg from "@/components/Common/AvatarImage";
 
 const CreateWorkspace = () => {
   const { loading, createWorkspaceHandler } = useCreateWorkspace();
   const navigate = useNavigate();
+  const { user } = useUserStore();
+  const { workspaces } = useWorkspaceStore();
+
+  const hasExistingWorkspaces = workspaces.length > 0;
+  console.log(workspaces);
 
   const {
     register,
@@ -82,8 +90,44 @@ const CreateWorkspace = () => {
   };
 
   return (
-    <div className="min-h-screen w-full flex items-center justify-center bg-linear-to-b from-accent/10 via-accent/5 to-background px-4">
-      <Card className="w-full max-w-md shadow-lg">
+    <div className="min-h-screen w-full flex flex-col bg-linear-to-b from-accent/10 via-accent/5 to-background">
+      {/* Navbar */}
+      <div className="w-full sticky top-0 z-10">
+        <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            {hasExistingWorkspaces && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => navigate(-1)}
+                className="gap-2"
+              >
+                <HugeiconsIcon icon={ArrowLeft01Icon} className="size-4" />
+                Go back
+              </Button>
+            )}
+          </div>
+          
+          {user && (
+            <div className="flex items-center gap-3">
+              <div className="flex flex-col items-end">
+                <span className="text-sm font-medium">{user.name}</span>
+                <span className="text-xs text-muted-foreground">{user.email}</span>
+              </div>
+              <div className="size-9">
+                <AvatarImg 
+                  src={user.avatar} 
+                  fallbackText={user.name} 
+                />
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Main Content */}
+      <div className="flex-1 flex items-center justify-center px-4 py-8">
+        <Card className="w-full max-w-md shadow-lg">
         <CardHeader>
           <CardTitle className="text-2xl font-semibold">
             Create your workspace
@@ -180,6 +224,7 @@ const CreateWorkspace = () => {
           </form>
         </CardContent>
       </Card>
+      </div>
     </div>
   );
 };
