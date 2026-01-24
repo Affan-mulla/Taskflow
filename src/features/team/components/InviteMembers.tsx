@@ -13,6 +13,8 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
+const MAX_INVITES = 5;
+
 const InviteMembersItem = ({ variant = "default" }: { variant?: "default" | "icon" }) => {
   const [inputValue, setInputValue] = useState("");
   const [emails, setEmails] = useState<
@@ -49,7 +51,14 @@ const InviteMembersItem = ({ variant = "default" }: { variant?: "default" | "ico
       [...prev, ...parsedEmails].forEach((e) => {
         byLower.set(e.value.toLowerCase(), e);
       });
-      return Array.from(byLower.values());
+      const result = Array.from(byLower.values());
+      // Enforce limit of 5 valid emails
+      const validCount = result.filter((e) => e.isValid).length;
+      if (validCount > MAX_INVITES) {
+        toast.warning(`You can invite a maximum of ${MAX_INVITES} people at once.`);
+        return prev;
+      }
+      return result;
     });
     setInputValue("");
   };
@@ -141,6 +150,7 @@ const InviteMembersItem = ({ variant = "default" }: { variant?: "default" | "ico
   const hasValidEmails = emails.some((e) => e.isValid);
   const validCount = emails.filter((e) => e.isValid).length;
   const invalidCount = emails.length - validCount;
+  const isAtLimit = validCount >= MAX_INVITES;
 
   return (
     <AlertDialog
@@ -183,9 +193,14 @@ const InviteMembersItem = ({ variant = "default" }: { variant?: "default" | "ico
               onKeyDown={handleKeyDown}
               onBlur={handleAddEmails}
               className="w-full text-sm"
-              disabled={loading}
+              disabled={loading || isAtLimit}
             />
-            <p className="text-xs text-muted-foreground">Press Enter, comma, or semicolon to add.</p>
+            <div className="flex items-center justify-between">
+              <p className="text-xs text-muted-foreground">Press Enter, comma, or semicolon to add.</p>
+              <p className={cn("text-xs font-medium", validCount >= MAX_INVITES ? "text-amber-600" : "text-muted-foreground")}>
+                {validCount}/{MAX_INVITES}
+              </p>
+            </div>
           </div>
 
           {/* Display added emails */}
@@ -233,7 +248,7 @@ const InviteMembersItem = ({ variant = "default" }: { variant?: "default" | "ico
           <AlertDialogCancel disabled={loading}>Cancel</AlertDialogCancel>
           <AlertDialogAction
             onClick={handleSendInvites}
-            disabled={!hasValidEmails || loading}
+            disabled={!hasValidEmails || loading || validCount > MAX_INVITES}
           >
             {loading ? (
               <Spinner />
