@@ -10,12 +10,14 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
 import { useLocation, useNavigate } from "react-router"
+import { useWorkspaceStore } from "@/shared/store/store.workspace";
 
 export function NavMain() {
 
   const {pathname} = useLocation();
   const bgActive = "bg-sidebar-accent border border-sidebar-border shadow text-foreground";
   const navigate = useNavigate();
+  const {activeWorkspace} = useWorkspaceStore()
 
   // Check if we're at workspace level (not in project details)
   const isWorkspaceLevel = () => {
@@ -57,7 +59,7 @@ export function NavMain() {
       <SidebarMenu className="space-y-1">
         {items.map((item) => (
           <SidebarMenuItem key={item.url}>
-          <SidebarMenuButton className={isItemActive(item.url) ? bgActive : "text-muted-foreground"} onClick={() => navigate(`/axon-123/${item.url}`)}>
+          <SidebarMenuButton className={isItemActive(item.url) ? bgActive : "text-muted-foreground"} onClick={() => navigate(`/${activeWorkspace?.workspaceUrl}${item.url}`)}>
             <HugeiconsIcon icon={item.icon} className="size-5" strokeWidth={2} />
             <span className="font-medium">{item.label}</span>
           </SidebarMenuButton>
