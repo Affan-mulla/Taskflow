@@ -238,13 +238,15 @@ const InviteMembersItem = ({ variant = "default" }: { variant?: "default" | "ico
             {loading ? (
               <Spinner />
             ) : (
-              <HugeiconsIcon
-                strokeWidth={2}
-                icon={Sent02Icon}
-                className="size-4"
-              />
+              <>
+                <HugeiconsIcon
+                  strokeWidth={2}
+                  icon={Sent02Icon}
+                  className="size-4"
+                />
+                <span>Send Invites ({validCount})</span>
+              </>
             )}
-            {loading ? <Spinner /> : `Send Invites (${validCount})`}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
