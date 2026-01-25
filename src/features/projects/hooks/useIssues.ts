@@ -59,7 +59,7 @@ export function useIssues({ projectId }: UseIssuesOptions) {
 
   // Optimistic update helpers for Kanban board
   const updateStatus = useCallback(
-    async (issueId: string, newStatus: IssueStatus) => {
+    (issueId: string, newStatus: IssueStatus) => {
       if (!activeWorkspace?.id) return;
 
       // Optimistic update
@@ -76,7 +76,7 @@ export function useIssues({ projectId }: UseIssuesOptions) {
   );
 
   const updatePriority = useCallback(
-    async (issueId: string, newPriority: IssuePriority) => {
+    (issueId: string, newPriority: IssuePriority) => {
       if (!activeWorkspace?.id) return;
 
       setIssues((prev) =>
@@ -91,7 +91,7 @@ export function useIssues({ projectId }: UseIssuesOptions) {
   );
 
   const updateAssignee = useCallback(
-    async (issueId: string, newAssigneeId: string | null) => {
+    (issueId: string, newAssigneeId: string | null) => {
       if (!activeWorkspace?.id) return;
 
       setIssues((prev) =>

@@ -1,47 +1,61 @@
-# Taskflow Real-Time Projects & Issues
+# Taskflow
 
-This app is a Linear-inspired, workspace-based task manager built with React, TypeScript, Vite, Firebase Auth, Cloud Firestore, Zustand, Tailwind, and shadcn/ui. Recent work adds full real-time collaboration for projects and issues using Firestore listeners (no polling, no sockets).
+A Linear-inspired, workspace-based task manager built with **React**, **TypeScript**, **Vite**, **Firebase Auth**, **Cloud Firestore**, **Zustand**, **Tailwind**, and **shadcn/ui**.
 
-## What was added
+## Features
 
-- Real-time project listener: `listenToProjects(workspaceId)` in `src/db/projects/projects.read.ts` uses `onSnapshot` to stream create/update/delete events.
-- Project subscription hook: `useProjects()` in `src/features/projects/hooks/useProjects.ts` syncs Firestore → Zustand and manages loading state.
-- Workspace provider update: `WorkspaceProvider` now attaches the real-time projects listener and keeps members as a one-time fetch.
-- Issues data layer: CRUD + listener under `src/db/issues/` (`createIssue`, `listenToIssues`, `updateIssue*`, `deleteIssue`).
-- Issues hooks: `useIssues` (real-time per project with optimistic updates + Kanban grouping) and `useCreateIssue` for creating tasks.
-- Types: `Issue`, `IssueStatus`, `IssuePriority` added to `src/shared/types/db.ts`.
+- **Real-time collaboration** — Project and issue changes sync instantly across all workspace members via Firestore listeners (no polling)
+- **Workspace-based architecture** — Each workspace has its own projects, issues, and members
+- **Optimistic UI** — Immediate feedback on updates, with Firestore handling consistency
 
-## How it works (flow)
+## Architecture
 
-1) UI triggers optimistic update → Hook calls DB updater.
-2) Firestore write succeeds → `onSnapshot` fires for all clients.
-3) Hook listener updates Zustand/React state → Everyone sees the change instantly.
+```
+src/
+├── db/           # Pure Firestore functions (no React hooks)
+├── features/     # Domain-specific hooks, components, pages
+├── shared/       # Zustand stores, types, utilities
+└── components/   # Reusable UI components
+```
 
-## Key files
+**Layered pattern:**
+1. **DB Layer** — Pure Firestore functions (`createProject`, `listenToProjects`, `updateIssue`)
+2. **Hooks Layer** — Async logic, subscriptions, loading/error state
+3. **Zustand Layer** — Global state only (workspace, members, projects)
+4. **UI Layer** — Calls hooks, no direct Firestore access
 
-- Projects
-	- `src/db/projects/projects.read.ts` — `listenToProjects`
-	- `src/features/projects/hooks/useProjects.ts` — subscription hook
-	- `src/features/workspace/components/WorkspaceProvider.tsx` — wires projects listener
-- Issues
-	- `src/db/issues/issues.create.ts` — create
-	- `src/db/issues/issues.read.ts` — `listenToIssues`
-	- `src/db/issues/issues.update.ts` — field-specific updates (status/priority/assignee/title/description)
-	- `src/db/issues/issues.delete.ts` — delete
-	- `src/features/projects/hooks/useIssues.ts` — real-time + optimistic updates + Kanban grouping
-	- `src/features/projects/hooks/useCreateIssue.ts` — create hook
-- Types
-	- `src/shared/types/db.ts` — `Issue`, `IssueStatus`, `IssuePriority`
+## Real-time Flow
 
-## Usage hints
+1. UI triggers optimistic update → Hook calls DB function
+2. Firestore write succeeds → `onSnapshot` fires for all clients
+3. Listener updates Zustand/React state → Everyone sees the change
 
-- Projects: Call `useProjects()` anywhere inside the `WorkspaceProvider` tree; access `projects` and `loading` from the hook.
-- Issues: Call `useIssues({ projectId })`; use `updateStatus/priority/assignee` for Kanban/inline edits, `issuesByStatus` for column rendering.
-- Creation: Use `useCreateIssue()` and existing `useCreateProject()`; listeners will sync new items automatically.
+## Key Files
 
-## Architecture constraints kept
+| Area | Files |
+|------|-------|
+| **Projects** | `db/projects/projects.read.ts` (listener), `db/projects/projects.update.ts` |
+| **Issues** | `db/issues/` (create, read, update, delete) |
+| **Hooks** | `features/projects/hooks/` (useIssues, useCreateIssue, useUpdateProject) |
+| **Provider** | `features/workspace/components/WorkspaceProvider.tsx` |
+| **Types** | `shared/types/db.ts` |
 
-- DB layer: Pure Firestore functions, no hooks/Zustand inside.
-- Hooks: Handle async + subscriptions; no direct state stored in DB layer.
-- Zustand: Global state only (workspace, members, projects), no Firestore calls.
-- No project-level permissions; workspace members see all projects and issues.
+## Usage
+
+```tsx
+// Projects are automatically subscribed via WorkspaceProvider
+const { projects, projectsLoading } = useWorkspaceStore();
+
+// Issues (per-project real-time subscription)
+const { issues, issuesByStatus, updateStatus } = useIssues({ projectId });
+
+// Creating issues
+const { createIssue, loading } = useCreateIssue();
+```
+
+## Getting Started
+
+```bash
+npm install
+npm run dev
+```

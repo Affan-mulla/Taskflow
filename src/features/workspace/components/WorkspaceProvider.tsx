@@ -72,7 +72,7 @@ export function WorkspaceProvider({ children }: WorkspaceProviderProps) {
       unsubscribeProjects();
       hasInitialProjectLoad.current = false;
     };
-  }, [activeWorkspace?.id]);
+  }, [activeWorkspace?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return <>{children}</>;
 }

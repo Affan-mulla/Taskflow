@@ -1,55 +1,44 @@
-import { getUserWorkspacesIds, isWorkspaceUrlUnique, getWorkspacesByIds ,getWorkspaceMembers } from "./workspace/workspace.read";
-import { createUserProfile } from "./users/users.create";
-import { createWorkspace } from "./workspace/workspace.create";
-import { getUserProfile } from "./users/users.read";
-import { createProject } from "./projects/projects.create";
-import { listenToProjects } from "./projects/projects.read";
-import { 
-  updateProject, 
-  updateProjectPriority, 
-  updateProjectStatus, 
-  updateProjectLead, 
-  updateProjectTargetDate 
+// =============================================================================
+// Users
+// =============================================================================
+export { createUserProfile } from "./users/users.create";
+export { getUserProfile } from "./users/users.read";
+
+// =============================================================================
+// Workspaces
+// =============================================================================
+export { createWorkspace } from "./workspace/workspace.create";
+export {
+  getUserWorkspacesIds,
+  isWorkspaceUrlUnique,
+  getWorkspacesByIds,
+  getWorkspaceMembers,
+} from "./workspace/workspace.read";
+
+// =============================================================================
+// Projects
+// =============================================================================
+export { createProject } from "./projects/projects.create";
+export { listenToProjects } from "./projects/projects.read";
+export {
+  updateProject,
+  updateProjectPriority,
+  updateProjectStatus,
+  updateProjectLead,
+  updateProjectTargetDate,
 } from "./projects/projects.update";
 
+// =============================================================================
 // Issues
-import { createIssue, type CreateIssuePayload } from "./issues/issues.create";
-import { listenToIssues } from "./issues/issues.read";
-import {
+// =============================================================================
+export { createIssue, type CreateIssuePayload } from "./issues/issues.create";
+export { listenToIssues } from "./issues/issues.read";
+export {
+  updateIssue,
   updateIssueStatus,
   updateIssuePriority,
   updateIssueAssignee,
   updateIssueTitle,
   updateIssueDescription,
 } from "./issues/issues.update";
-import { deleteIssue } from "./issues/issues.delete";
-
-
-export { 
-  getUserWorkspacesIds, 
-  isWorkspaceUrlUnique, 
-  createUserProfile, 
-  createWorkspace, 
-  getWorkspacesByIds, 
-  getUserProfile, 
-  getWorkspaceMembers, 
-  createProject, 
-  listenToProjects, 
-  updateProject,
-  updateProjectPriority,
-  updateProjectStatus,
-  updateProjectLead,
-  updateProjectTargetDate,
-  // Issues
-  createIssue,
-  listenToIssues,
-  updateIssueStatus,
-  updateIssuePriority,
-  updateIssueAssignee,
-  updateIssueTitle,
-  updateIssueDescription,
-  deleteIssue,
-};
-
-// Types
-export type { CreateIssuePayload };
+export { deleteIssue } from "./issues/issues.delete";

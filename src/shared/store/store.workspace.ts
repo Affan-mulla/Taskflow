@@ -43,38 +43,12 @@ export const useWorkspaceStore = create<WorkspaceStore>((set) => ({
   projectsLoading: true,
   activeWorkspace: null,
 
-  setMembers: (members: Members[]) =>
-    set(() => ({
-      members: members,
-    })),
-  setMembersLoading: (loading: boolean) =>
-    set(() => ({
-      membersLoading: loading,
-    })),
-  resetMembers: () =>
-    set(() => ({
-      members: [],
-      membersLoading: false,
-    })),
-  setProjects: (projects: Project[]) =>
-    set(() => ({
-      projects: projects,
-    })),
-  setProjectsLoading: (loading: boolean) =>
-    set(() => ({
-      projectsLoading: loading,
-    })),
-  resetProjects: () =>
-    set(() => ({
-      projects: [],
-      projectsLoading: false,
-    })),
-  setActiveWorkspace: (workspace: Workspace) =>
-    set(() => ({
-      activeWorkspace: workspace,
-    })),
-  setWorkspaces: (workspaces: Workspace[]) =>
-    set(() => ({
-      workspaces: workspaces,
-    })),
+  setMembers: (members) => set({ members }),
+  setMembersLoading: (membersLoading) => set({ membersLoading }),
+  resetMembers: () => set({ members: [], membersLoading: false }),
+  setProjects: (projects) => set({ projects }),
+  setProjectsLoading: (projectsLoading) => set({ projectsLoading }),
+  resetProjects: () => set({ projects: [], projectsLoading: false }),
+  setActiveWorkspace: (activeWorkspace) => set({ activeWorkspace }),
+  setWorkspaces: (workspaces) => set({ workspaces }),
 }));

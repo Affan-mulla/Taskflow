@@ -1,116 +1,65 @@
 import { db } from "@/lib/firebase";
-import type { IssuePriority, IssueStatus } from "@/shared/types/db";
+import type { Issue, IssuePriority, IssueStatus } from "@/shared/types/db";
 import { doc, updateDoc, serverTimestamp } from "firebase/firestore";
 
-/**
- * Helper to get issue document reference.
- */
-function getIssueRef(workspaceId: string, projectId: string, issueId: string) {
-  return doc(db, "workspaces", workspaceId, "projects", projectId, "issues", issueId);
-}
+/** Issue document reference helper */
+const getIssueRef = (workspaceId: string, projectId: string, issueId: string) =>
+  doc(db, "workspaces", workspaceId, "projects", projectId, "issues", issueId);
+
+/** Allowed fields for partial issue updates */
+type IssueUpdateFields = Pick<Issue, "status" | "priority" | "assigneeId" | "title" | "description">;
 
 /**
- * Update issue status (used for Kanban drag-and-drop).
- * Firestore listener automatically syncs to all clients.
+ * Generic issue update function.
+ * Automatically adds updatedAt timestamp.
+ * Real-time listeners will sync changes to all clients.
  */
-export async function updateIssueStatus(
+export async function updateIssue(
   workspaceId: string,
   projectId: string,
   issueId: string,
-  newStatus: IssueStatus
-) {
-  try {
-    const issueRef = getIssueRef(workspaceId, projectId, issueId);
-    await updateDoc(issueRef, {
-      status: newStatus,
-      updatedAt: serverTimestamp(),
-    });
-  } catch (error) {
-    console.error("Failed to update issue status:", error);
-    throw error;
-  }
+  fields: Partial<IssueUpdateFields>
+): Promise<void> {
+  const issueRef = getIssueRef(workspaceId, projectId, issueId);
+  await updateDoc(issueRef, { ...fields, updatedAt: serverTimestamp() });
 }
 
-/**
- * Update issue priority.
- */
-export async function updateIssuePriority(
+/** Update issue status (Kanban drag-and-drop) */
+export const updateIssueStatus = (
   workspaceId: string,
   projectId: string,
   issueId: string,
-  newPriority: IssuePriority
-) {
-  try {
-    const issueRef = getIssueRef(workspaceId, projectId, issueId);
-    await updateDoc(issueRef, {
-      priority: newPriority,
-      updatedAt: serverTimestamp(),
-    });
-  } catch (error) {
-    console.error("Failed to update issue priority:", error);
-    throw error;
-  }
-}
+  status: IssueStatus
+) => updateIssue(workspaceId, projectId, issueId, { status });
 
-/**
- * Update issue assignee.
- */
-export async function updateIssueAssignee(
+/** Update issue priority */
+export const updateIssuePriority = (
   workspaceId: string,
   projectId: string,
   issueId: string,
-  newAssigneeId: string | null
-) {
-  try {
-    const issueRef = getIssueRef(workspaceId, projectId, issueId);
-    await updateDoc(issueRef, {
-      assigneeId: newAssigneeId,
-      updatedAt: serverTimestamp(),
-    });
-  } catch (error) {
-    console.error("Failed to update issue assignee:", error);
-    throw error;
-  }
-}
+  priority: IssuePriority
+) => updateIssue(workspaceId, projectId, issueId, { priority });
 
-/**
- * Update issue title.
- */
-export async function updateIssueTitle(
+/** Update issue assignee */
+export const updateIssueAssignee = (
   workspaceId: string,
   projectId: string,
   issueId: string,
-  newTitle: string
-) {
-  try {
-    const issueRef = getIssueRef(workspaceId, projectId, issueId);
-    await updateDoc(issueRef, {
-      title: newTitle,
-      updatedAt: serverTimestamp(),
-    });
-  } catch (error) {
-    console.error("Failed to update issue title:", error);
-    throw error;
-  }
-}
+  assigneeId: string | null
+) => updateIssue(workspaceId, projectId, issueId, { assigneeId: assigneeId ?? undefined });
 
-/**
- * Update issue description.
- */
-export async function updateIssueDescription(
+/** Update issue title */
+export const updateIssueTitle = (
   workspaceId: string,
   projectId: string,
   issueId: string,
-  newDescription: string
-) {
-  try {
-    const issueRef = getIssueRef(workspaceId, projectId, issueId);
-    await updateDoc(issueRef, {
-      description: newDescription,
-      updatedAt: serverTimestamp(),
-    });
-  } catch (error) {
-    console.error("Failed to update issue description:", error);
-    throw error;
-  }
-}
+  title: string
+) => updateIssue(workspaceId, projectId, issueId, { title });
+
+/** Update issue description */
+export const updateIssueDescription = (
+  workspaceId: string,
+  projectId: string,
+  issueId: string,
+  description: string
+) => updateIssue(workspaceId, projectId, issueId, { description });
