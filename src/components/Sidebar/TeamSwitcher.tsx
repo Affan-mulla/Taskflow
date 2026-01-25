@@ -37,9 +37,6 @@ const UserDropdown = ({userName, avatar }: {userName: string, avatar?: string}) 
   }
 
   const navigate = useNavigate();
-
-  console.log("Avatar URL:", avatar);
-  
   return (
     <SidebarMenu className="w-full">
       <SidebarMenuItem className="w-full">

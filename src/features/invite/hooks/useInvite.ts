@@ -30,11 +30,8 @@ export function useInvite(): UseInviteReturn {
     setStatus('verifying');
     setError(null);
     setInvite(null);
-    console.log("Verifying token:", token);
     try {
       const response = await verifyInvite(token);
-      console.log(response);
-      
       
       if (!response.valid) {
         setStatus('invalid');

@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, useEffect } from "react";
 import { UserIcon } from "@hugeicons/core-free-icons";
 import { useWorkspaceStore } from "@/shared/store/store.workspace";
 import type { Project } from "@/shared/types/db";
@@ -34,6 +34,11 @@ export function useProjectInlineEdit(project: Project): UseProjectInlineEditRetu
   const [localProject, setLocalProject] = useState<Project>(project);
   const { members: workspaceMembers } = useWorkspaceStore();
   const { updatePriority, updateStatus, updateLead, updateTargetDate, loading } = useUpdateProject();
+
+  // CRITICAL: Sync localProject when prop changes (real-time updates from other users)
+  useEffect(() => {
+    setLocalProject(project);
+  }, [project]);
 
   // Transform workspace members for ComboboxActionButton
   const membersOptions = useMemo<MemberOption[]>(

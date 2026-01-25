@@ -34,8 +34,6 @@ const CreateWorkspace = () => {
   const { workspaces } = useWorkspaceStore();
 
   const hasExistingWorkspaces = workspaces.length > 0;
-  console.log(workspaces);
-
   const {
     register,
     handleSubmit,

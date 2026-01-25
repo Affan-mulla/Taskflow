@@ -13,7 +13,6 @@ export default function InvitePage() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const token = searchParams.get('token');
-  console.log("InvitePage token:", token);
 
   const [user, setUser] = useState<User | null>(null);
   const [authLoading, setAuthLoading] = useState(true);
@@ -39,7 +38,6 @@ export default function InvitePage() {
   // Verify invite token on mount (only when token exists)
   useEffect(() => {
     if (token && status === 'idle') {
-      console.log("Verifying invite token...");
       verifyToken(token);
     }
   }, [token, status, verifyToken]);

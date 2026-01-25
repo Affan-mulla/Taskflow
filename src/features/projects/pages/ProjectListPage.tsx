@@ -1,5 +1,5 @@
 import { useWorkspaceStore } from "@/shared/store/store.workspace";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { 
   ProjectListHeader, 
   ProjectListContainer, 

@@ -36,7 +36,6 @@ async function parseJsonResponse<T>(response: Response): Promise<T> {
 
 export async function verifyInvite(token: string): Promise<InviteVerifyResponse> {
   const url = `${API_BASE_URL}/api/invite/verify?token=${encodeURIComponent(token)}`;
-  console.log('Verifying invite at:', url);
   
   const response = await fetch(url);
   
@@ -63,7 +62,6 @@ export async function verifyInvite(token: string): Promise<InviteVerifyResponse>
 
 export async function acceptInvite(token: string, idToken: string): Promise<InviteAcceptResponse> {
   const url = `${API_BASE_URL}/api/invite/accept`;
-  console.log('Accepting invite at:', url);
   
   const response = await fetch(url, {
     method: 'POST',

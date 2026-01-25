@@ -53,14 +53,6 @@ export function InviteCard({
   onAccept,
   isAccepting,
 }: InviteCardProps) {
-    console.log({
-        status,
-        invite,
-        error,
-        isAuthenticated,
-        userEmail,
-        isAccepting
-    });
     
   // Loading state
   if (status === 'verifying' || status === 'idle') {

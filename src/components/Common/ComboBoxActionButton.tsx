@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/popover";
 import { Checkbox } from "@/components/ui/checkbox";
 import { HugeiconsIcon } from "@hugeicons/react";
+import { UserIcon } from "@hugeicons/core-free-icons";
 import AvatarImg from "./AvatarImage";
 import AvatarGroupWithCount from "../ui/avatar-group-with-count";
 
@@ -69,6 +70,9 @@ export function ComboboxActionButton({
     setOpen(false);
   };
 
+  // Determine which icon to show - fallback to UserIcon for Lead or first menu icon
+  const displayIcon = selectedItem?.icon || menu[0]?.icon || UserIcon;
+
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger>
@@ -86,13 +90,13 @@ export function ComboboxActionButton({
                   fallbackText={selectedItem.label}
                 />
               </div>
-            ) : ( <HugeiconsIcon
-            icon={selectedItem?.icon || menu[0]?.icon}
-            className={cn(
-              "size-4 ",
-            )}
-            strokeWidth={2}
-          />)
+            ) : (
+              <HugeiconsIcon
+                icon={displayIcon}
+                className={cn("size-4")}
+                strokeWidth={2}
+              />
+            )
           }
 
           {showLabel && (

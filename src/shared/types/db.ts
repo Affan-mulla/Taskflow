@@ -19,3 +19,23 @@ export interface Project {
     createdAt?: any;
     updatedAt?: any;
 }
+
+// ============================================================================
+// Issue Types (Tasks within Projects)
+// ============================================================================
+
+export type IssuePriority = "no-priority" | "urgent" | "high" | "medium" | "low";
+export type IssueStatus = "backlog" | "todo" | "in-progress" | "in-review" | "done" | "cancelled";
+
+export interface Issue {
+    id?: string;
+    projectId: string;
+    title: string;
+    description?: string;
+    status: IssueStatus;
+    priority: IssuePriority;
+    assigneeId?: string;
+    createdBy: string;
+    createdAt?: any;
+    updatedAt?: any;
+}
