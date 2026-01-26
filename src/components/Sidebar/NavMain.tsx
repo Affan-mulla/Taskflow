@@ -45,7 +45,7 @@ export function NavMain() {
    {
     icon: Layers01Icon,
     label: "Board",
-    url: "/boards",
+    url: "/board",
    },
    {
     icon : UserGroupIcon,

@@ -8,9 +8,9 @@ const WorkspaceLayout = () => {
   useWorkspaceResolve();
   return (
     <WorkspaceProvider>
-    <div className="flex max-h-screen w-full p-1">
+    <div className="flex h-screen w-full overflow-hidden p-1 bg-background">
       <AppSidebar/>
-      <div className=" w-full min-h-full rounded-lg border border-border">
+      <div className="flex-1 flex flex-col h-full overflow-hidden rounded-lg border border-border bg-background shadow-sm">
         <Outlet/>
       </div>
     </div>

@@ -19,6 +19,7 @@ import ProjectTaskPage from "@/features/projects/pages/ProjectTaskPage";
 import ProjectOverviewPage from "@/features/projects/pages/ProjectOverviewPage";
 import { useGetUserProfile } from "@/features/auth/hooks/useGetUserProfile";
 import Team from "@/features/team/pages/Team";
+import Board from "@/features/board/pages/Board";
 
 export function App() {
   useGetUserProfile();
@@ -69,7 +70,7 @@ export function App() {
         {/* Default workspace view */}
         <Route index element={<Navigate to="projects" replace />} />
         <Route path="tasks" element={<div>Task</div>} />
-        <Route path="boards" element={<div>Boards</div>} />
+        <Route path="board" element={<Board />} />
           <Route path="team" element={<Team/>} />
         {/* Projects */}
         <Route path="projects" element={<ProjectListPage />} />
@@ -78,7 +79,7 @@ export function App() {
           <Route index element={<Navigate to="overview" replace />} />
 
           <Route path="overview" element={<ProjectOverviewPage />} />
-          <Route path="board" element={<ProjectBoardPage />} />
+          <Route path="board" element={<Board />} />
           <Route path="tasks" element={<ProjectTaskPage />} />
         </Route>
 
