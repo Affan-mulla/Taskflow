@@ -142,7 +142,7 @@ export function ComboboxActionButton({
                         fallbackText={item.label} 
                       />
                     </div>
-                  ) : (
+                  ) : item.icon ? (
                     <HugeiconsIcon
                       icon={item.icon}
                       className={cn(
@@ -151,7 +151,7 @@ export function ComboboxActionButton({
                       )}
                       strokeWidth={2}
                     />
-                  )}
+                  ) : null}
 
                   <span className="flex-1 text-sm font-medium">
                     {item.label}
@@ -235,7 +235,6 @@ export function ComboboxMultiSelect({
   // Determine button label
   const buttonLabel = totalCount > 0 ? `${label} ${totalCount}` : label;
 
-  const buttonClassName = noneSelected ? "text-muted-foreground" : "";
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -245,12 +244,12 @@ export function ComboboxMultiSelect({
           role="combobox"
           aria-expanded={open}
           size={"sm"}
-          className={buttonClassName}
+          className={"group"}
         >
           {noneSelected ? (
             <HugeiconsIcon
               icon={menu[0]?.icon}
-              className="size-4 text-muted-foreground"
+              className="size-4 text-muted-foreground group-hover:text-foreground"
               strokeWidth={2}
             />
           ) : (

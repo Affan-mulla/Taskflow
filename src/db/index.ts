@@ -42,3 +42,8 @@ export {
   updateIssueDescription,
 } from "./issues/issues.update";
 export { deleteIssue } from "./issues/issues.delete";
+
+// =============================================================================
+// Tasks
+// =============================================================================
+export { createTask, type CreateTaskPayload } from "./tasks/tasks.create";

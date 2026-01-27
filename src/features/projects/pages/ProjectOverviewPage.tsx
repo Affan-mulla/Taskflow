@@ -53,6 +53,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { AddTask } from "@/features/tasks";
 
 // ============================================================================
 // types
@@ -87,7 +88,6 @@ const EmptyState = ({ children }: { children: React.ReactNode }) => (
 
 export default function ProjectOverviewPage() {
   const { projectId } = useParams();
-  console.log("ProjectOverviewPage render with projectId:", projectId);
   const { projects, members, projectsLoading } = useWorkspaceStore();
   const { updatePriority, updateStatus, updateLead } = useUpdateProject();
 
@@ -95,7 +95,7 @@ export default function ProjectOverviewPage() {
     () => projects.find((p) => createSlugUrl(p.name) === projectId),
     [projects, projectId],
   );
-  console.log(projects);
+
 
   if (projectsLoading) {
     return <PageSkeleton />;
@@ -137,7 +137,7 @@ export default function ProjectOverviewPage() {
 
   return (
     <div className="w-full h-full">
-      <ProjectOverviewPageNavbar projectName={name} />
+      <ProjectOverviewPageNavbar projectName={name} projectId={id as string} />
       <Separator />
       <ScrollArea className="h-full w-full">
         <div className="flex justify-center w-full bg-background">
@@ -277,10 +277,11 @@ function PageSkeleton() {
 
 const ProjectOverviewPageNavbar = ({
   projectName,
+  projectId,
 }: {
   projectName: string;
+  projectId: string;
 }) => {
-  const navigate = useNavigate();
 
   return (
     <div className="px-3 sm:px-4 md:px-6 py-3 w-full flex items-center justify-between gap-3">
@@ -322,15 +323,7 @@ const ProjectOverviewPageNavbar = ({
 
       {/* Right Section - Create Task Button */}
       <div className="shrink-0 flex items-center gap-2">
-        <Button variant="outline" size="sm" className="gap-2">
-          <HugeiconsIcon
-            icon={PlusSignIcon}
-            strokeWidth={2}
-            className="size-4"
-          />
-          <span className="hidden sm:inline">Create task</span>
-          <span className="sm:hidden">Task</span>
-        </Button>
+        <AddTask defaultProjectId={projectId} triggerVariant="outline" />
       </div>
     </div>
   );
