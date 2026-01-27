@@ -3,9 +3,7 @@ import { Outlet } from 'react-router'
 
 const ProjectPage = () => {
   return (
-    <div>
       <Outlet/>
-    </div>
   )
 }
 
