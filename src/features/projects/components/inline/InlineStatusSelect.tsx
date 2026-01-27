@@ -25,6 +25,7 @@ export function InlineStatusSelect({
         value={value || "planned"}
         onChange={onChange}
         showLabel={showLabel}
+        btnSize="icon-sm"
       />
     </div>
   );

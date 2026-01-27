@@ -26,6 +26,8 @@ export {
   updateProjectStatus,
   updateProjectLead,
   updateProjectTargetDate,
+  addProjectResource,
+  removeProjectResource,
 } from "./projects/projects.update";
 
 // =============================================================================

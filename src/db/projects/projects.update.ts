@@ -1,6 +1,7 @@
 import type { ProjectPriority, ProjectStatus } from "@/features/projects/components";
 import { db } from "@/lib/firebase";
-import { doc, updateDoc } from "firebase/firestore";
+import { doc, updateDoc, arrayUnion, arrayRemove } from "firebase/firestore";
+import type { ProjectResource } from "@/shared/types/db";
 
 export async function updateProjectPriority(
   workspaceId: string,
@@ -66,6 +67,46 @@ export async function updateProjectTargetDate(
     });
   } catch (error) {
     console.error("Failed to update project target date:", error);
+    throw error;
+  }
+}
+
+/**
+ * Add a resource (link) to a project
+ */
+export async function addProjectResource(
+  workspaceId: string,
+  projectId: string,
+  resource: ProjectResource,
+) {
+  try {
+    const projectRef = doc(db, "workspaces", workspaceId, "projects", projectId);
+    await updateDoc(projectRef, {
+      resources: arrayUnion(resource),
+      updatedAt: new Date().toISOString(),
+    });
+  } catch (error) {
+    console.error("Failed to add project resource:", error);
+    throw error;
+  }
+}
+
+/**
+ * Remove a resource from a project
+ */
+export async function removeProjectResource(
+  workspaceId: string,
+  projectId: string,
+  resource: ProjectResource,
+) {
+  try {
+    const projectRef = doc(db, "workspaces", workspaceId, "projects", projectId);
+    await updateDoc(projectRef, {
+      resources: arrayRemove(resource),
+      updatedAt: new Date().toISOString(),
+    });
+  } catch (error) {
+    console.error("Failed to remove project resource:", error);
     throw error;
   }
 }

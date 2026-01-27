@@ -157,7 +157,7 @@ const CollapsibleProject = ({ project }: { project: ProjectUI }) => {
             strokeWidth={2}
             className="size-5 text-muted-foreground"
           />
-          <span className="font-medium">{project.name}</span>
+          <span className="font-medium">{project.name.length > 15 ? `${project.name.slice(0, 20)}...` : project.name}</span>
           <HugeiconsIcon
             icon={ArrowRight01Icon}
             strokeWidth={2}

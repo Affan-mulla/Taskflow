@@ -9,6 +9,18 @@ export interface UserProfileData {
   avatar?: string;
 }
 
+// =============================================================================
+// Project Resource (Link only)
+// =============================================================================
+
+export interface ProjectResource {
+  id: string;
+  title: string;
+  url: string;
+  addedBy: string;
+  addedAt: string;
+}
+
 export interface Project {
   id?: string;
   workspaceId: string;
@@ -20,6 +32,7 @@ export interface Project {
   startDate?: string;
   targetDate?: string;
   lead?: string;
+  resources?: ProjectResource[];
   createdAt?: FirestoreTimestamp;
   updatedAt?: FirestoreTimestamp;
 }

@@ -1,22 +1,22 @@
-import { useMemo } from "react";
-import { useParams, useNavigate } from "react-router";
-import { format } from "date-fns";
+import { useState, useMemo } from "react";
+import { useParams } from "react-router";
+import { formatDistanceToNow } from "date-fns";
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
-  Add01Icon,
-  Calendar03Icon,
   File02Icon,
   PlusSignIcon,
-  LaptopProgrammingIcon,
   Folder01Icon,
-  ArrowLeft01Icon,
   CubeFreeIcons,
   ArrowRight02Icon,
   ArrowRight01Icon,
+  Link04Icon,
+  Delete02Icon,
 } from "@hugeicons/core-free-icons";
 
 import { useWorkspaceStore } from "@/shared/store/store.workspace";
 import { useUpdateProject } from "@/features/projects/hooks/useUpdateProject";
+import { useProjectResources } from "@/features/projects/hooks/useProjectResources";
+import type { ProjectResource } from "@/shared/types/db";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -37,8 +37,6 @@ import type {
 import { toDate } from "../components/projects.utils";
 import { User } from "@hugeicons/core-free-icons";
 import { createSlugUrl } from "@/shared/utils/createSlugUrl";
-import { Textarea } from "@/components/ui/textarea";
-import { Calendar } from "@/components/ui/calendar";
 import { CalendarButton } from "@/components/Common/CalendarButton";
 import {
   AlertDialog,
@@ -75,11 +73,6 @@ const SectionTitle = ({
     <h3 className="text-sm font-medium text-muted-foreground">{children}</h3>
     {action}
   </div>
-);
-
-// Empty state helper
-const EmptyState = ({ children }: { children: React.ReactNode }) => (
-  <div className="text-sm text-muted-foreground/60 italic">{children}</div>
 );
 
 // ============================================================================
@@ -168,7 +161,7 @@ export default function ProjectOverviewPage() {
             </header>
 
             {/* 2. Properties Row */}
-            <section className="flex flex-wrap items-center gap-x-6 gap-y-3 pb-4 border-b border-border/40">
+            <section className="flex flex-wrap items-center gap-x-2 gap-y-3 pb-4 border-b border-border/40">
               <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider mr-2 select-none">
                 Properties
               </span>
@@ -206,7 +199,7 @@ export default function ProjectOverviewPage() {
               </div>
 
               {/* Date Range */}
-              <div className="flex items-center text-sm text-foreground/80 gap-2 px-2 py-1 rounded-md cursor-pointer transition-colors group">
+              <div className="flex items-center text-sm text-foreground/80 px-2 py-1 rounded-md cursor-pointer transition-colors group">
                 <CalendarButton
                   type="Start"
                   date={startDateObj}
@@ -224,7 +217,10 @@ export default function ProjectOverviewPage() {
               </div>
             </section>
 
-            <ProjectResourcesSection />
+            <ProjectResourcesSection 
+              projectId={id!} 
+              resources={project.resources || []} 
+            />
 
             {/* 3. Description Section (Long-form Context) */}
             <section className="group/desc">
@@ -329,7 +325,41 @@ const ProjectOverviewPageNavbar = ({
   );
 };
 
-const ProjectResourcesSection = () => {
+interface ProjectResourcesSectionProps {
+  projectId: string;
+  resources: ProjectResource[];
+}
+
+const ProjectResourcesSection = ({ projectId, resources }: ProjectResourcesSectionProps) => {
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [title, setTitle] = useState("");
+  const [url, setUrl] = useState("");
+  const { loading, addResource, removeResource } = useProjectResources();
+
+  // Extract hostname from URL for display
+  const getHostname = (urlString: string) => {
+    try {
+      return new URL(urlString).hostname.replace("www.", "");
+    } catch {
+      return "Link";
+    }
+  };
+
+  const handleAddResource = async () => {
+    if (!title.trim() || !url.trim()) return;
+    
+    const success = await addResource(projectId, title, url);
+    if (success) {
+      setTitle("");
+      setUrl("");
+      setIsDialogOpen(false);
+    }
+  };
+
+  const handleRemoveResource = async (resource: ProjectResource) => {
+    await removeResource(projectId, resource);
+  };
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
       {/* 4. Resources Section */}
@@ -337,33 +367,49 @@ const ProjectResourcesSection = () => {
         <SectionTitle>Resources</SectionTitle>
 
         <div className="flex flex-col gap-1">
-          {/* Resource Item */}
-          <a
-            href="#"
-            className="flex items-center gap-3 p-2 rounded-md hover:bg-secondary/40 group transition-colors -mx-2"
-          >
-            <div className="size-8 rounded grid place-items-center bg-secondary/50 text-muted-foreground group-hover:text-foreground group-hover:bg-secondary">
-              <HugeiconsIcon icon={File02Icon} className="size-4" />
+          {/* Resource Items */}
+          {resources.map((resource) => (
+            <div
+              key={resource.id}
+              className="flex items-center gap-3 p-2 rounded-md hover:bg-secondary/40 group transition-colors -mx-2"
+            >
+              <a
+                href={resource.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-3 flex-1 min-w-0"
+              >
+                <div className="size-8 rounded grid place-items-center bg-secondary/50 text-muted-foreground group-hover:text-foreground group-hover:bg-secondary shrink-0">
+                  <HugeiconsIcon icon={Link04Icon} className="size-4" />
+                </div>
+                <div className="flex flex-col min-w-0">
+                  <span className="text-sm font-medium text-foreground/90 truncate">
+                    {resource.title}
+                  </span>
+                  <span className="text-xs text-muted-foreground truncate">
+                    {getHostname(resource.url)} • Added {formatDistanceToNow(new Date(resource.addedAt), { addSuffix: true })}
+                  </span>
+                </div>
+              </a>
+              <button
+                onClick={() => handleRemoveResource(resource)}
+                className="opacity-0 group-hover:opacity-100 p-1.5 rounded-md hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-all shrink-0"
+                disabled={loading}
+              >
+                <HugeiconsIcon icon={Delete02Icon} className="size-4" />
+              </button>
             </div>
-            <div className="flex flex-col">
-              <span className="text-sm font-medium text-foreground/90">
-                PRD - Feature Specification
-              </span>
-              <span className="text-xs text-muted-foreground">
-                Google Docs • Edited 2d ago
-              </span>
-            </div>
-          </a>
+          ))}
 
           {/* Add Resource */}
-          <AlertDialog>
+          <AlertDialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <AlertDialogTrigger>
               <button className="w-full flex items-center gap-3 p-2 rounded-md hover:bg-secondary/40 group transition-colors -mx-2 mt-1 text-left">
                 <div className="size-8 rounded grid place-items-center border border-dashed border-muted-foreground/30 text-muted-foreground/50 group-hover:text-muted-foreground group-hover:border-muted-foreground/50">
                   <HugeiconsIcon icon={PlusSignIcon} className="size-4" />
                 </div>
                 <span className="text-sm text-muted-foreground group-hover:text-foreground/80 transition-colors">
-                  Add document or link
+                  Add link
                 </span>
               </button>
             </AlertDialogTrigger>
@@ -374,7 +420,7 @@ const ProjectResourcesSection = () => {
                   Add resource
                 </AlertDialogTitle>
                 <AlertDialogDescription className="text-sm">
-                  Attach a document or paste a link to help your team.
+                  Paste a link to help your team.
                 </AlertDialogDescription>
               </AlertDialogHeader>
 
@@ -383,35 +429,38 @@ const ProjectResourcesSection = () => {
                 {/* Title */}
                 <div className="space-y-1">
                   <Label className="text-xs">Title</Label>
-                  <Input placeholder="e.g. PRD, Design specs, API doc" />
+                  <Input 
+                    placeholder="e.g. PRD, Design specs, API doc" 
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                  />
                 </div>
 
                 {/* Link */}
                 <div className="space-y-1">
                   <Label className="text-xs">Link</Label>
-                  <Input placeholder="https://…" />
+                  <Input 
+                    placeholder="https://…" 
+                    value={url}
+                    onChange={(e) => setUrl(e.target.value)}
+                  />
                   <p className="text-[11px] text-muted-foreground">
                     Paste a Google Doc, Notion, Figma, or any public URL
                   </p>
                 </div>
 
-                {/* Divider */}
-                <div className="flex items-center gap-3">
-                  <div className="h-px flex-1 bg-border/60" />
-                  <span className="text-[11px] text-muted-foreground">or</span>
-                  <div className="h-px flex-1 bg-border/60" />
-                </div>
-
-                {/* File */}
-                <div className="space-y-1">
-                  <Label className="text-xs">Upload file</Label>
-                  <Input type="file" />
-                </div>
               </div>
 
               <AlertDialogFooter className="mt-6">
-                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction>Add resource</AlertDialogAction>
+                <AlertDialogCancel onClick={() => { setTitle(""); setUrl(""); }}>
+                  Cancel
+                </AlertDialogCancel>
+                <AlertDialogAction 
+                  onClick={handleAddResource}
+                  disabled={loading || !title.trim() || !url.trim()}
+                >
+                  {loading ? "Adding..." : "Add resource"}
+                </AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>
           </AlertDialog>
