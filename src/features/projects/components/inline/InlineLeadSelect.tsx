@@ -27,6 +27,7 @@ export function InlineLeadSelect({
         value={value || null}
         onChange={onChange}
         showLabel={showLabel}
+        btnSize="icon-sm"
       />
     </div>
   );

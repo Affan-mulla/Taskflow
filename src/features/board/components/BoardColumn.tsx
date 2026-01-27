@@ -1,69 +1,134 @@
 import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { useDroppable } from "@dnd-kit/core";
-import type { BoardColumnConfig, BoardItem, BoardItemStatus } from "../types";
+import type { BoardColumnConfig, BoardItem, BoardViewMode } from "../types";
 import { BoardCard } from "./BoardCard";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { PlusSignIcon } from "@hugeicons/core-free-icons";
 import { cn } from "@/lib/utils";
-import { STATUS_CONFIG, type MemberOption } from "@/features/projects/components/projects.types";
+import type { MemberOption } from "@/features/projects/components/projects.types";
 import { memo } from "react";
+import { getColumnDisplayConfig } from "../utils/board.utils";
+import AvatarImg from "@/components/Common/AvatarImage";
+
+// ============================================================================
+// Types
+// ============================================================================
 
 interface BoardColumnProps {
   column: BoardColumnConfig;
   items: BoardItem[];
+  viewMode: BoardViewMode;
   membersOptions: MemberOption[];
   onPriorityChange: (projectId: string, value: string | null) => void;
   onLeadChange: (projectId: string, value: string | null) => void;
   onTargetDateChange: (projectId: string, date: Date | undefined) => void;
 }
 
-const statusColors: Record<BoardItemStatus, string> = {
+// ============================================================================
+// Color Configurations
+// ============================================================================
+
+const statusColors: Record<string, string> = {
   planned: "text-muted-foreground",
   "in-progress": "text-yellow-500",
   completed: "text-green-500",
   cancelled: "text-red-500",
 };
 
-export const BoardColumn = memo(({ 
-  column, 
+const priorityColors: Record<string, string> = {
+  "no-priority": "text-muted-foreground",
+  urgent: "text-red-500",
+  high: "text-orange-500",
+  medium: "text-yellow-500",
+  low: "text-blue-500",
+};
+
+// ============================================================================
+// Helper Functions
+// ============================================================================
+
+function getColumnColor(viewMode: BoardViewMode, columnId: string): string {
+  switch (viewMode) {
+    case "status":
+      return statusColors[columnId] ?? "text-muted-foreground";
+    case "priority":
+      return priorityColors[columnId] ?? "text-muted-foreground";
+    case "lead":
+      return "text-muted-foreground";
+    default:
+      return "text-muted-foreground";
+  }
+}
+
+// ============================================================================
+// Component
+// ============================================================================
+
+export const BoardColumn = memo(({
+  column,
   items,
+  viewMode,
   membersOptions,
   onPriorityChange,
   onLeadChange,
-  onTargetDateChange 
+  onTargetDateChange,
 }: BoardColumnProps) => {
   const { setNodeRef } = useDroppable({
     id: column.id,
     data: {
       type: "Column",
       column,
+      viewMode,
     },
   });
 
-  const statusConfig = STATUS_CONFIG[column.id as BoardItemStatus];
+  const displayConfig = getColumnDisplayConfig(viewMode, column.id, membersOptions);
+  const colorClass = getColumnColor(viewMode, column.id);
+
+  const renderColumnHeader = () => {
+    // For lead view with avatar
+    if (viewMode === "lead" && column.title !== "Unassigned") {
+      return (
+        <div className="flex items-center gap-2">
+         <div className="size-5">
+          <AvatarImg fallbackText={column.title} src={displayConfig.avatarUrl} />
+         </div>
+          <h2 className="font-semibold text-sm">{column.title}</h2>
+          <span className="text-muted-foreground text-xs font-medium">
+            {items.length}
+          </span>
+        </div>
+      );
+    }
+
+    // Default icon-based header
+    return (
+      <div className="flex items-center gap-2">
+        {displayConfig.icon && (
+          <HugeiconsIcon
+            icon={displayConfig.icon}
+            className={cn("size-4", colorClass)}
+            strokeWidth={2}
+          />
+        )}
+        <h2 className="font-semibold text-sm">{column.title}</h2>
+        <span className="text-muted-foreground text-xs font-medium">
+          {items.length}
+        </span>
+      </div>
+    );
+  };
 
   return (
     <div
       ref={setNodeRef}
-      className="flex flex-col w-full min-w-90 h-full rounded-md bg-sidebar border border-transparent"
+      className="flex flex-col shrink-0 w-90 h-full rounded-md bg-sidebar border border-transparent"
     >
       {/* Header */}
-      <div className="p-3 flex items-center justify-between group">
-        <div className="flex items-center gap-2">
-          {statusConfig && (
-            <HugeiconsIcon
-              icon={statusConfig.icon}
-              className={cn("size-4", statusColors[column.id])}
-              strokeWidth={2}
-            />
-          )}
-          <h2 className="font-semibold text-sm">{column.title}</h2>
-          <span className="text-muted-foreground text-xs font-medium ml-1">
-            {items.length}
-          </span>
-        </div>
+      <div className="p-3 flex items-center justify-between group shrink-0">
+        {renderColumnHeader()}
         <Button
           variant="ghost"
           size="icon"
@@ -81,8 +146,8 @@ export const BoardColumn = memo(({
             strategy={verticalListSortingStrategy}
           >
             {items.map((item) => (
-              <BoardCard 
-                key={item.id} 
+              <BoardCard
+                key={item.id}
                 item={item}
                 membersOptions={membersOptions}
                 onPriorityChange={onPriorityChange}
@@ -91,7 +156,7 @@ export const BoardColumn = memo(({
               />
             ))}
             {items.length === 0 && (
-              <div className="h-20 flex items-center justify-center text-muted-foreground text-xs border-dashed border rounded-md bg-muted/10">
+              <div className="h-20 flex items-center justify-center text-muted-foreground text-xs border-dashed border rounded-md bg-muted/10 shrink-0">
                 No items
               </div>
             )}
@@ -101,4 +166,5 @@ export const BoardColumn = memo(({
     </div>
   );
 });
+
 BoardColumn.displayName = "BoardColumn";

@@ -6,6 +6,7 @@ import {
   Layers01FreeIcons,
   ViewIcon,
 } from "@hugeicons/core-free-icons";
+import BoardView from "./BoardView";
 
 function BoardNavbar({ boardName }: { boardName?: string }) {
   return (
@@ -40,9 +41,7 @@ function BoardNavbar({ boardName }: { boardName?: string }) {
       {/* Right */}
       <div className="shrink-0 flex items-center gap-2">
         {/* Future: Filter / Group / View switch */}
-        <Button variant="outline" size="sm">
-          View
-        </Button>
+       <BoardView/>
       </div>
     </div>
   );

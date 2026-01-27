@@ -25,6 +25,7 @@ export function InlinePrioritySelect({
         value={value || "low"}
         onChange={onChange}
         showLabel={showLabel}
+        btnSize="icon-sm"
       />
     </div>
   );

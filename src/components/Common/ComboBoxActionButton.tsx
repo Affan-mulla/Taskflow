@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import {
   Command,
   CommandEmpty,
@@ -40,8 +40,8 @@ interface ComboboxActionButtonProps {
   onChange?: (value: string | null) => void;
   mode?: "single"; // Currently supports single-select
   showLabel?: boolean; // Whether to show label alongside icon in button
+  btnSize?: "sm" | "icon-sm" ; // Button size variant
 }
-
 /**
  * ComboboxActionButton - Single-select dropdown component
  * Used for Lead selection (one user max, can be null)
@@ -50,6 +50,7 @@ export function ComboboxActionButton({
   menu,
   label,
   btnVariant = "outline",
+  btnSize,
   value = null,
   onChange,
   mode = "single",
@@ -80,7 +81,7 @@ export function ComboboxActionButton({
           variant={btnVariant}
           role="combobox"
           aria-expanded={open}
-          size={"sm"}
+          size={btnSize}
         >
          {
             label === "Lead" && selectedItem ? (
