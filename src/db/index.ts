@@ -48,4 +48,16 @@ export { deleteIssue } from "./issues/issues.delete";
 // =============================================================================
 // Tasks
 // =============================================================================
-export { createTask, type CreateTaskPayload } from "./tasks/tasks.create";
+export { createTask, type CreateTaskPayload, type LinkAttachment } from "./tasks/tasks.create";
+export { listenToTasks } from "./tasks/tasks.read";
+export {
+  updateTask,
+  updateTaskStatus,
+  updateTaskPriority,
+  updateTaskAssignees,
+  updateTaskTitle,
+  updateTaskDescription,
+  updateTaskDates,
+  updateTaskAttachments,
+} from "./tasks/tasks.update";
+export { deleteTask } from "./tasks/tasks.delete";

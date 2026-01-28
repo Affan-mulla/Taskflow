@@ -1,5 +1,5 @@
 import AvatarImg from "../Common/AvatarImage";
-import { Avatar, AvatarFallback, AvatarGroup, AvatarGroupCount, AvatarImage } from "./avatar";
+import { AvatarGroup, AvatarGroupCount } from "./avatar";
 
 interface AvatarProps {
   avatarUrls: string[];
@@ -7,6 +7,7 @@ interface AvatarProps {
 }
 
 function AvatarGroupWithCount({ avatarUrls, maxCount }: AvatarProps) {
+  
   return (
     <AvatarGroup>
       {avatarUrls &&

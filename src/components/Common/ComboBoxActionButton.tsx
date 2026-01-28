@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { cn } from "@/lib/utils";
-import { Button, buttonVariants } from "@/components/ui/button";
+import { Button} from "@/components/ui/button";
 import {
   Command,
   CommandEmpty,
@@ -91,10 +91,10 @@ export function ComboboxActionButton({
                   fallbackText={selectedItem.label}
                 />
               </div>
-            ) : (
+            ) : label === "Project" ? <></> : (
               <HugeiconsIcon
-                icon={displayIcon}
-                className={cn("size-4")}
+                icon={displayIcon || UserIcon}
+                className="size-4 text-muted-foreground"
                 strokeWidth={2}
               />
             )
@@ -102,7 +102,7 @@ export function ComboboxActionButton({
 
           {showLabel && (
             <span className="truncate">
-              {selectedItem ? selectedItem.label : label}
+              {selectedItem ? selectedItem.label.length > 10 ? `${selectedItem.label.slice(0, 20)}...` : selectedItem.label : label}
             </span>
           )}
         </Button>
@@ -174,6 +174,9 @@ interface ComboboxMultiSelectProps {
   defaultValue?: string[];
   leadId?: string | null;
   onLeadRemove?: () => void;
+  btnVariant?: "outline" | "default" | "ghost";
+  btnSize?: "sm" | "icon-sm" ;
+  showLable?: boolean; // Whether to show label alongside icon in button
 }
 
 /**
@@ -196,10 +199,13 @@ interface ComboboxMultiSelectProps {
  */
 export function ComboboxMultiSelect({
   menu,
+  btnSize = "icon-sm",
+  btnVariant = "ghost",
   label,
   value,
   onChange,
   defaultValue = [],
+  showLable = false,
   leadId = null,
   onLeadRemove,
 }: ComboboxMultiSelectProps) {
@@ -234,21 +240,19 @@ export function ComboboxMultiSelect({
 
   // Determine button label
   const buttonLabel = totalCount > 0 ? `${label} ${totalCount}` : label;
-
-
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger>
         <Button
-          variant="outline"
+          variant={btnVariant}
           role="combobox"
           aria-expanded={open}
-          size={"sm"}
+          size={btnSize}
           className={"group"}
         >
           {noneSelected ? (
             <HugeiconsIcon
-              icon={menu[0]?.icon}
+              icon={menu[0]?.icon || UserIcon}
               className="size-4 text-muted-foreground group-hover:text-foreground"
               strokeWidth={2}
             />
@@ -261,7 +265,9 @@ export function ComboboxMultiSelect({
             </div>
           )}
 
-          <span className="truncate">{buttonLabel}</span>
+          {
+            showLable && <span className="truncate">{buttonLabel}</span>
+          }
         </Button>
       </PopoverTrigger>
 

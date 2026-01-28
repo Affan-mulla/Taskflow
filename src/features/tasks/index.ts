@@ -3,6 +3,8 @@ export { default as AddTask } from "./components/AddTask";
 
 // Hooks
 export { useCreateTask } from "./hooks/useCreateTask";
+export { useTasks } from "./hooks/useTasks";
+export { useWorkspaceTasks } from "./hooks/useWorkspaceTasks";
 
 // Validation
 export {

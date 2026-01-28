@@ -6,13 +6,13 @@ import {
 } from "@hugeicons/core-free-icons";
 import type { Project } from "@/shared/types/db";
 import {
-  GRID_MD,
-  GRID_LG,
   PRIORITY_CONFIG,
   STATUS_CONFIG,
   type ProjectPriority,
   type ProjectStatus,
   type MemberOption,
+  GRID_MD,
+  GRID_LG,
 } from "./projects.types";
 import { formatDate } from "./projects.utils";
 import { useProjectInlineEdit } from "./useProjectInlineEdit";

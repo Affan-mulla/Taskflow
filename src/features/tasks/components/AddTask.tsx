@@ -361,6 +361,8 @@ const AddTask = ({ defaultProjectId, triggerVariant = "default" }: AddTaskProps)
                     label="Assignees"
                     value={field.value ?? []}
                     onChange={field.onChange}
+                    btnSize="sm"  
+                    btnVariant="outline"
                   />
                 )}
               />

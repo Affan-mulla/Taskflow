@@ -32,7 +32,7 @@ export function CalendarButton({ type, date, onDateChange, btnVariant = "outline
          {
             type === "Target" ? <HugeiconsIcon icon={CalendarBlockIcon} strokeWidth={2} className="size-4 text-muted-foreground"/> : <HugeiconsIcon icon={CalendarCheckOut01Icon} strokeWidth={2} className="size-4 text-muted-foreground"     />
          }
-          {validDate ? format(validDate, "PPP") : type}
+          {validDate ? format(validDate, "MMM d, yyyy") : type}
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-auto p-0">

@@ -31,28 +31,40 @@ import { cn } from "@/lib/utils";
 // Types
 // ============================================================================
 
-export type FilterCategory = "status" | "priority" | "lead" | "dates";
+export type FilterCategory = "status" | "priority" | "lead" | "dates" | "assignee" | "project";
 
 export interface FilterValue {
   category: FilterCategory;
   value: string | Date;
+  label?: string;
 }
+
+type EntityType = "project" | "task";
 
 interface ProjectFilterProps {
   filters?: FilterValue[];
   members?: MemberOption[];
+  projects?: Array<{ value: string; label: string }>;
   onFiltersChange?: (filters: FilterValue[]) => void;
+  entityType?: EntityType;
 }
 
 // ============================================================================
 // Category & Value Metadata
 // ============================================================================
 
-const CATEGORIES: { id: FilterCategory; label: string }[] = [
+const PROJECT_CATEGORIES: { id: FilterCategory; label: string }[] = [
   { id: "status", label: "Status" },
   { id: "priority", label: "Priority" },
   { id: "lead", label: "Lead" },
   { id: "dates", label: "Dates" },
+];
+
+const TASK_CATEGORIES: { id: FilterCategory; label: string }[] = [
+  { id: "status", label: "Status" },
+  { id: "priority", label: "Priority" },
+  { id: "assignee", label: "Assignee" },
+  { id: "project", label: "Project" },
 ];
 
 const DATE_PRESETS = [
@@ -67,9 +79,17 @@ const DATE_PRESETS = [
 // Main Filter Component
 // ============================================================================
 
-export function ProjectFilter({ filters = [], members = [], onFiltersChange }: ProjectFilterProps) {
+export function ProjectFilter({ 
+  filters = [], 
+  members = [], 
+  projects = [],
+  onFiltersChange, 
+  entityType = "project" 
+}: ProjectFilterProps) {
   const [open, setOpen] = React.useState(false);
   const [selectedCategory, setSelectedCategory] = React.useState<FilterCategory | null>("status");
+  
+  const CATEGORIES = entityType === "project" ? PROJECT_CATEGORIES : TASK_CATEGORIES;
 
   const toggleFilter = (category: FilterCategory, value: string | Date) => {
     const existingIndex = filters.findIndex(
@@ -182,6 +202,8 @@ export function ProjectFilter({ filters = [], members = [], onFiltersChange }: P
         );
 
       case "lead":
+      case "assignee":
+        const categoryKey = selectedCategory === "lead" ? "lead" : "assignee";
         return (
           <Command className="border-0">
             <CommandInput placeholder="Search team member..." className="h-9" />
@@ -189,12 +211,12 @@ export function ProjectFilter({ filters = [], members = [], onFiltersChange }: P
               <CommandEmpty>No member found.</CommandEmpty>
               <CommandGroup>
                 {members.map((member) => {
-                  const isActive = isFilterActive("lead", member.value);
+                  const isActive = isFilterActive(categoryKey, member.value);
                   return (
                     <CommandItem
                       key={member.value}
                       value={member.label}
-                      onSelect={() => toggleFilter("lead", member.value)}
+                      onSelect={() => toggleFilter(categoryKey, member.value)}
                       className="cursor-pointer"
                     >
                       <div className={cn(
@@ -215,6 +237,39 @@ export function ProjectFilter({ filters = [], members = [], onFiltersChange }: P
                       <span className="ml-auto text-xs text-muted-foreground">
                         {member.email}
                       </span>
+                    </CommandItem>
+                  );
+                })}
+              </CommandGroup>
+            </CommandList>
+          </Command>
+        );
+
+      case "project":
+        return (
+          <Command className="border-0">
+            <CommandInput placeholder="Search project..." className="h-9" />
+            <CommandList>
+              <CommandEmpty>No project found.</CommandEmpty>
+              <CommandGroup>
+                {projects.map((project) => {
+                  const isActive = isFilterActive("project", project.value);
+                  return (
+                    <CommandItem
+                      key={project.value}
+                      value={project.label}
+                      onSelect={() => toggleFilter("project", project.value)}
+                      className="cursor-pointer"
+                    >
+                      <div className={cn(
+                        "mr-2 flex size-4 items-center justify-center rounded-sm border border-primary",
+                        isActive ? "bg-primary text-primary-foreground" : "opacity-50"
+                      )}>
+                        {isActive && (
+                          <HugeiconsIcon icon={Tick02Icon} className="size-3" strokeWidth={3} />
+                        )}
+                      </div>
+                      <span>{project.label}</span>
                     </CommandItem>
                   );
                 })}
@@ -385,12 +440,16 @@ export function FilterSummary({ filters, members = [], onRemoveFilter, onRemoveC
   }, {} as Record<FilterCategory, FilterValue[]>);
 
   const getValueLabel = (filter: FilterValue): string => {
+    // Use label if provided
+    if (filter.label) return filter.label;
+    
     switch (filter.category) {
       case "status":
         return STATUS_OPTIONS.find(o => o.value === filter.value)?.label || "";
       case "priority":
         return PRIORITY_OPTIONS.find(o => o.value === filter.value)?.label || "";
       case "lead":
+      case "assignee":
         return members.find(m => m.value === filter.value)?.label || "";
       case "dates":
         if (typeof filter.value === "string") {
@@ -400,13 +459,16 @@ export function FilterSummary({ filters, members = [], onRemoveFilter, onRemoveC
           return filter.value.toLocaleDateString();
         }
         return "";
+      case "project":
+        return String(filter.value);
       default:
         return "";
     }
   };
 
   const getCategoryLabel = (category: FilterCategory): string => {
-    return CATEGORIES.find(c => c.id === category)?.label || category;
+    const allCategories = [...PROJECT_CATEGORIES, ...TASK_CATEGORIES];
+    return allCategories.find(c => c.id === category)?.label || category;
   };
 
   return (

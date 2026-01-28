@@ -169,7 +169,7 @@ const ProjectListPage = () => {
   return (
     <div className="h-full w-full">
       <ProjectListHeader
-        projectCount={filteredProjects.length}
+        itemCount={filteredProjects.length}
         members={memberOptions}
         filters={filters}
         onAddProject={handleAddProject}

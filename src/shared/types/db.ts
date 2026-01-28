@@ -56,3 +56,29 @@ export interface Issue {
   createdAt?: FirestoreTimestamp;
   updatedAt?: FirestoreTimestamp;
 }
+
+// =============================================================================
+// Task Types (Enhanced version of Issues with more fields)
+// =============================================================================
+
+export interface TaskAttachment {
+  title: string;
+  url: string;
+}
+
+export interface Task {
+  id?: string;
+  projectId: string;
+  title: string;
+  summary?: string;
+  description?: string;
+  status: IssueStatus;
+  priority: IssuePriority;
+  assignees: string[];
+  startDate?: FirestoreTimestamp | null;
+  targetDate?: FirestoreTimestamp | null;
+  attachments: TaskAttachment[];
+  createdBy: string;
+  createdAt?: FirestoreTimestamp;
+  updatedAt?: FirestoreTimestamp;
+}

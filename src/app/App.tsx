@@ -69,12 +69,12 @@ export function App() {
       >
         {/* Default workspace view */}
         <Route index element={<Navigate to="projects" replace />} />
-        <Route path="tasks" element={<div>Task</div>} />
+        <Route path="tasks" element={<ProjectTaskPage />} />
         <Route path="board" element={<Board />} />
           <Route path="team" element={<Team/>} />
         {/* Projects */}
         <Route path="projects" element={<ProjectListPage />} />
-        <Route path="projects/:projectId" element={<ProjectPage />}>
+        <Route path="projects/:projectSlug" element={<ProjectPage />}>
           {/* Default to overview when landing on project */}
           <Route index element={<Navigate to="overview" replace />} />
 
