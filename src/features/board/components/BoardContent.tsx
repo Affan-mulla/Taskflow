@@ -23,8 +23,10 @@ import type {
   ProjectPriority,
   ProjectStatus,
 } from "@/features/projects/components/projects.types";
+import type { IssuePriority, IssueStatus } from "@/shared/types/db";
 import { useWorkspaceStore } from "@/shared/store/store.workspace";
 import { useUpdateProject } from "@/features/projects/hooks/useUpdateProject";
+import { useTasks } from "../hooks/useTasks";
 import { UserIcon } from "@hugeicons/core-free-icons";
 import { useState } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -32,6 +34,7 @@ import { useBoardView } from "../context/BoardViewContext";
 import {
   getColumnsForViewMode,
   groupItemsByViewMode,
+  taskToBoardItem,
 } from "../utils/board.utils";
 
 // ============================================================================
@@ -76,9 +79,9 @@ function projectToBoardItem(project: {
 }
 
 /**
- * Gets the update function based on view mode
+ * Gets the update function based on view mode for PROJECTS
  */
-function getUpdateHandler(
+function getProjectUpdateHandler(
   viewMode: BoardViewMode,
   updateStatus: (id: string, status: ProjectStatus) => void,
   updatePriority: (id: string, priority: ProjectPriority) => void,
@@ -94,9 +97,45 @@ function getUpdateHandler(
         break;
       case "lead":
         // For unassigned column, clear the lead by passing empty string
-        // For member columns, assign the lead
         const leadValue = columnId === "unassigned" ? "" : columnId;
         updateLead(itemId, leadValue);
+        break;
+    }
+  };
+}
+
+/**
+ * Gets the update function based on view mode for TASKS
+ */
+function getTaskUpdateHandler(
+  viewMode: BoardViewMode,
+  updateStatus: (id: string, status: IssueStatus) => void,
+  updatePriority: (id: string, priority: IssuePriority) => void,
+  updateAssignees: (id: string, assignees: string[]) => void,
+  currentItems: BoardItem[]
+) {
+  return (itemId: string, columnId: string) => {
+    switch (viewMode) {
+      case "status":
+        updateStatus(itemId, columnId as IssueStatus);
+        break;
+      case "priority":
+        updatePriority(itemId, columnId as IssuePriority);
+        break;
+      case "assignee":
+        // For assignee view, we need to handle multi-assignee logic
+        const item = currentItems.find((i) => i.id === itemId);
+        const currentAssignees = item?.assignees || [];
+        
+        if (columnId === "unassigned") {
+          // Moving to unassigned clears all assignees
+          updateAssignees(itemId, []);
+        } else {
+          // Add the new assignee if not already assigned
+          if (!currentAssignees.includes(columnId)) {
+            updateAssignees(itemId, [...currentAssignees, columnId]);
+          }
+        }
         break;
     }
   };
@@ -108,20 +147,39 @@ function getUpdateHandler(
 
 export default function BoardContent() {
   // Context
-  const { viewMode } = useBoardView();
+  const { entityType, viewMode, projectId } = useBoardView();
 
   // Store data
   const { projects, projectsLoading, members: workspaceMembers } = useWorkspaceStore();
-  const { updatePriority, updateStatus, updateLead, updateTargetDate } = useUpdateProject();
+  
+  // Project mutations
+  const { 
+    updatePriority: updateProjectPriority, 
+    updateStatus: updateProjectStatus, 
+    updateLead: updateProjectLead, 
+    updateTargetDate: updateProjectTargetDate 
+  } = useUpdateProject();
+  
+  // Task data & mutations (only used when entityType is "task")
+  const { 
+    tasks, 
+    loading: tasksLoading, 
+    updateStatus: updateTaskStatus, 
+    updatePriority: updateTaskPriority, 
+    updateAssignees: updateTaskAssignees,
+    updateTargetDate: updateTaskTargetDate,
+  } = useTasks({ projectId: projectId || "" });
 
   // Local state for drag operations
   const [activeId, setActiveId] = useState<string | null>(null);
 
-  // Transform projects to board items
-  const boardItems = useMemo(
-    () => projects.map(projectToBoardItem),
-    [projects]
-  );
+  // Transform entities to board items based on entity type
+  const boardItems = useMemo(() => {
+    if (entityType === "task") {
+      return tasks.map(taskToBoardItem);
+    }
+    return projects.map(projectToBoardItem);
+  }, [entityType, projects, tasks]);
 
   // Transform workspace members to member options
   const membersOptions = useMemo<MemberOption[]>(
@@ -136,17 +194,20 @@ export default function BoardContent() {
     [workspaceMembers]
   );
 
-  // Get columns based on view mode
+  // Get columns based on view mode and entity type
   const columns = useMemo(
-    () => getColumnsForViewMode(viewMode, membersOptions),
-    [viewMode, membersOptions]
+    () => getColumnsForViewMode(viewMode, membersOptions, entityType),
+    [viewMode, membersOptions, entityType]
   );
 
-  // Group items based on view mode
+  // Group items based on view mode and entity type
   const groupedItems = useMemo(
-    () => groupItemsByViewMode(boardItems, viewMode, membersOptions),
-    [boardItems, viewMode, membersOptions]
+    () => groupItemsByViewMode(boardItems, viewMode, membersOptions, entityType),
+    [boardItems, viewMode, membersOptions, entityType]
   );
+
+  // Loading state based on entity type
+  const isLoading = entityType === "task" ? tasksLoading : projectsLoading;
 
   // DnD sensors
   const sensors = useSensors(
@@ -160,11 +221,34 @@ export default function BoardContent() {
     })
   );
 
-  // Unified update handler for drag operations
-  const handleColumnUpdate = useMemo(
-    () => getUpdateHandler(viewMode, updateStatus, updatePriority, updateLead),
-    [viewMode, updateStatus, updatePriority, updateLead]
-  );
+  // Unified update handler for drag operations based on entity type
+  const handleColumnUpdate = useMemo(() => {
+    if (entityType === "task") {
+      return getTaskUpdateHandler(
+        viewMode,
+        updateTaskStatus,
+        updateTaskPriority,
+        updateTaskAssignees,
+        boardItems
+      );
+    }
+    return getProjectUpdateHandler(
+      viewMode,
+      updateProjectStatus,
+      updateProjectPriority,
+      updateProjectLead
+    );
+  }, [
+    entityType,
+    viewMode,
+    updateProjectStatus,
+    updateProjectPriority,
+    updateProjectLead,
+    updateTaskStatus,
+    updateTaskPriority,
+    updateTaskAssignees,
+    boardItems,
+  ]);
 
   // ============================================================================
   // Event Handlers
@@ -224,32 +308,46 @@ export default function BoardContent() {
   }, []);
 
   // ============================================================================
-  // Inline Edit Handlers
+  // Inline Edit Handlers (entity-aware)
   // ============================================================================
 
   const handlePriorityChange = useCallback(
-    (projectId: string, value: string | null) => {
-      if (value) {
-        updatePriority(projectId, value as ProjectPriority);
+    (itemId: string, value: string | null) => {
+      if (!value) return;
+      if (entityType === "task") {
+        updateTaskPriority(itemId, value as IssuePriority);
+      } else {
+        updateProjectPriority(itemId, value as ProjectPriority);
       }
     },
-    [updatePriority]
+    [entityType, updateProjectPriority, updateTaskPriority]
   );
 
   const handleLeadChange = useCallback(
-    (projectId: string, value: string | null) => {
+    (itemId: string, value: string | null) => {
       if (value) {
-        updateLead(projectId, value);
+        updateProjectLead(itemId, value);
       }
     },
-    [updateLead]
+    [updateProjectLead]
+  );
+
+  const handleAssigneesChange = useCallback(
+    (itemId: string, value: string[]) => {
+      updateTaskAssignees(itemId, value);
+    },
+    [updateTaskAssignees]
   );
 
   const handleTargetDateChange = useCallback(
-    (projectId: string, date: Date | undefined) => {
-      updateTargetDate(projectId, date?.toISOString());
+    (itemId: string, date: Date | undefined) => {
+      if (entityType === "task") {
+        updateTaskTargetDate(itemId, date?.toISOString());
+      } else {
+        updateProjectTargetDate(itemId, date?.toISOString());
+      }
     },
-    [updateTargetDate]
+    [entityType, updateProjectTargetDate, updateTaskTargetDate]
   );
 
   // ============================================================================
@@ -258,7 +356,7 @@ export default function BoardContent() {
 
   const activeItem = boardItems.find((item) => item.id === activeId);
 
-  if (projectsLoading) {
+  if (isLoading) {
     return (
       <div className="flex h-full px-4 pt-4 pb-2 space-x-3">
         {columns.slice(0, 4).map((col) => (
@@ -299,9 +397,11 @@ export default function BoardContent() {
                   column={col}
                   items={groupedItems[col.id] || []}
                   viewMode={viewMode}
+                  entityType={entityType}
                   membersOptions={membersOptions}
                   onPriorityChange={handlePriorityChange}
                   onLeadChange={handleLeadChange}
+                  onAssigneesChange={handleAssigneesChange}
                   onTargetDateChange={handleTargetDateChange}
                 />
               </div>
@@ -316,6 +416,7 @@ export default function BoardContent() {
             <ItemCard
               item={activeItem}
               isOverlay
+              entityType={entityType}
               membersOptions={membersOptions}
             />
           ) : null}
@@ -344,6 +445,9 @@ function getCurrentValueForViewMode(
       return item.priority;
     case "lead":
       return item.lead || "unassigned";
+    case "assignee":
+      // For assignee view, return the first assignee or unassigned
+      return item.assignees?.[0] || "unassigned";
     default:
       return item.priority;
   }

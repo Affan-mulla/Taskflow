@@ -1,11 +1,12 @@
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import type { BoardItem } from "../types";
+import type { BoardItem, BoardEntityType } from "../types";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { forwardRef, memo } from "react";
 import { InlinePrioritySelect } from "@/features/projects/components/inline/InlinePrioritySelect";
 import { InlineLeadSelect } from "@/features/projects/components/inline/InlineLeadSelect";
+import { InlineAssigneesSelect } from "./InlineAssigneesSelect";
 import { CalendarButton } from "@/components/Common/CalendarButton";
 import type {
   MemberOption,
@@ -14,18 +15,22 @@ import type {
 
 interface BoardCardProps {
   item: BoardItem;
+  entityType: BoardEntityType;
   membersOptions: MemberOption[];
-  onPriorityChange: (projectId: string, value: string | null) => void;
-  onLeadChange: (projectId: string, value: string | null) => void;
-  onTargetDateChange: (projectId: string, date: Date | undefined) => void;
+  onPriorityChange: (itemId: string, value: string | null) => void;
+  onLeadChange: (itemId: string, value: string | null) => void;
+  onAssigneesChange: (itemId: string, value: string[]) => void;
+  onTargetDateChange: (itemId: string, date: Date | undefined) => void;
 }
 
 export const BoardCard = memo(
   ({
     item,
+    entityType,
     membersOptions,
     onPriorityChange,
     onLeadChange,
+    onAssigneesChange,
     onTargetDateChange,
   }: BoardCardProps) => {
     const {
@@ -61,9 +66,11 @@ export const BoardCard = memo(
         ref={setNodeRef}
         style={style}
         item={item}
+        entityType={entityType}
         membersOptions={membersOptions}
         onPriorityChange={onPriorityChange}
         onLeadChange={onLeadChange}
+        onAssigneesChange={onAssigneesChange}
         onTargetDateChange={onTargetDateChange}
         {...attributes}
         {...listeners}
@@ -79,10 +86,12 @@ interface ItemCardProps extends Omit<
 > {
   item: BoardItem;
   isOverlay?: boolean;
+  entityType?: BoardEntityType;
   membersOptions?: MemberOption[];
-  onPriorityChange?: (projectId: string, value: string | null) => void;
-  onLeadChange?: (projectId: string, value: string | null) => void;
-  onTargetDateChange?: (projectId: string, date: Date | undefined) => void;
+  onPriorityChange?: (itemId: string, value: string | null) => void;
+  onLeadChange?: (itemId: string, value: string | null) => void;
+  onAssigneesChange?: (itemId: string, value: string[]) => void;
+  onTargetDateChange?: (itemId: string, date: Date | undefined) => void;
 }
 
 export const ItemCard = forwardRef<HTMLDivElement, ItemCardProps>(
@@ -92,9 +101,11 @@ export const ItemCard = forwardRef<HTMLDivElement, ItemCardProps>(
       isOverlay,
       className,
       style,
+      entityType = "project",
       membersOptions = [],
       onPriorityChange,
       onLeadChange,
+      onAssigneesChange,
       onTargetDateChange,
       ...props
     },
@@ -129,7 +140,7 @@ export const ItemCard = forwardRef<HTMLDivElement, ItemCardProps>(
               </div>
 
                 {/* Actions row */}
-                <div className="flex items-center  gap-1">
+                <div className="flex items-center gap-1">
                   <div className="flex items-center gap-1">
                     <InlinePrioritySelect
                       value={item.priority as ProjectPriority}
@@ -137,12 +148,21 @@ export const ItemCard = forwardRef<HTMLDivElement, ItemCardProps>(
                       showLabel={false}
                     />
                   </div>
-                  <InlineLeadSelect
-                    value={item.lead}
-                    onChange={(value) => onLeadChange?.(item.id, value)}
-                    members={membersOptions}
-                    showLabel={false}
-                  />
+                  {/* Show Lead for projects, Assignees for tasks */}
+                  {entityType === "project" ? (
+                    <InlineLeadSelect
+                      value={item.lead}
+                      onChange={(value) => onLeadChange?.(item.id, value)}
+                      members={membersOptions}
+                      showLabel={false}
+                    />
+                  ) : (
+                    <InlineAssigneesSelect
+                      value={item.assignees || []}
+                      onChange={(value) => onAssigneesChange?.(item.id, value)}
+                      members={membersOptions}
+                    />
+                  )}
                 </div>
             </div>
 

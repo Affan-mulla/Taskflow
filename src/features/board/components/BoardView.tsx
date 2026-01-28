@@ -12,11 +12,13 @@ import {
   StatusFreeIcons,
   User,
   Tick01Icon,
+  UserMultiple02Icon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { useBoardView } from "../context/BoardViewContext";
-import type { BoardViewMode } from "../types";
+import type { BoardViewMode, BoardEntityType } from "../types";
 import { cn } from "@/lib/utils";
+import { useMemo } from "react";
 
 // ============================================================================
 // Types
@@ -32,20 +34,32 @@ interface ViewOption {
 // Constants
 // ============================================================================
 
-const VIEW_OPTIONS: ViewOption[] = [
+const PROJECT_VIEW_OPTIONS: ViewOption[] = [
   { value: "status", label: "Status", icon: StatusFreeIcons },
   { value: "priority", label: "Priority", icon: FullSignalFreeIcons },
   { value: "lead", label: "Lead", icon: User },
 ];
+
+const TASK_VIEW_OPTIONS: ViewOption[] = [
+  { value: "status", label: "Status", icon: StatusFreeIcons },
+  { value: "priority", label: "Priority", icon: FullSignalFreeIcons },
+  { value: "assignee", label: "Assignee", icon: UserMultiple02Icon },
+];
+
+// Helper function to get view options based on entity type
+function getViewOptions(entityType: BoardEntityType): ViewOption[] {
+  return entityType === "task" ? TASK_VIEW_OPTIONS : PROJECT_VIEW_OPTIONS;
+}
 
 // ============================================================================
 // Component
 // ============================================================================
 
 const BoardView = () => {
-  const { viewMode, setViewMode } = useBoardView();
+  const { viewMode, setViewMode, entityType } = useBoardView();
 
-  const currentView = VIEW_OPTIONS.find((opt) => opt.value === viewMode);
+  const viewOptions = useMemo(() => getViewOptions(entityType), [entityType]);
+  const currentView = viewOptions.find((opt) => opt.value === viewMode);
 
   return (
     <DropdownMenu>
@@ -66,7 +80,7 @@ const BoardView = () => {
       <DropdownMenuContent align="end" className="w-48">
         <DropdownMenuGroup>
           <DropdownMenuLabel>Group by</DropdownMenuLabel>
-          {VIEW_OPTIONS.map((option) => (
+          {viewOptions.map((option) => (
             <DropdownMenuItem
               key={option.value}
               onClick={() => setViewMode(option.value)}

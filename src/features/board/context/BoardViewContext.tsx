@@ -1,13 +1,16 @@
 import { createContext, useContext, useState, useCallback, type ReactNode } from "react";
-import type { BoardViewMode } from "../types";
+import type { BoardViewMode, BoardEntityType } from "../types";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 interface BoardViewContextValue {
+  entityType: BoardEntityType;
   viewMode: BoardViewMode;
   setViewMode: (mode: BoardViewMode) => void;
+  /** Project ID - only set when entityType is "task" */
+  projectId?: string;
 }
 
 // ============================================================================
@@ -22,12 +25,19 @@ const BoardViewContext = createContext<BoardViewContextValue | null>(null);
 
 interface BoardViewProviderProps {
   children: ReactNode;
+  /** The type of entity this board displays */
+  entityType?: BoardEntityType;
+  /** Default view mode */
   defaultView?: BoardViewMode;
+  /** Project ID for task boards */
+  projectId?: string;
 }
 
 export function BoardViewProvider({ 
   children, 
-  defaultView = "priority" 
+  entityType = "project",
+  defaultView = "priority",
+  projectId,
 }: BoardViewProviderProps) {
   const [viewMode, setViewModeState] = useState<BoardViewMode>(defaultView);
 
@@ -36,7 +46,7 @@ export function BoardViewProvider({
   }, []);
 
   return (
-    <BoardViewContext.Provider value={{ viewMode, setViewMode }}>
+    <BoardViewContext.Provider value={{ entityType, viewMode, setViewMode, projectId }}>
       {children}
     </BoardViewContext.Provider>
   );

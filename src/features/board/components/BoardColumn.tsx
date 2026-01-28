@@ -1,6 +1,6 @@
 import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { useDroppable } from "@dnd-kit/core";
-import type { BoardColumnConfig, BoardItem, BoardViewMode } from "../types";
+import type { BoardColumnConfig, BoardItem, BoardViewMode, BoardEntityType } from "../types";
 import { BoardCard } from "./BoardCard";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -20,20 +20,32 @@ interface BoardColumnProps {
   column: BoardColumnConfig;
   items: BoardItem[];
   viewMode: BoardViewMode;
+  entityType: BoardEntityType;
   membersOptions: MemberOption[];
-  onPriorityChange: (projectId: string, value: string | null) => void;
-  onLeadChange: (projectId: string, value: string | null) => void;
-  onTargetDateChange: (projectId: string, date: Date | undefined) => void;
+  onPriorityChange: (itemId: string, value: string | null) => void;
+  onLeadChange: (itemId: string, value: string | null) => void;
+  onAssigneesChange: (itemId: string, value: string[]) => void;
+  onTargetDateChange: (itemId: string, date: Date | undefined) => void;
 }
 
 // ============================================================================
 // Color Configurations
 // ============================================================================
 
-const statusColors: Record<string, string> = {
+// Project status colors
+const projectStatusColors: Record<string, string> = {
   planned: "text-muted-foreground",
   "in-progress": "text-yellow-500",
   completed: "text-green-500",
+  cancelled: "text-red-500",
+};
+
+// Task/Issue status colors
+const taskStatusColors: Record<string, string> = {
+  backlog: "text-muted-foreground",
+  todo: "text-blue-400",
+  "in-progress": "text-yellow-500",
+  done: "text-green-500",
   cancelled: "text-red-500",
 };
 
@@ -49,13 +61,21 @@ const priorityColors: Record<string, string> = {
 // Helper Functions
 // ============================================================================
 
-function getColumnColor(viewMode: BoardViewMode, columnId: string): string {
+function getColumnColor(
+  viewMode: BoardViewMode,
+  columnId: string,
+  entityType: BoardEntityType
+): string {
   switch (viewMode) {
     case "status":
-      return statusColors[columnId] ?? "text-muted-foreground";
+      if (entityType === "task") {
+        return taskStatusColors[columnId] ?? "text-muted-foreground";
+      }
+      return projectStatusColors[columnId] ?? "text-muted-foreground";
     case "priority":
       return priorityColors[columnId] ?? "text-muted-foreground";
     case "lead":
+    case "assignee":
       return "text-muted-foreground";
     default:
       return "text-muted-foreground";
@@ -70,9 +90,11 @@ export const BoardColumn = memo(({
   column,
   items,
   viewMode,
+  entityType,
   membersOptions,
   onPriorityChange,
   onLeadChange,
+  onAssigneesChange,
   onTargetDateChange,
 }: BoardColumnProps) => {
   const { setNodeRef } = useDroppable({
@@ -84,12 +106,12 @@ export const BoardColumn = memo(({
     },
   });
 
-  const displayConfig = getColumnDisplayConfig(viewMode, column.id, membersOptions);
-  const colorClass = getColumnColor(viewMode, column.id);
+  const displayConfig = getColumnDisplayConfig(viewMode, column.id, membersOptions, entityType);
+  const colorClass = getColumnColor(viewMode, column.id, entityType);
 
   const renderColumnHeader = () => {
-    // For lead view with avatar
-    if (viewMode === "lead" && column.title !== "Unassigned") {
+    // For lead/assignee view with avatar
+    if ((viewMode === "lead" || viewMode === "assignee") && column.title !== "Unassigned") {
       return (
         <div className="flex items-center gap-2">
          <div className="size-5">
@@ -149,9 +171,11 @@ export const BoardColumn = memo(({
               <BoardCard
                 key={item.id}
                 item={item}
+                entityType={entityType}
                 membersOptions={membersOptions}
                 onPriorityChange={onPriorityChange}
                 onLeadChange={onLeadChange}
+                onAssigneesChange={onAssigneesChange}
                 onTargetDateChange={onTargetDateChange}
               />
             ))}

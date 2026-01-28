@@ -5,17 +5,58 @@ import {
   PRIORITY_CONFIG,
   type MemberOption,
 } from "@/features/projects/components/projects.types";
-import type { BoardColumnConfig, BoardItem, BoardViewMode } from "../types";
-import { UserIcon } from "@hugeicons/core-free-icons";
+import type { BoardColumnConfig, BoardItem, BoardViewMode, BoardEntityType } from "../types";
+import {
+  UserIcon,
+  TaskDaily01Icon,
+  Progress03FreeIcons,
+  View,
+  CheckmarkCircle01Icon,
+  CancelCircleIcon,
+  Archive02Icon,
+} from "@hugeicons/core-free-icons";
+import type { Issue, IssueStatus } from "@/shared/types/db";
+
+// ============================================================================
+// Task Status Configuration
+// ============================================================================
+
+/** Task status options (different from project status) */
+export const TASK_STATUS_OPTIONS = [
+  { value: "backlog", label: "Backlog", icon: Archive02Icon },
+  { value: "todo", label: "To Do", icon: TaskDaily01Icon },
+  { value: "in-progress", label: "In Progress", icon: Progress03FreeIcons },
+  { value: "in-review", label: "In Review", icon: View },
+  { value: "done", label: "Done", icon: CheckmarkCircle01Icon },
+  { value: "cancelled", label: "Cancelled", icon: CancelCircleIcon },
+];
+
+export const TASK_STATUS_CONFIG: Record<IssueStatus, { label: string; icon: any }> = {
+  backlog: { label: "Backlog", icon: Archive02Icon },
+  todo: { label: "To Do", icon: TaskDaily01Icon },
+  "in-progress": { label: "In Progress", icon: Progress03FreeIcons },
+  "in-review": { label: "In Review", icon: View },
+  done: { label: "Done", icon: CheckmarkCircle01Icon },
+  cancelled: { label: "Cancelled", icon: CancelCircleIcon },
+};
 
 // ============================================================================
 // Column Configurations
 // ============================================================================
 
 /**
- * Status-based columns configuration
+ * Status-based columns configuration (for projects)
  */
 export const STATUS_COLUMNS: BoardColumnConfig[] = STATUS_OPTIONS.map((option) => ({
+  id: option.value,
+  title: option.label,
+  icon: option.icon,
+}));
+
+/**
+ * Task status-based columns configuration
+ */
+export const TASK_STATUS_COLUMNS: BoardColumnConfig[] = TASK_STATUS_OPTIONS.map((option) => ({
   id: option.value,
   title: option.label,
   icon: option.icon,
@@ -31,7 +72,7 @@ export const PRIORITY_COLUMNS: BoardColumnConfig[] = PRIORITY_OPTIONS.map((optio
 }));
 
 /**
- * Generates lead-based columns from workspace members
+ * Generates lead-based columns from workspace members (for projects)
  */
 export function generateLeadColumns(members: MemberOption[]): BoardColumnConfig[] {
   const unassigned: BoardColumnConfig = {
@@ -49,24 +90,35 @@ export function generateLeadColumns(members: MemberOption[]): BoardColumnConfig[
   return [unassigned, ...memberColumns];
 }
 
+/**
+ * Generates assignee-based columns from workspace members (for tasks)
+ * Same structure as lead columns, but semantically different
+ */
+export function generateAssigneeColumns(members: MemberOption[]): BoardColumnConfig[] {
+  return generateLeadColumns(members);
+}
+
 // ============================================================================
 // Column Config Getters
 // ============================================================================
 
 /**
- * Gets the column configuration based on view mode
+ * Gets the column configuration based on view mode and entity type
  */
 export function getColumnsForViewMode(
   viewMode: BoardViewMode,
-  members: MemberOption[] = []
+  members: MemberOption[] = [],
+  entityType: BoardEntityType = "project"
 ): BoardColumnConfig[] {
   switch (viewMode) {
     case "status":
-      return STATUS_COLUMNS;
+      return entityType === "task" ? TASK_STATUS_COLUMNS : STATUS_COLUMNS;
     case "priority":
       return PRIORITY_COLUMNS;
     case "lead":
       return generateLeadColumns(members);
+    case "assignee":
+      return generateAssigneeColumns(members);
     default:
       return PRIORITY_COLUMNS;
   }
@@ -78,10 +130,16 @@ export function getColumnsForViewMode(
 export function getColumnDisplayConfig(
   viewMode: BoardViewMode,
   columnId: string,
-  members: MemberOption[] = []
+  members: MemberOption[] = [],
+  entityType: BoardEntityType = "project"
 ): { icon?: any; color?: string; avatarUrl?: string } {
   switch (viewMode) {
     case "status": {
+      // Use task status config for tasks
+      if (entityType === "task") {
+        const config = TASK_STATUS_CONFIG[columnId as keyof typeof TASK_STATUS_CONFIG];
+        return config ? { icon: config.icon } : {};
+      }
       const config = STATUS_CONFIG[columnId as keyof typeof STATUS_CONFIG];
       return config ? { icon: config.icon } : {};
     }
@@ -89,7 +147,8 @@ export function getColumnDisplayConfig(
       const config = PRIORITY_CONFIG[columnId as keyof typeof PRIORITY_CONFIG];
       return config ? { icon: config.icon } : {};
     }
-    case "lead": {
+    case "lead":
+    case "assignee": {
       if (columnId === "unassigned") {
         return { icon: UserIcon };
       }
@@ -108,7 +167,7 @@ export function getColumnDisplayConfig(
 type GroupedItems = Record<string, BoardItem[]>;
 
 /**
- * Groups items by their status
+ * Groups items by their status (for projects)
  */
 export function groupByStatus(items: BoardItem[]): GroupedItems {
   const groups: GroupedItems = {
@@ -175,20 +234,83 @@ export function groupByLead(items: BoardItem[], members: MemberOption[]): Groupe
 }
 
 /**
- * Groups items based on the view mode
+ * Groups items by task status (backlog, todo, in-progress, in-review, done, cancelled)
+ */
+export function groupByTaskStatus(items: BoardItem[]): GroupedItems {
+  const groups: GroupedItems = {
+    backlog: [],
+    todo: [],
+    "in-progress": [],
+    "in-review": [],
+    done: [],
+    cancelled: [],
+  };
+
+  items.forEach((item) => {
+    if (groups[item.status]) {
+      groups[item.status].push(item);
+    }
+  });
+
+  return groups;
+}
+
+/**
+ * Groups items by their assignees.
+ * Multi-assignee items appear in multiple columns.
+ */
+export function groupByAssignees(items: BoardItem[], members: MemberOption[]): GroupedItems {
+  const groups: GroupedItems = {
+    unassigned: [],
+  };
+
+  // Initialize groups for each member
+  members.forEach((member) => {
+    groups[member.value] = [];
+  });
+
+  items.forEach((item) => {
+    const assignees = item.assignees || [];
+    
+    if (assignees.length === 0) {
+      // No assignees - put in unassigned
+      groups.unassigned.push(item);
+    } else {
+      // Multi-assignee: item appears in each assignee's column
+      assignees.forEach((assigneeId) => {
+        if (groups[assigneeId]) {
+          groups[assigneeId].push(item);
+        } else {
+          // Assignee not in members list - put in unassigned
+          if (!groups.unassigned.includes(item)) {
+            groups.unassigned.push(item);
+          }
+        }
+      });
+    }
+  });
+
+  return groups;
+}
+
+/**
+ * Groups items based on the view mode and entity type
  */
 export function groupItemsByViewMode(
   items: BoardItem[],
   viewMode: BoardViewMode,
-  members: MemberOption[] = []
+  members: MemberOption[] = [],
+  entityType: BoardEntityType = "project"
 ): GroupedItems {
   switch (viewMode) {
     case "status":
-      return groupByStatus(items);
+      return entityType === "task" ? groupByTaskStatus(items) : groupByStatus(items);
     case "priority":
       return groupByPriority(items);
     case "lead":
       return groupByLead(items, members);
+    case "assignee":
+      return groupByAssignees(items, members);
     default:
       return groupByPriority(items);
   }
@@ -205,7 +327,28 @@ export function getGroupKeyField(viewMode: BoardViewMode): keyof BoardItem {
       return "priority";
     case "lead":
       return "lead";
+    case "assignee":
+      return "assignees";
     default:
       return "priority";
   }
+}
+
+// ============================================================================
+// Entity Adapters
+// ============================================================================
+
+/**
+ * Transforms a Task/Issue into a BoardItem
+ */
+export function taskToBoardItem(task: Issue & { assignees?: string[] }): BoardItem {
+  return {
+    id: task.id ?? "",
+    title: task.title,
+    status: task.status || "backlog",
+    priority: task.priority || "no-priority",
+    // Support both assigneeId (single) and assignees (multiple)
+    assignees: task.assignees ?? (task.assigneeId ? [task.assigneeId] : []),
+    summary: task.description,
+  };
 }
