@@ -80,7 +80,7 @@ const SectionTitle = ({
 // ============================================================================
 
 export default function ProjectOverviewPage() {
-  const { projectId } = useParams();
+  const { projectSlug: projectId } = useParams();
   const { projects, members, projectsLoading } = useWorkspaceStore();
   const { updatePriority, updateStatus, updateLead } = useUpdateProject();
 
@@ -88,7 +88,7 @@ export default function ProjectOverviewPage() {
     () => projects.find((p) => createSlugUrl(p.name) === projectId),
     [projects, projectId],
   );
-
+  console.log("ProjectOverviewPage - project:", project);
 
   if (projectsLoading) {
     return <PageSkeleton />;

@@ -1,5 +1,6 @@
 import { useWorkspaceStore } from "@/shared/store/store.workspace";
 import { useState, useMemo, useEffect } from "react";
+import { useNavigate, useParams } from "react-router";
 import { 
   ProjectListHeader, 
   ProjectListContainer, 
@@ -7,6 +8,7 @@ import {
 } from "../components";
 import type { FilterValue, FilterCategory } from "../components/ProjectFilter";
 import type { MemberOption } from "../components/projects.types";
+import { createSlugUrl } from "@/shared/utils/createSlugUrl";
 
 /**
  * ProjectListPage - Main page for displaying all projects in a workspace.
@@ -22,6 +24,8 @@ import type { MemberOption } from "../components/projects.types";
  * - Inline editing logic (delegated to useProjectInlineEdit hook)
  */
 const ProjectListPage = () => {
+  const navigate = useNavigate();
+  const { workspaceUrl } = useParams<{ workspaceUrl: string }>();
   const { projects, projectsLoading, members } = useWorkspaceStore();
   const [filters, setFilters] = useState<FilterValue[]>([]);
 
@@ -145,8 +149,9 @@ const ProjectListPage = () => {
   }
 
   const handleProjectClick = (project: { id?: string; name: string }) => {
-    // TODO: Navigate to project detail page
-    console.log("Navigate to project:", project.id);
+    if (!workspaceUrl || !project.name) return;
+    const projectSlug = createSlugUrl(project.name);
+    navigate(`/${workspaceUrl}/projects/${projectSlug}/overview`);
   };
 
   const handleAddProject = () => {

@@ -2,7 +2,7 @@
 
 import { useWorkspaceStore } from "@/shared/store/store.workspace";
 import { useState, useMemo } from "react";
-import { useParams } from "react-router";
+import { useParams, useNavigate } from "react-router";
 import { useWorkspaceTasks } from "@/features/tasks/hooks/useWorkspaceTasks";
 import { ProjectListHeader } from "@/features/projects/components/ProjectListHeader";
 import { ProjectListContainer } from "@/features/projects/components/ProjectListContainer";
@@ -25,8 +25,8 @@ import { createSlugUrl } from "@/shared/utils/createSlugUrl";
  * - Compose child components (header, list container)
  */
 const ProjectTaskPage = () => {
-  const { projectSlug } = useParams<{ projectSlug ?: string }>();
-  console.log("ProjectTaskPage projectSlug:", projectSlug);
+  const navigate = useNavigate();
+  const { projectSlug, workspaceUrl } = useParams<{ projectSlug?: string; workspaceUrl: string }>();
   const { projects, projectsLoading, members } = useWorkspaceStore();
   const { tasks, loading: tasksLoading } = useWorkspaceTasks();
   const [filters, setFilters] = useState<FilterValue[]>([]);
@@ -114,8 +114,15 @@ const ProjectTaskPage = () => {
   }, [projectTasks, filters]);
 
   const handleTaskClick = (task: Task) => {
-    // TODO: Navigate to task detail page or open task modal
-    console.log("Navigate to task:", task.id);
+    if (!workspaceUrl || !task.title || !task.projectId) return;
+    
+    // Find the project to get its name/slug
+    const project = projects?.find(p => p.id === task.projectId);
+    if (!project) return;
+    
+    const projectSlug = createSlugUrl(project.name);
+    const taskSlug = createSlugUrl(task.title);
+    navigate(`/${workspaceUrl}/projects/${projectSlug}/tasks/${taskSlug}/overview`);
   };
 
   const handleFiltersChange = (newFilters: FilterValue[]) => {
