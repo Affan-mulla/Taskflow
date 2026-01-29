@@ -4,7 +4,9 @@ import {
   updateProjectPriority, 
   updateProjectStatus, 
   updateProjectLead, 
-  updateProjectTargetDate 
+  updateProjectTargetDate,
+  updateProjectSummary,
+  updateProjectDescription,
 } from "@/db";
 import { useWorkspaceStore } from "@/shared/store/store.workspace";
 
@@ -55,11 +57,29 @@ export const useUpdateProject = () => {
     }
   };
 
+  const updateSummary = async (projectId: string, summary: string) => {
+    try {
+      await updateProjectSummary(getWorkspaceId(), projectId, summary);
+    } catch (error) {
+      console.error("Failed to update summary:", error);
+    }
+  };
+
+  const updateDescription = async (projectId: string, description: string) => {
+    try {
+      await updateProjectDescription(getWorkspaceId(), projectId, description);
+    } catch (error) {
+      console.error("Failed to update description:", error);
+    }
+  };
+
   return { 
     loading, 
     updatePriority,
     updateStatus,
     updateLead,
-    updateTargetDate
+    updateTargetDate,
+    updateSummary,
+    updateDescription,
   };
 };

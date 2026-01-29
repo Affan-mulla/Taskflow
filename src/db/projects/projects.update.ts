@@ -72,6 +72,46 @@ export async function updateProjectTargetDate(
 }
 
 /**
+ * Update project summary
+ */
+export async function updateProjectSummary(
+  workspaceId: string,
+  projectId: string,
+  summary: string,
+) {
+  try {
+    const projectRef = doc(db, "workspaces", workspaceId, "projects", projectId);
+    await updateDoc(projectRef, {
+      summary: summary.trim(),
+      updatedAt: new Date().toISOString(),
+    });
+  } catch (error) {
+    console.error("Failed to update project summary:", error);
+    throw error;
+  }
+}
+
+/**
+ * Update project description
+ */
+export async function updateProjectDescription(
+  workspaceId: string,
+  projectId: string,
+  description: string,
+) {
+  try {
+    const projectRef = doc(db, "workspaces", workspaceId, "projects", projectId);
+    await updateDoc(projectRef, {
+      description: description.trim(),
+      updatedAt: new Date().toISOString(),
+    });
+  } catch (error) {
+    console.error("Failed to update project description:", error);
+    throw error;
+  }
+}
+
+/**
  * Add a resource (link) to a project
  */
 export async function addProjectResource(

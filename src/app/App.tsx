@@ -16,6 +16,7 @@ import ProjectListPage from "@/features/projects/pages/ProjectListPage";
 import ProjectPage from "@/features/projects/pages/ProjectPage";
 import ProjectTaskPage from "@/features/projects/pages/ProjectTaskPage";
 import ProjectOverviewPage from "@/features/projects/pages/ProjectOverviewPage";
+import TaskOverviewPage from "@/features/tasks/pages/TaskOverviewPage";
 import { useGetUserProfile } from "@/features/auth/hooks/useGetUserProfile";
 import Team from "@/features/team/pages/Team";
 import Board from "@/features/board/pages/Board";
@@ -81,6 +82,7 @@ export function App() {
           <Route path="overview" element={<ProjectOverviewPage />} />
           <Route path="board" element={<TaskBoard />} />
           <Route path="tasks" element={<ProjectTaskPage />} />
+          <Route path="tasks/:taskSlug/overview" element={<TaskOverviewPage />} />
         </Route>
 
         {/* Workspace Settings */}

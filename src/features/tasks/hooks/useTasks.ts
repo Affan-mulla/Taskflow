@@ -8,6 +8,7 @@ import {
   updateTaskAssignees,
   updateTaskTitle,
   updateTaskDescription,
+  updateTaskSummary,
   updateTaskDates,
   updateTaskAttachments,
 } from "@/db/tasks/tasks.update";
@@ -152,6 +153,21 @@ export function useTasks({ projectId }: UseTasksOptions) {
     [activeWorkspace?.id, projectId]
   );
 
+  const updateSummary = useCallback(
+    (taskId: string, summary: string) => {
+      if (!activeWorkspace?.id) return;
+
+      setTasks((prev) =>
+        prev.map((task) =>
+          task.id === taskId ? { ...task, summary } : task
+        )
+      );
+
+      updateTaskSummary(activeWorkspace.id, projectId, taskId, summary);
+    },
+    [activeWorkspace?.id, projectId]
+  );
+
   const updateDates = useCallback(
     (taskId: string, dates: { startDate?: Date | null; targetDate?: Date | null }) => {
       if (!activeWorkspace?.id) return;
@@ -221,6 +237,7 @@ export function useTasks({ projectId }: UseTasksOptions) {
     updateAssignees,
     updateTitle,
     updateDescription,
+    updateSummary,
     updateDates,
     updateAttachments,
     removeTask,

@@ -90,6 +90,22 @@ export async function updateTaskDescription(
 }
 
 /**
+ * Update task summary
+ */
+export async function updateTaskSummary(
+  workspaceId: string,
+  projectId: string,
+  taskId: string,
+  summary: string
+): Promise<void> {
+  const taskRef = getTaskRef(workspaceId, projectId, taskId);
+  await updateDoc(taskRef, {
+    summary: summary.trim(),
+    updatedAt: serverTimestamp(),
+  });
+}
+
+/**
  * Update task dates (start and/or target)
  */
 export async function updateTaskDates(
