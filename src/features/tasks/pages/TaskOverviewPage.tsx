@@ -1,57 +1,92 @@
 import { useMemo } from "react";
-import { useParams } from "react-router";
+import { useParams, Link } from "react-router";
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
   Task01FreeIcons,
   Folder01Icon,
   ArrowRight01Icon,
+  FileEditIcon,
 } from "@hugeicons/core-free-icons";
 
 import { useWorkspaceStore } from "@/shared/store/store.workspace";
+import { useUserStore } from "@/shared/store/store.user";
 import { useTasks } from "../hooks/useTasks";
+import { useTaskUpdates } from "../hooks/useTaskUpdates";
 import type { MemberOption } from "@/features/projects/components/projects.types";
 import { toDate } from "@/features/projects/components/projects.utils";
 import { createSlugUrl } from "@/shared/utils/createSlugUrl";
 import { SidebarTrigger } from "@/components/ui/sidebar";
+import { Button } from "@/components/ui/button";
 import { EntityOverviewPage } from "@/features/shared/components/EntityOverviewPage";
+import UpdateNavigationBtn from "@/features/updates/components/UpdateNavigationBtn";
 
 // ============================================================================
 // Main Component
 // ============================================================================
 
 export default function TaskOverviewPage() {
-  const { projectSlug, taskSlug } = useParams<{ projectSlug: string; taskSlug: string }>();
+  const { projectSlug, taskSlug, workspaceUrl } = useParams<{
+    projectSlug: string;
+    taskSlug: string;
+    workspaceUrl: string;
+  }>();
   const { projects, members } = useWorkspaceStore();
+  const { user } = useUserStore();
 
   // Find the project first
   const project = useMemo(
     () => projects?.find((p) => createSlugUrl(p.name) === projectSlug),
-    [projects, projectSlug]
+    [projects, projectSlug],
   );
 
   // Get tasks for this project
-  const { tasks, loading, updateStatus, updatePriority, updateAssignees, updateDates, updateAttachments, updateSummary, updateDescription } = useTasks({
+  const {
+    tasks,
+    loading,
+    updateStatus,
+    updatePriority,
+    updateAssignees,
+    updateDates,
+    updateAttachments,
+    updateSummary,
+    updateDescription,
+  } = useTasks({
     projectId: project?.id || "",
   });
 
   // Find the specific task
   const task = useMemo(
     () => tasks.find((t) => createSlugUrl(t.title) === taskSlug),
-    [tasks, taskSlug]
+    [tasks, taskSlug],
   );
+
+  // Get real-time updates for this task
+  const {
+    updates,
+    loading: updatesLoading,
+    addUpdate,
+    removeUpdate,
+  } = useTaskUpdates({
+    projectId: project?.id || "",
+    taskId: task?.id || "",
+  });
 
   if (!task || !project) {
     return null;
   }
 
   // Member options
-  const memberOptions: MemberOption[] = members?.map((m) => ({
-    value: m.userId,
-    label: m.userName,
-    avatarUrl: m.avatarUrl,
-    email: m.email,
-    icon: null,
-  })) || [];
+  const memberOptions: MemberOption[] =
+    members?.map((m) => ({
+      value: m.userId,
+      label: m.userName,
+      avatarUrl: m.avatarUrl,
+      email: m.email,
+      icon: null,
+    })) || [];
+
+  // Link to dedicated updates page
+  const updatesLink = `/${workspaceUrl}/projects/${projectSlug}/tasks/${taskSlug}/updates`;
 
   // Handlers
   const handleAddAttachment = async (title: string, url: string) => {
@@ -61,11 +96,16 @@ export default function TaskOverviewPage() {
   };
 
   const handleRemoveAttachment = async (_item: any, index: number) => {
-    const newAttachments = (task.attachments || []).filter((_, i) => i !== index);
+    const newAttachments = (task.attachments || []).filter(
+      (_, i) => i !== index,
+    );
     await updateAttachments(task.id!, newAttachments);
   };
 
-  const handleDateChange = (field: "startDate" | "targetDate", date: Date | null) => {
+  const handleDateChange = (
+    field: "startDate" | "targetDate",
+    date: Date | null,
+  ) => {
     updateDates(task.id!, { [field]: date });
   };
 
@@ -85,6 +125,12 @@ export default function TaskOverviewPage() {
       createdBy={task.createdBy}
       createdAt={toDate(task.createdAt)}
       items={task.attachments || []}
+      updates={updates}
+      updatesLoading={updatesLoading}
+      onAddUpdate={addUpdate}
+      onRemoveUpdate={removeUpdate}
+      currentUserId={user?.id}
+      viewAllUpdatesLink={updatesLink}
       members={memberOptions}
       onStatusChange={(val) => updateStatus(task.id!, val as any)}
       onPriorityChange={(val) => updatePriority(task.id!, val as any)}
@@ -95,9 +141,10 @@ export default function TaskOverviewPage() {
       onAddItem={handleAddAttachment}
       onRemoveItem={handleRemoveAttachment}
       navbar={
-        <TaskOverviewNavbar 
-          taskTitle={task.title} 
+        <TaskOverviewNavbar
+          taskTitle={task.title}
           projectName={project.name}
+          updatesLink={updatesLink}
         />
       }
     />
@@ -111,14 +158,16 @@ export default function TaskOverviewPage() {
 const TaskOverviewNavbar = ({
   taskTitle,
   projectName,
+  updatesLink,
 }: {
   taskTitle: string;
   projectName: string;
+  updatesLink: string;
 }) => {
   return (
     <div className="px-3 sm:px-4 md:px-6 py-3 w-full flex items-center justify-between gap-3">
       {/* Left Section */}
-      <div className="min-w-0 flex items-center gap-3">
+      <div className="min-w-0 w-full flex items-center gap-3">
         <SidebarTrigger className="text-muted-foreground" />
 
         <div className="flex items-center gap-2 min-w-0">
@@ -167,6 +216,10 @@ const TaskOverviewNavbar = ({
               {taskTitle}
             </h1>
           </div>
+        </div>
+
+        <div className="ml-auto">
+          <UpdateNavigationBtn updatesLink={updatesLink} />
         </div>
       </div>
     </div>

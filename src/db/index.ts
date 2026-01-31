@@ -63,3 +63,10 @@ export {
   updateTaskAttachments,
 } from "./tasks/tasks.update";
 export { deleteTask } from "./tasks/tasks.delete";
+
+// =============================================================================
+// Updates
+// =============================================================================
+export { createUpdate, type CreateUpdatePayload } from "./updates/updates.create";
+export { listenToProjectUpdates, listenToTaskUpdates } from "./updates/updates.read";
+export { deleteProjectUpdate, deleteTaskUpdate } from "./updates/updates.delete";

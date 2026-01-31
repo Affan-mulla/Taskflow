@@ -82,3 +82,23 @@ export interface Task {
   createdAt?: FirestoreTimestamp;
   updatedAt?: FirestoreTimestamp;
 }
+
+// =============================================================================
+// Update Types (Shared by Projects and Tasks)
+// =============================================================================
+
+export type UpdateStatus = "on-track" | "at-risk" | "off-track" | "completed";
+
+export interface UpdateLink {
+  title: string;
+  url: string;
+}
+
+export interface Update {
+  id: string;
+  content: string;
+  status: UpdateStatus;
+  links: UpdateLink[];
+  createdBy: string;
+  createdAt: FirestoreTimestamp;
+}

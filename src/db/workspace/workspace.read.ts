@@ -11,6 +11,7 @@ import {
 
 export async function getUserWorkspacesIds(userId: string): Promise<(string | undefined)[]> {
   try {
+  
     const q = query(
       collectionGroup(db, "members"),
       where("userId", "==", userId)

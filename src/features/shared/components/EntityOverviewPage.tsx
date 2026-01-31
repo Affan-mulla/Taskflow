@@ -11,8 +11,6 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
-import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { CalendarButton } from "@/components/Common/CalendarButton";
 import {
   AlertDialog,
@@ -38,7 +36,8 @@ import type {
   ProjectPriority,
   MemberOption,
 } from "@/features/projects/components/projects.types";
-import type { IssueStatus, TaskAttachment, ProjectResource } from "@/shared/types/db";
+import type { IssueStatus, TaskAttachment, ProjectResource, Update, UpdateStatus, UpdateLink } from "@/shared/types/db";
+import { UpdatesSection } from "./UpdatesSection";
 
 // ============================================================================
 // Types
@@ -73,6 +72,14 @@ export interface EntityOverviewProps {
   
   // Resources/Attachments
   items?: TaskAttachment[] | ProjectResource[]; // Attachments for tasks, Resources for projects
+  
+  // Updates
+  updates?: Update[];
+  updatesLoading?: boolean;
+  onAddUpdate?: (content: string, status: UpdateStatus, links: UpdateLink[]) => Promise<{ success: boolean; error?: string }>;
+  onRemoveUpdate?: (updateId: string) => Promise<{ success: boolean; error?: string }>;
+  currentUserId?: string;
+  viewAllUpdatesLink?: string; // Link to dedicated updates page
   
   // Members
   members: MemberOption[];
@@ -129,6 +136,12 @@ export function EntityOverviewPage({
   createdBy,
   createdAt,
   items = [],
+  updates = [],
+  updatesLoading = false,
+  onAddUpdate,
+  onRemoveUpdate,
+  currentUserId,
+  viewAllUpdatesLink,
   members,
   onStatusChange,
   onPriorityChange,
@@ -311,14 +324,32 @@ export function EntityOverviewPage({
                   onRemoveItem={onRemoveItem}
                   entityType="task"
                 />
-              ) : (
-                <UpdatesSection assigneeMembers={assigneeMembers} />
-              )}
+              ) : onAddUpdate ? (
+                <UpdatesSection
+                  updates={updates}
+                  loading={updatesLoading}
+                  members={members}
+                  onAddUpdate={onAddUpdate}
+                  onRemoveUpdate={onRemoveUpdate}
+                  currentUserId={currentUserId}
+                  viewAllLink={viewAllUpdatesLink}
+                  maxPreviewUpdates={3}
+                />
+              ) : null}
             </div>
 
             {/* Updates Section for Tasks */}
-            {entityType === "task" && (
-              <UpdatesSection assigneeMembers={assigneeMembers} />
+            {entityType === "task" && onAddUpdate && (
+              <UpdatesSection
+                updates={updates}
+                loading={updatesLoading}
+                members={members}
+                onAddUpdate={onAddUpdate}
+                onRemoveUpdate={onRemoveUpdate}
+                currentUserId={currentUserId}
+                viewAllLink={viewAllUpdatesLink}
+                maxPreviewUpdates={3}
+              />
             )}
 
             {/* 4. Description Section */}
@@ -389,6 +420,9 @@ function ItemsSection({ title, items, onAddItem, onRemoveItem, entityType }: Ite
   const [itemTitle, setItemTitle] = useState("");
   const [url, setUrl] = useState("");
   const [loading, setLoading] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [deletingIndex, setDeletingIndex] = useState<number | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const getHostname = (urlString: string) => {
     try {
@@ -413,9 +447,14 @@ function ItemsSection({ title, items, onAddItem, onRemoveItem, entityType }: Ite
 
   const handleRemoveItem = async (item: TaskAttachment | ProjectResource, index: number) => {
     if (!onRemoveItem) return;
-    setLoading(true);
-    await onRemoveItem(item, index);
-    setLoading(false);
+    setIsDeleting(true);
+    try {
+      await onRemoveItem(item, index);
+      setDeleteDialogOpen(false);
+      setDeletingIndex(null);
+    } finally {
+      setIsDeleting(false);
+    }
   };
 
   const getItemTimestamp = (item: TaskAttachment | ProjectResource) => {
@@ -423,6 +462,11 @@ function ItemsSection({ title, items, onAddItem, onRemoveItem, entityType }: Ite
       return ` • Added ${formatDistanceToNow(new Date(item.addedAt), { addSuffix: true })}`;
     }
     return '';
+  };
+
+  const handleDeleteClick = (index: number) => {
+    setDeletingIndex(index);
+    setDeleteDialogOpen(true);
   };
 
   return (
@@ -519,195 +563,49 @@ function ItemsSection({ title, items, onAddItem, onRemoveItem, entityType }: Ite
                 </div>
               </a>
               {onRemoveItem && (
-                <button
-                  onClick={() => handleRemoveItem(item, index)}
-                  className="opacity-0 group-hover:opacity-100 p-1.5 rounded-md hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-all shrink-0"
-                  disabled={loading}
-                >
-                  <HugeiconsIcon icon={Delete02Icon} className="size-4" />
-                </button>
+                <AlertDialog open={deleteDialogOpen && deletingIndex === index} onOpenChange={(open) => {
+                  if (!open) {
+                    setDeletingIndex(null);
+                    setDeleteDialogOpen(false);
+                  }
+                }}>
+                  <AlertDialogTrigger>
+                    <Button
+                      onClick={() => handleDeleteClick(index)}
+                      className="bg-transparent! hover:bg-destructive/15!"
+                      size={"icon-xs"}
+                      variant={"destructive"}
+                      disabled={isDeleting}
+                    >
+                      <HugeiconsIcon icon={Delete02Icon} className="size-4" strokeWidth={2} />
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>
+                        Delete {entityType === "project" ? "Resource" : "Attachment"}
+                      </AlertDialogTitle>
+                      <AlertDialogDescription>
+                        This action cannot be undone. The {entityType === "project" ? "resource" : "attachment"} will be permanently deleted.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
+                      <AlertDialogAction
+                        onClick={() => handleRemoveItem(item, index)}
+                        disabled={isDeleting}
+                        className="bg-destructive hover:bg-destructive/90"
+                      >
+                        {isDeleting ? "Deleting..." : "Delete"}
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
               )}
             </div>
           ))
         )}
       </div>
-    </section>
-  );
-}
-
-// ============================================================================
-// Updates Section
-// ============================================================================
-
-interface UpdatesSectionProps {
-  assigneeMembers: MemberOption[];
-}
-
-function UpdatesSection({ assigneeMembers }: UpdatesSectionProps) {
-  const [isAddingUpdate, setIsAddingUpdate] = useState(false);
-  const [updateText, setUpdateText] = useState("");
-  const [updateStatus, setUpdateStatus] = useState<"on-track" | "at-risk" | "off-track" | "completed">("on-track");
-
-  const statusConfig = {
-    "on-track": {
-      label: "On track",
-      bgClass: "bg-green-500/10",
-      textClass: "text-green-600 dark:text-green-400",
-      hoverClass: "hover:bg-green-500/20",
-      borderClass: "border-green-500/20",
-    },
-    "at-risk": {
-      label: "At risk",
-      bgClass: "bg-yellow-500/10",
-      textClass: "text-yellow-600 dark:text-yellow-400",
-      hoverClass: "hover:bg-yellow-500/20",
-      borderClass: "border-yellow-500/20",
-    },
-    "off-track": {
-      label: "Off track",
-      bgClass: "bg-red-500/10",
-      textClass: "text-red-600 dark:text-red-400",
-      hoverClass: "hover:bg-red-500/20",
-      borderClass: "border-red-500/20",
-    },
-    "completed": {
-      label: "Completed",
-      bgClass: "bg-blue-500/10",
-      textClass: "text-blue-600 dark:text-blue-400",
-      hoverClass: "hover:bg-blue-500/20",
-      borderClass: "border-blue-500/20",
-    },
-  };
-
-  const handleAddUpdate = () => {
-    // TODO: Implement add update functionality
-    console.log("Adding update:", { updateText, updateStatus });
-    setIsAddingUpdate(false);
-    setUpdateText("");
-    setUpdateStatus("on-track");
-  };
-
-  return (
-    <section>
-      <SectionTitle
-        action={
-          <Button
-            variant="link"
-            className="h-auto p-0 text-primary font-normal text-xs"
-            onClick={() => setIsAddingUpdate(!isAddingUpdate)}
-          >
-            {isAddingUpdate ? "Cancel" : "New update"}
-          </Button>
-        }
-      >
-        Latest Update
-      </SectionTitle>
-
-      {isAddingUpdate ? (
-        <Card className="bg-card border-border/40 shadow-sm">
-          <div className="p-4 space-y-4">
-            {/* Status Selection */}
-            <div className="flex items-center gap-2">
-              <span className="text-xs text-muted-foreground">Status:</span>
-              <div className="flex gap-2">
-                {(Object.keys(statusConfig) as Array<keyof typeof statusConfig>).map((status) => {
-                  const config = statusConfig[status];
-                  const isSelected = updateStatus === status;
-                  return (
-                    <button
-                      key={status}
-                      onClick={() => setUpdateStatus(status)}
-                      className={`text-xs px-2 py-1 rounded-md transition-colors ${
-                        isSelected
-                          ? `${config.bgClass} ${config.textClass} ${config.borderClass} border`
-                          : "bg-secondary/50 text-muted-foreground hover:bg-secondary"
-                      }`}
-                    >
-                      {config.label}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* Update Text */}
-            <textarea
-              placeholder="What's the latest? Share progress, blockers, or next steps..."
-              className="w-full min-h-24 bg-transparent outline-none border border-border/40 rounded-md p-3 text-sm resize-none focus:border-primary/50 transition-colors"
-              value={updateText}
-              onChange={(e) => setUpdateText(e.target.value)}
-            />
-
-            {/* Actions */}
-            <div className="flex items-center justify-end gap-2">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => {
-                  setIsAddingUpdate(false);
-                  setUpdateText("");
-                  setUpdateStatus("on-track");
-                }}
-              >
-                Cancel
-              </Button>
-              <Button
-                size="sm"
-                onClick={handleAddUpdate}
-                disabled={!updateText.trim()}
-              >
-                Post update
-              </Button>
-            </div>
-          </div>
-        </Card>
-      ) : (
-        <Card className="bg-linear-to-br from-card to-card/50 border-border/40 shadow-sm overflow-hidden">
-          <div className="p-4 space-y-3">
-            {/* Header of card */}
-            <div className="flex items-center justify-between">
-              <Badge
-                variant="secondary"
-                className={`${statusConfig["on-track"].bgClass} ${statusConfig["on-track"].textClass} ${statusConfig["on-track"].hoverClass} ${statusConfig["on-track"].borderClass} border font-normal`}
-              >
-                On track
-              </Badge>
-              <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                <span>No updates yet</span>
-              </div>
-            </div>
-
-            {/* Placeholder Content */}
-            <p className="text-sm text-muted-foreground/70 leading-relaxed italic">
-              No updates have been posted yet. Click "New update" to share progress.
-            </p>
-
-            {/* Footer with assignees */}
-            {assigneeMembers.length > 0 && (
-              <div className="pt-2 flex items-center gap-2">
-                <div className="flex items-center -space-x-2">
-                  {assigneeMembers.slice(0, 3).map((member) => (
-                    <div key={member.value} className="size-6 ring-2 ring-background rounded-full overflow-hidden">
-                      <AvatarImg
-                        src={member.avatarUrl}
-                        fallbackText={member.label.charAt(0)}
-                      />
-                    </div>
-                  ))}
-                  {assigneeMembers.length > 3 && (
-                    <div className="size-6 rounded-full bg-secondary text-[10px] font-bold flex items-center justify-center ring-2 ring-background text-secondary-foreground">
-                      +{assigneeMembers.length - 3}
-                    </div>
-                  )}
-                </div>
-                <span className="text-xs text-muted-foreground">
-                  {assigneeMembers.length} {assigneeMembers.length === 1 ? 'assignee' : 'assignees'}
-                </span>
-              </div>
-            )}
-          </div>
-        </Card>
-      )}
     </section>
   );
 }

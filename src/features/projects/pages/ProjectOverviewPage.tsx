@@ -1,29 +1,35 @@
 import { useMemo } from "react";
-import { useParams } from "react-router";
+import { useParams, Link } from "react-router";
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
   CubeFreeIcons,
   Folder01Icon,
   ArrowRight01Icon,
   User,
+  FileEditIcon,
 } from "@hugeicons/core-free-icons";
 
 import { useWorkspaceStore } from "@/shared/store/store.workspace";
+import { useUserStore } from "@/shared/store/store.user";
 import { useUpdateProject } from "@/features/projects/hooks/useUpdateProject";
 import { useProjectResources } from "@/features/projects/hooks/useProjectResources";
+import { useProjectUpdates } from "@/features/projects/hooks/useProjectUpdates";
 import { SidebarTrigger } from "@/components/ui/sidebar";
+import { Button } from "@/components/ui/button";
 import { createSlugUrl } from "@/shared/utils/createSlugUrl";
 import { toDate } from "../components/projects.utils";
 import { AddTask } from "@/features/tasks";
 import { EntityOverviewPage } from "@/features/shared/components/EntityOverviewPage";
+import UpdateNavigationBtn from "@/features/updates/components/UpdateNavigationBtn";
 
 // ============================================================================
 // Main Component
 // ============================================================================
 
 export default function ProjectOverviewPage() {
-  const { projectSlug: projectId } = useParams();
+  const { projectSlug: projectId, workspaceUrl } = useParams();
   const { projects, members, projectsLoading } = useWorkspaceStore();
+  const { user } = useUserStore();
   const { updatePriority, updateStatus, updateLead, updateTargetDate, updateSummary, updateDescription } = useUpdateProject();
   const { addResource, removeResource } = useProjectResources();
 
@@ -31,6 +37,11 @@ export default function ProjectOverviewPage() {
     () => projects.find((p) => createSlugUrl(p.name) === projectId),
     [projects, projectId],
   );
+
+  // Get real-time updates for this project
+  const { updates, loading: updatesLoading, addUpdate, removeUpdate } = useProjectUpdates({
+    projectId: project?.id || "",
+  });
 
   if (!project) {
     return null;
@@ -44,6 +55,9 @@ export default function ProjectOverviewPage() {
     email: m.email,
     icon: User,
   }));
+
+  // Link to dedicated updates page
+  const updatesLink = `/${workspaceUrl}/projects/${projectId}/updates`;
 
   // Handlers
   const handleAddResource = async (title: string, url: string) => {
@@ -75,6 +89,12 @@ export default function ProjectOverviewPage() {
       targetDate={toDate(project.targetDate) || null}
       description={project.description}
       items={project.resources || []}
+      updates={updates}
+      updatesLoading={updatesLoading}
+      onAddUpdate={addUpdate}
+      onRemoveUpdate={removeUpdate}
+      currentUserId={user?.id}
+      viewAllUpdatesLink={updatesLink}
       members={memberOptions}
       onStatusChange={(val) => updateStatus(project.id!, val as any)}
       onPriorityChange={(val) => updatePriority(project.id!, val as any)}
@@ -87,7 +107,8 @@ export default function ProjectOverviewPage() {
       navbar={
         <ProjectOverviewPageNavbar 
           projectName={project.name} 
-          projectId={project.id!} 
+          projectId={project.id!}
+          updatesLink={updatesLink}
         />
       }
     />
@@ -101,9 +122,11 @@ export default function ProjectOverviewPage() {
 const ProjectOverviewPageNavbar = ({
   projectName,
   projectId,
+  updatesLink,
 }: {
   projectName: string;
   projectId: string;
+  updatesLink: string;
 }) => {
 
   return (
@@ -143,6 +166,7 @@ const ProjectOverviewPageNavbar = ({
 
       {/* Right Section - Create Task Button */}
       <div className="shrink-0 flex items-center gap-2">
+        <UpdateNavigationBtn updatesLink={updatesLink} />
         <AddTask defaultProjectId={projectId} triggerVariant="outline" />
       </div>
     </div>
