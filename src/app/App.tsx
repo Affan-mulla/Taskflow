@@ -11,7 +11,10 @@ import NotFoundPage from "@/Pages/NotFoundPage";
 import LandingPage from "@/Pages/LandingPage";
 import CreateWorkspace from "@/features/workspace/components/CreateWorkspace";
 import WorkspaceLayout from "@/features/workspace/pages/WorkspaceLayout";
-import Settings from "@/Pages/Settings";
+import Settings from "@/features/settings/pages/Settings";
+import ProfileSettings from "@/features/settings/pages/ProfileSettings";
+import WorkspaceSettings from "@/features/settings/pages/WorkspaceSettings";
+import TeamSettings from "@/features/settings/pages/TeamSettings";
 import ProjectListPage from "@/features/projects/pages/ProjectListPage";
 import ProjectPage from "@/features/projects/pages/ProjectPage";
 import ProjectTaskPage from "@/features/projects/pages/ProjectTaskPage";
@@ -74,7 +77,16 @@ export function App() {
         <Route index element={<Navigate to="projects" replace />} />
         <Route path="tasks" element={<ProjectTaskPage />} />
         <Route path="board" element={<Board />} />
-          <Route path="team" element={<Team/>} />
+        <Route path="team" element={<Team/>} />
+        
+        {/* Settings with nested routes */}
+        <Route path="settings" element={<Settings />}>
+          <Route index element={<Navigate to="profile" replace />} />
+          <Route path="profile" element={<ProfileSettings />} />
+          <Route path="workspace" element={<WorkspaceSettings />} />
+          <Route path="team" element={<TeamSettings />} />
+        </Route>
+        
         {/* Projects */}
         <Route path="projects" element={<ProjectListPage />} />
         <Route path="projects/:projectSlug" element={<ProjectPage />}>
@@ -88,9 +100,6 @@ export function App() {
           <Route path="tasks/:taskSlug/overview" element={<TaskOverviewPage />} />
           <Route path="tasks/:taskSlug/updates" element={<TaskUpdatesPage />} />
         </Route>
-
-        {/* Workspace Settings */}
-        <Route path="settings" element={<Settings />} />
 
         {/* 404 within workspace */}
         <Route path="*" element={<NotFoundPage />} />

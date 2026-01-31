@@ -1,5 +1,5 @@
 
-import {  CubeFreeIcons, Layers01Icon, Task02Icon, UserGroupIcon } from "@hugeicons/core-free-icons"
+import {  CubeFreeIcons, Layers01Icon, Setting06Icon, Settings03Icon, Task02Icon, UserGroupIcon } from "@hugeicons/core-free-icons"
 import { HugeiconsIcon } from "@hugeicons/react"
 
 import {
@@ -51,6 +51,11 @@ export function NavMain() {
     icon : UserGroupIcon,
     label: "Team",
     url: "/team",
+   },
+   {
+    icon : Settings03Icon,
+    label: "Settings",
+    url: "/settings",
    }
   ]
   return (

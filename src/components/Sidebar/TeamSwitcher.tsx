@@ -1,8 +1,4 @@
 import {
-  UserIcon,
-  UserGroupIcon,
-  Settings02Icon,
-  Logout01Icon,
   PlusSignIcon,
   UnfoldMoreIcon,
   Tick02Icon,
@@ -11,7 +7,6 @@ import { HugeiconsIcon } from "@hugeicons/react";
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
@@ -21,8 +16,6 @@ import { Button } from "../ui/button";
 
 import ThemeToggler from "../Common/ThemeToggler";
 import AvatarImg from "../Common/AvatarImage";
-import { signOut } from "firebase/auth";
-import { auth } from "@/lib/firebase";
 import { useWorkspaceStore } from "@/shared/store/store.workspace";
 import { useNavigate, useLocation } from "react-router";
 import { useIsMobile } from "@/shared/hooks/use-mobile";
@@ -33,11 +26,6 @@ const UserDropdown = ({userName, avatar }: {userName: string, avatar?: string}) 
   const isMobile = useIsMobile();
   const navigate = useNavigate();
   const location = useLocation();
-
-  const handleLogout = async () => {
-    // Implement logout functionality here
-    await signOut(auth);
-  }
 
   /**
    * Handles workspace switching via URL navigation.
@@ -126,7 +114,7 @@ const UserDropdown = ({userName, avatar }: {userName: string, avatar?: string}) 
             <DropdownMenuSeparator className="my-2 " />
 
             {/* Switch Workspaces Section (The Inset Box) */}
-            <div className="mx-1 mb-2 rounded-xl bg-background border border-border p-2">
+            <div className="mb-2 rounded-xl bg-background border border-border p-2">
               <p className="text-xs font-medium text-muted-foreground mb-2 px-1">
                 Switch Workspaces
               </p>
@@ -171,37 +159,11 @@ const UserDropdown = ({userName, avatar }: {userName: string, avatar?: string}) 
               </div>
             </div>
 
-            {/* General Navigation */}
-            <DropdownMenuGroup className="space-y-1">
-              <DropdownItem icon={UserIcon} label="Personal info" />
-              <DropdownItem icon={UserGroupIcon} label="Manage Users" />
-              <DropdownItem icon={Settings02Icon} label="Settings" />
-            </DropdownMenuGroup>
-
-            <DropdownMenuSeparator className="my-2" />
-
-            <DropdownMenuItem variant="destructive" onClick={handleLogout}>
-              <HugeiconsIcon
-                icon={Logout01Icon}
-                className="size-5 text-muted-foreground"
-              />
-              <span className="font-medium">Logout</span>
-            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </SidebarMenuItem>
     </SidebarMenu>
   );
 };
-
-// --- Helper Components ---
-
-const DropdownItem = ({ icon, label }: { icon: any; label: string }) => (
-  <DropdownMenuItem className={"text-sm"}>
-    <HugeiconsIcon icon={icon} className="size-4 text-muted-foreground" strokeWidth={2} />
-    <span className="font-medium">{label}</span>
-  </DropdownMenuItem>
-);
-
 
 export default UserDropdown;

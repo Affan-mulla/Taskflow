@@ -4,6 +4,7 @@ import { useWorkspacesFetcher } from "../hooks/useGetWorkspaces";
 import { useWorkspaceResolver } from "../hooks/useWorkspaceResolver";
 import { WorkspaceProvider } from "../components/WorkspaceProvider";
 import { Spinner } from "@/components/ui/spinner";
+import { SidebarInset } from "@/components/ui/sidebar";
 
 /**
  * Top-level layout for workspace-scoped routes.
@@ -36,9 +37,12 @@ const WorkspaceLayout = () => {
     <WorkspaceProvider>
       <div className="flex h-screen w-full overflow-hidden p-1 bg-background">
         <AppSidebar />
-        <div className="flex-1 flex flex-col h-full overflow-hidden rounded-lg border border-border bg-background shadow-sm">
+
+        {/* <div className="flex-1 flex flex-col h-full overflow-hidden rounded-lg border border-border bg-background shadow-sm"> */}
+        <SidebarInset>
           <Outlet />
-        </div>
+        </SidebarInset>
+        {/* </div> */}
       </div>
     </WorkspaceProvider>
   );
