@@ -5,6 +5,7 @@ import {
   Logout01Icon,
   PlusSignIcon,
   UnfoldMoreIcon,
+  Tick02Icon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
@@ -23,20 +24,36 @@ import AvatarImg from "../Common/AvatarImage";
 import { signOut } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import { useWorkspaceStore } from "@/shared/store/store.workspace";
-import { useNavigate } from "react-router";
+import { useNavigate, useLocation } from "react-router";
 import { useIsMobile } from "@/shared/hooks/use-mobile";
 
 const UserDropdown = ({userName, avatar }: {userName: string, avatar?: string}) => {
 
-  const {activeWorkspace,workspaces} = useWorkspaceStore();
+  const {activeWorkspace, workspaces} = useWorkspaceStore();
   const isMobile = useIsMobile();
+  const navigate = useNavigate();
+  const location = useLocation();
 
   const handleLogout = async () => {
     // Implement logout functionality here
     await signOut(auth);
   }
 
-  const navigate = useNavigate();
+  /**
+   * Handles workspace switching via URL navigation.
+   * Preserves the current sub-path (e.g., /projects, /board) when switching.
+   */
+  const handleWorkspaceSwitch = (workspaceUrl: string) => {
+    if (activeWorkspace?.workspaceUrl === workspaceUrl) return;
+
+    // Extract sub-path from current location (everything after /:workspaceUrl)
+    const pathParts = location.pathname.split("/").filter(Boolean);
+    const subPath = pathParts.slice(1).join("/");
+
+    // Navigate to new workspace with same sub-path
+    const newPath = `/${workspaceUrl}${subPath ? `/${subPath}` : ""}`;
+    navigate(newPath);
+  };
   return (
     <SidebarMenu className="w-full">
       <SidebarMenuItem className="w-full">
@@ -115,19 +132,36 @@ const UserDropdown = ({userName, avatar }: {userName: string, avatar?: string}) 
               </p>
 
               <div className="space-y-1">
-                {workspaces.map((workspace) => (
-                  <DropdownMenuItem className="flex items-center gap-3 p-1 rounded-lg hover:bg-card/80 cursor-pointer transition-colors" key={workspace.id}>
-                  <div className="size-6">
-                    <AvatarImg
-                      variant="workspace"
-                      fallbackText={workspace.workspaceName}
-                    />
-                  </div>
-                  <span className="flex-1 font-medium text-sm">
-                    {workspace.workspaceName}
-                  </span>
-                </DropdownMenuItem>
-                ))} 
+                {workspaces.map((workspace) => {
+                  const isActive = activeWorkspace?.id === workspace.id;
+                  return (
+                    <DropdownMenuItem
+                      className={`flex items-center gap-3 p-1 rounded-lg cursor-pointer transition-colors ${
+                        isActive
+                          ? "bg-accent/50 border border-border"
+                          : "hover:bg-card/80"
+                      }`}
+                      key={workspace.id}
+                      onClick={() => handleWorkspaceSwitch(workspace.workspaceUrl)}
+                    >
+                      <div className="size-6">
+                        <AvatarImg
+                          variant="workspace"
+                          fallbackText={workspace.workspaceName}
+                        />
+                      </div>
+                      <span className="flex-1 font-medium text-sm">
+                        {workspace.workspaceName}
+                      </span>
+                      {isActive && (
+                        <HugeiconsIcon
+                          icon={Tick02Icon}
+                          className="size-4 text-primary"
+                        />
+                      )}
+                    </DropdownMenuItem>
+                  );
+                })} 
                 <div className="flex items-center justify-between gap-2 p-1 pt-2">
                   <Button className=" w-full " size="sm" onClick={() => navigate('/onboarding/workspace')}>
                     <HugeiconsIcon icon={PlusSignIcon} className="size-4" />
