@@ -1,6 +1,6 @@
 import { useTheme, type Theme } from "@/shared/providers/ThemeProvider";
 import { Monitor, Moon, Sun } from "@hugeicons/core-free-icons";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from "../ui/dropdown-menu";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "../ui/dropdown-menu";
 import { Button } from "../ui/button";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { Label } from "../ui/label";

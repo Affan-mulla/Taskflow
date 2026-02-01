@@ -16,7 +16,6 @@ export function InlineLeadSelect({
   value, 
   onChange, 
   members,
-  showLabel = true 
 }: InlineLeadSelectProps) {
   return (
     <div onClick={(e) => e.stopPropagation()}>

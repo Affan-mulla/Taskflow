@@ -38,7 +38,7 @@ interface ComboboxActionButtonProps {
   value?: string | null;
   btnVariant?: "outline" | "default" | "ghost";
   onChange?: (value: string | null) => void;
-  mode?: "single"; // Currently supports single-select
+  // mode is currently fixed to single-select; removed unused prop
   showLabel?: boolean; // Whether to show label alongside icon in button
   btnSize?: "sm" | "icon-sm" ; // Button size variant
 }
@@ -53,7 +53,6 @@ export function ComboboxActionButton({
   btnSize,
   value = null,
   onChange,
-  mode = "single",
   showLabel = true,
 }: ComboboxActionButtonProps) {
   const [open, setOpen] = React.useState(false);
@@ -204,7 +203,7 @@ export function ComboboxMultiSelect({
   label,
   value,
   onChange,
-  defaultValue = [],
+  // defaultValue intentionally unused; selection is controlled via `value`
   showLable = false,
   leadId = null,
   onLeadRemove,
@@ -226,8 +225,7 @@ export function ComboboxMultiSelect({
     onChange(newValue);
   };
 
-  // Include lead in visual count and display
-  const leadMember = leadId ? menu.find((m) => m.value === leadId) : null;
+  // Include lead in visual count and display (lead variable intentionally unused)
   const selectedMembers = menu.filter((member) => value.includes(member.value));
   
   // For button display, only show selected members (not lead)

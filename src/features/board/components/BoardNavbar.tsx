@@ -4,7 +4,6 @@ import { HugeiconsIcon } from "@hugeicons/react";
 import {
     Kanban,
   Layers01FreeIcons,
-  ViewIcon,
 } from "@hugeicons/core-free-icons";
 import BoardView from "./BoardView";
 

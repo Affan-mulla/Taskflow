@@ -8,8 +8,6 @@ import {
 } from "@/components/ui/sidebar";
 import {
   ArrowLeft,
-  Briefcase,
-  Building01Icon,
   Building02Icon,
   Settings03Icon,
   User02Icon,
@@ -17,7 +15,7 @@ import {
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { useNavigate, useLocation } from "react-router";
-import { cn } from "@/lib/utils";
+ 
 import { useWorkspaceStore } from "@/shared/store/store.workspace";
 
 interface SettingNavItem {

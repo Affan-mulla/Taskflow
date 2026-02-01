@@ -84,6 +84,9 @@ export function transformTaskPayload(formValues: AddTaskFormValues) {
   };
 }
 
+export type AddTaskPayload = ReturnType<typeof transformTaskPayload>;
+export type TransformedTaskPayload = AddTaskPayload;
+
 /**
  * Default form values for initialization and reset
  */

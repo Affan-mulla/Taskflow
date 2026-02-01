@@ -1,12 +1,11 @@
 import { useMemo } from "react";
-import { useParams, Link } from "react-router";
+import { useParams } from "react-router";
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
   CubeFreeIcons,
   Folder01Icon,
   ArrowRight01Icon,
   User,
-  FileEditIcon,
 } from "@hugeicons/core-free-icons";
 
 import { useWorkspaceStore } from "@/shared/store/store.workspace";
@@ -15,7 +14,7 @@ import { useUpdateProject } from "@/features/projects/hooks/useUpdateProject";
 import { useProjectResources } from "@/features/projects/hooks/useProjectResources";
 import { useProjectUpdates } from "@/features/projects/hooks/useProjectUpdates";
 import { SidebarTrigger } from "@/components/ui/sidebar";
-import { Button } from "@/components/ui/button";
+ 
 import { createSlugUrl } from "@/shared/utils/createSlugUrl";
 import { toDate } from "../components/projects.utils";
 import { AddTask } from "@/features/tasks";

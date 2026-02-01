@@ -1,4 +1,4 @@
-import * as React from "react"
+// React import not required with the automatic JSX runtime
 import { ScrollArea as ScrollAreaPrimitive } from "@base-ui/react/scroll-area"
 
 import { cn } from "@/lib/utils"

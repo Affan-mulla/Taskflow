@@ -16,7 +16,6 @@ export function InlineAssigneesSelect({
   value,
   onChange,
   members,
-  showLabel = true,
 }: InlineAssigneesSelectProps) {
   return (
     <div onClick={(e) => e.stopPropagation()}>

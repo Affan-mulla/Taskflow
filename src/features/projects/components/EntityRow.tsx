@@ -30,7 +30,7 @@ import {
   InlineProjectSelect,
 } from "./inline";
 import Avatar from "@/components/Common/AvatarImage";
-import { formatDistanceToNow } from "date-fns";
+ 
 
 // ============================================================================
 // Types
@@ -140,12 +140,7 @@ export function EntityRow({
   
   const summary = isTask ? (localEntity as Task).summary : undefined;
   
-  // Format created date for tasks
-  const createdDate = isTask && (localEntity as Task).createdAt
-    ? typeof (localEntity as Task).createdAt === 'object' && 'toDate' in ((localEntity as Task).createdAt as any)
-      ? formatDistanceToNow(((localEntity as Task).createdAt as any).toDate(), { addSuffix: true })
-      : ''
-    : '';
+  // Note: created date formatting removed (unused) to avoid lint warnings
 
   return (
     <div

@@ -1,6 +1,6 @@
 "use client"
 
-import * as React from "react"
+// React import not required with the automatic JSX runtime
 import { format } from "date-fns"
 import { Button } from "@/components/ui/button"
 import { Calendar } from "@/components/ui/calendar"

@@ -13,7 +13,6 @@ import {
 } from "../ui/collapsible";
 import { HugeiconsIcon, type IconSvgElement } from "@hugeicons/react";
 import {
-  ArrowDown01Icon,
   Task02Icon,
   Layers01Icon,
   Layout,

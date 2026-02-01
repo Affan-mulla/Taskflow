@@ -13,12 +13,14 @@ import { Toaster } from "./components/ui/sonner.tsx";
 
 
 createRoot(document.getElementById("root")!).render(
+  <StrictMode>
     <BrowserRouter>
       <ThemeProvider>
         <SidebarProvider>
-        <App /> 
-        <Toaster/>
+          <App /> 
+          <Toaster/>
         </SidebarProvider>
       </ThemeProvider>
     </BrowserRouter>
+  </StrictMode>
 );

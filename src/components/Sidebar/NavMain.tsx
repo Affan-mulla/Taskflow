@@ -1,5 +1,5 @@
 
-import {  CubeFreeIcons, Layers01Icon, Setting06Icon, Settings03Icon, Task02Icon, UserGroupIcon } from "@hugeicons/core-free-icons"
+import {  CubeFreeIcons, Layers01Icon, Settings03Icon, Task02Icon, UserGroupIcon } from "@hugeicons/core-free-icons"
 import { HugeiconsIcon } from "@hugeicons/react"
 
 import {

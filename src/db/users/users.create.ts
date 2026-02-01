@@ -8,7 +8,7 @@ export async function createUserProfile(userId: string, profileData: UserProfile
         if (!userId || !profileData) {
             throw new Error("Invalid user ID or profile data");
         }
-        const docRef = await setDoc(doc(db, "users", userId), {
+        await setDoc(doc(db, "users", userId), {
             name: profileData.name,
             email: profileData.email,
             createdAt: profileData.createdAt,

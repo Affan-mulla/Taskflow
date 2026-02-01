@@ -1,10 +1,8 @@
-import React from "react";
 import { Button } from "@/components/ui/button";
-import { 
+import {
   ArrowLeft02Icon, 
   FileNotFoundIcon, 
   Home01Icon, 
-  SearchAreaIcon 
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { useNavigate } from "react-router";

@@ -204,7 +204,7 @@ export function useEntityInlineEdit<T extends EntityType>(
   );
 
   const onProjectChange = useCallback(
-    (newProjectId: string | null) => {
+    (_newProjectId: string | null) => {
       // Note: Changing a task's project is a complex operation
       // that requires moving the task document. For now, this is read-only display.
       // Implement full project move functionality if needed.
