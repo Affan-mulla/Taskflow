@@ -127,3 +127,31 @@
     @apply font-sans;
     }
 }
+@keyframes float-soft {
+    0%,
+    100% {
+        transform: translateY(0px);
+    }
+    50% {
+        transform: translateY(-12px);
+    }
+}
+
+@keyframes float-soft-slow {
+    0%,
+    100% {
+        transform: translateY(0px);
+    }
+    50% {
+        transform: translateY(-18px);
+    }
+}
+
+@layer utilities {
+    .float-slow {
+        animation: float-soft 8s ease-in-out infinite;
+    }
+    .float-slower {
+        animation: float-soft-slow 12s ease-in-out infinite;
+    }
+}
