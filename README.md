@@ -1,61 +1,101 @@
 # Taskflow
 
-A Linear-inspired, workspace-based task manager built with **React**, **TypeScript**, **Vite**, **Firebase Auth**, **Cloud Firestore**, **Zustand**, **Tailwind**, and **shadcn/ui**.
+Taskflow is a real-time workspace for modern product teams. It combines project planning, task execution, and team alignment into one calm, fast, and always-in-sync experience.
 
-## Features
+If you want Linear-style clarity with a workspace-first model, Taskflow keeps strategy, execution, and updates connected so teams can plan, build, and ship without the usual chaos.
 
-- **Real-time collaboration** — Project and issue changes sync instantly across all workspace members via Firestore listeners (no polling)
-- **Workspace-based architecture** — Each workspace has its own projects, issues, and members
-- **Optimistic UI** — Immediate feedback on updates, with Firestore handling consistency
+## Why Taskflow
 
-## Architecture
+- Realtime collaboration across projects, boards, and team views
+- Workspace architecture that keeps teams and initiatives cleanly organized
+- Kanban-style board with drag-and-drop and optimistic UI for instant feedback
+- Project and task updates with status, links, and timelines
+- Invites, team management, and workspace settings built-in
+- Auth with email verification and Google sign-in
+
+## What�s Inside
+
+- Landing experience and marketing site in `src/Pages/LandingPage.tsx`
+- Auth flow, onboarding, workspace creation, and route guards
+- Projects, tasks, issues, and updates powered by Firestore
+- Realtime listeners with optimistic UI, backed by Firestore snapshot updates
+- Team + settings areas for profile, workspace, and member management
+
+## Tech Stack
+
+- React 19 + TypeScript
+- Vite
+- Tailwind CSS + shadcn/ui
+- Firebase Auth, Firestore, and Storage
+- Zustand for client state
+- dnd-kit for board interactions
+
+## How It Works (High Level)
+
+Taskflow follows a layered architecture so UI stays fast and predictable:
+
+1. DB layer: Firestore-only functions in `src/db/`
+2. Hooks layer: feature hooks for loading, mutations, and subscriptions
+3. Store layer: Zustand for shared workspace state
+4. UI layer: pages and components that never call Firestore directly
+
+Realtime flow is simple and reliable:
+
+1. UI triggers an optimistic update
+2. DB writes to Firestore
+3. Firestore `onSnapshot` updates listeners
+4. Hooks + stores reconcile local state automatically
+
+## Project Structure
 
 ```
 src/
-├── db/           # Pure Firestore functions (no React hooks)
-├── features/     # Domain-specific hooks, components, pages
-├── shared/       # Zustand stores, types, utilities
-└── components/   # Reusable UI components
++-- app/                # App shell, routing, guards
++-- components/         # Reusable UI components
++-- db/                 # Firestore CRUD + listeners
++-- features/           # Domain features (auth, projects, tasks, board, etc.)
++-- lib/                # Firebase config + API helpers
++-- Pages/              # Marketing + static pages
++-- shared/             # Stores, types, utilities
 ```
 
-**Layered pattern:**
-1. **DB Layer** — Pure Firestore functions (`createProject`, `listenToProjects`, `updateIssue`)
-2. **Hooks Layer** — Async logic, subscriptions, loading/error state
-3. **Zustand Layer** — Global state only (workspace, members, projects)
-4. **UI Layer** — Calls hooks, no direct Firestore access
+## Environment Variables
 
-## Real-time Flow
+Create a `.env` file in the project root with your Firebase project credentials and invite API URL.
 
-1. UI triggers optimistic update → Hook calls DB function
-2. Firestore write succeeds → `onSnapshot` fires for all clients
-3. Listener updates Zustand/React state → Everyone sees the change
-
-## Key Files
-
-| Area | Files |
-|------|-------|
-| **Projects** | `db/projects/projects.read.ts` (listener), `db/projects/projects.update.ts` |
-| **Issues** | `db/issues/` (create, read, update, delete) |
-| **Hooks** | `features/projects/hooks/` (useIssues, useCreateIssue, useUpdateProject) |
-| **Provider** | `features/workspace/components/WorkspaceProvider.tsx` |
-| **Types** | `shared/types/db.ts` |
-
-## Usage
-
-```tsx
-// Projects are automatically subscribed via WorkspaceProvider
-const { projects, projectsLoading } = useWorkspaceStore();
-
-// Issues (per-project real-time subscription)
-const { issues, issuesByStatus, updateStatus } = useIssues({ projectId });
-
-// Creating issues
-const { createIssue, loading } = useCreateIssue();
+```
+VITE_FIREBASE_API_KEY="<your-api-key>"
+VITE_FIREBASE_AUTH_DOMAIN="<your-auth-domain>"
+VITE_FIREBASE_PROJECT_ID="<your-project-id>"
+VITE_FIREBASE_STORAGE_BUCKET="<your-storage-bucket>"
+VITE_FIREBASE_MESSAGING_SENDER_ID="<your-sender-id>"
+VITE_FIREBASE_APP_ID="<your-app-id>"
+VITE_FIREBASE_MEASUREMENT_ID="<your-measurement-id>"
+VITE_EMAIL_SERVICE_API_URL="<invite-service-base-url>"
 ```
 
-## Getting Started
+## Local Development
 
-```bash
+```
 npm install
 npm run dev
 ```
+
+## Scripts
+
+- `npm run dev`: start local dev server
+- `npm run build`: typecheck and build
+- `npm run lint`: run ESLint
+- `npm run preview`: preview production build
+
+## Key Domains
+
+- Workspaces: top-level container for teams and projects
+- Projects: initiatives with metadata, timelines, and ownership
+- Tasks and issues: work items tracked across lists and boards
+- Updates: progress summaries with status and links
+- Invites: email-based onboarding with a separate invite API
+
+---
+
+If you want a more technical deep dive or a contributor guide, tell me what depth you want and I can expand the docs.
