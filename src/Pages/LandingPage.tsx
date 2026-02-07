@@ -1,67 +1,68 @@
-import { Link } from "react-router"
+import { Link } from "react-router";
 
-import { Badge } from "@/components/ui/badge"
-import { buttonVariants } from "@/components/ui/button"
-import { cn } from "@/lib/utils"
-import { useReveal } from "@/shared/hooks/useReveal"
+import { Badge } from "@/components/ui/badge";
+import { buttonVariants } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import { useReveal } from "@/shared/hooks/useReveal";
+import { HugeiconsIcon } from "@hugeicons/react";
+import { File, Users } from "@hugeicons/core-free-icons";
 
 type Feature = {
-  eyebrow: string
-  title: string
-  description: string
-  bullets: string[]
-  stat: string
-  variant: "collab" | "workspace" | "board"
-}
+  eyebrow: string;
+  title: string;
+  description: string;
+  bullets: string[];
+  stat: string;
+  variant: "collab" | "workspace" | "board";
+};
 
 const navLinks = [
   { label: "Features", href: "#features" },
   { label: "Foundations", href: "#foundations" },
-  { label: "Integrations", href: "#integrations" },
+  { label: "Modules", href: "#modules" },
   { label: "Resources", href: "#resources" },
-]
+];
 
 const logoCloud = [
-  "Northwind",
-  "Brightline",
-  "Skyforge",
-  "Lumen",
-  "Pulse Labs",
-  "Copper",
-  "Orbit",
-  "Novu",
-]
+  "Product",
+  "Design",
+  "Engineering",
+  "Operations",
+  "Marketing",
+  "Customer Success",
+  "QA",
+  "Leadership",
+];
 
 const pillars = [
   {
     title: "Plan with intent",
     description:
-      "Set clear cycles, map dependencies, and keep strategy visible for the entire workspace.",
+      "Define scope, priorities, and ownership so everyone knows what matters most.",
   },
   {
     title: "Build with focus",
     description:
-      "Turn initiatives into structured tasks with status, ownership, and realtime context.",
+      "Turn projects into structured tasks with status, ownership, and clear context.",
   },
   {
     title: "Ship with confidence",
-    description:
-      "Stay ahead of blockers with instant updates, insights, and a shared source of truth.",
+    description: "Share updates that keep teams aligned and momentum high.",
   },
-]
+];
 
 const featureBlocks: Feature[] = [
   {
-    eyebrow: "Realtime Collaboration",
-    title: "Move together with live updates everywhere.",
+    eyebrow: "Realtime Workspace",
+    title: "Keep every view in sync as work changes.",
     description:
-      "Taskflow keeps every teammate in sync. Changes ripple instantly across projects, boards, and views so everyone ships from the same reality.",
+      "Taskflow keeps projects, tasks, and updates in sync. Changes appear instantly across lists, boards, and detail views so teams ship from the same reality.",
     bullets: [
-      "Live cursors, instant activity feed, and zero-refresh updates.",
-      "Presence that shows who is working on what in real time.",
-      "Smart notifications that focus on what matters now.",
+      "Realtime updates across projects, tasks, and boards.",
+      "Optimistic UI for instant feedback on every change.",
+      "Firestore listeners keep teammates aligned without manual refresh.",
     ],
-    stat: "Sync in near real time across every workspace view.",
+    stat: "Realtime sync powered by Firestore snapshots.",
     variant: "collab",
   },
   {
@@ -70,45 +71,45 @@ const featureBlocks: Feature[] = [
     description:
       "Workspaces connect people, projects, and priorities in one clean hierarchy. Stay fast as you scale without losing clarity.",
     bullets: [
-      "Projects, cycles, and issues keep scope crystal clear.",
-      "Unified views across teams and initiatives.",
-      "Structured metadata for effortless filtering and reporting.",
+      "Projects with summary, status, priority, and target dates.",
+      "Tasks with assignees, status, attachments, and timelines.",
+      "Issue-style workflows with consistent statuses and priorities.",
     ],
-    stat: "Designed for teams that grow without slowing down.",
+    stat: "Structured data keeps every project easy to navigate.",
     variant: "workspace",
   },
   {
-    eyebrow: "Boards + Optimistic UI",
-    title: "Drag, drop, and ship faster with optimistic workflows.",
+    eyebrow: "Boards + Updates",
+    title: "Visualize progress and share updates as you go.",
     description:
-      "Updates feel instant with optimistic UI, while smart workflows help you move work with confidence across Kanban and timeline views.",
+      "Move work with a fast Kanban board, then capture progress with project and task updates that keep everyone informed.",
     bullets: [
-      "Boards built for speed with real-time state.",
-      "Optimistic updates keep momentum high.",
-      "One-click transitions and automated status logic.",
+      "Drag-and-drop Kanban board with real-time state.",
+      "Project and task updates with status and links.",
+      "Dedicated detail pages for tasks and project context.",
     ],
-    stat: "Built for uninterrupted flow and clarity.",
+    stat: "Boards and updates keep teams moving in lockstep.",
     variant: "board",
   },
-]
+];
 
 const metrics = [
-  { value: "99.9%", label: "Designed uptime target" },
-  { value: "<100ms", label: "Realtime sync latency goal" },
-  { value: "24/7", label: "Global availability design" },
-  { value: "SOC-Ready", label: "Security-first foundations" },
-]
+  { value: "Realtime", label: "Firestore snapshot updates" },
+  { value: "Optimistic", label: "Instant UI feedback on changes" },
+  { value: "Workspaces", label: "Projects, tasks, and team scoped" },
+  { value: "Auth", label: "Email verification + Google sign-in" },
+];
 
-const integrations = [
-  "Slack",
-  "GitHub",
-  "Figma",
-  "Notion",
-  "Google Drive",
-  "Linear",
-  "Loom",
-  "Stripe",
-]
+const modules = [
+  "Workspaces",
+  "Projects",
+  "Tasks",
+  "Boards",
+  "Updates",
+  "Team",
+  "Settings",
+  "Invites",
+];
 
 const footerLinks = [
   {
@@ -123,27 +124,27 @@ const footerLinks = [
     title: "Resources",
     links: ["Docs", "Guides", "Community", "Status"],
   },
-]
+];
 
 const revealClass = (visible: boolean) =>
   cn(
     "transition-all duration-700 motion-reduce:transition-none",
-    visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
-  )
+    visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6",
+  );
 
 function HeroArt() {
   // Controls how many vertical strips build the V-shape.
-  const stripCount = 28
+  const stripCount = 28;
   // Midpoint used to compute distance for the V-depth curve.
-  const mid = (stripCount - 1) / 2
+  const mid = (stripCount - 1) / 2;
   const strips = Array.from({ length: stripCount }).map((_, index) => {
-    const distance = Math.abs(index - mid)
-    const intensity = 1 - distance / mid
+    const distance = Math.abs(index - mid);
+    const intensity = 1 - distance / mid;
     // Push center strips down further to form the V.
-    const depth = Math.round(intensity * 0)
+    const depth = Math.round(intensity * 0);
     // Higher intensity = brighter glow and softer blur.
-    const glow = 0.12 + intensity * 0.6
-    const blur = 1.5 + intensity * 0
+    const glow = 0.12 + intensity * 0.6;
+    const blur = 1.5 + intensity * 0;
 
     return {
       index,
@@ -152,8 +153,8 @@ function HeroArt() {
       glow,
       blur,
       opacity: 0.35 + intensity * 0.9,
-    }
-  })
+    };
+  });
 
   return (
     <div
@@ -178,7 +179,9 @@ function HeroArt() {
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_18%,_rgba(56,189,248,0.22),_transparent_55%)] opacity-70" />
           <div
             className="grid h-full w-full gap-px mix-blend-screen"
-            style={{ gridTemplateColumns: `repeat(${stripCount}, minmax(0, 1fr))` }}
+            style={{
+              gridTemplateColumns: `repeat(${stripCount}, minmax(0, 1fr))`,
+            }}
           >
             {strips.map((strip) => (
               <div key={strip.index} className="relative">
@@ -213,118 +216,243 @@ function HeroArt() {
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 function FeatureArt({
   variant,
   className,
 }: {
-  variant: Feature["variant"]
-  className?: string
+  variant: Feature["variant"];
+  className?: string;
 }) {
   const base =
-    "relative overflow-hidden rounded-3xl border border-border/60 bg-card/70 p-6 shadow-[0_30px_120px_-80px_rgba(15,23,42,0.5)] backdrop-blur"
+    "relative  overflow-hidden md:min-h-[320px] sm:min-h-[260px] rounded-xl border border-border/60 p-2 shadow-[0_30px_120px_-80px_rgba(15,23,42,0.5)] backdrop-blur";
 
   if (variant === "collab") {
     return (
-      <div className={cn(base, className)}>
-        <div className="flex items-center justify-between text-xs text-muted-foreground">
-          <span>Team presence</span>
-          <span>Live updates</span>
-        </div>
-        <div className="mt-6 space-y-3">
-          {["Design review", "API handshake", "Launch notes"].map((item) => (
-            <div
-              key={item}
-              className="flex items-center justify-between rounded-2xl border border-border/70 bg-background/70 px-4 py-3 text-sm"
-            >
-              <span className="text-foreground">{item}</span>
-              <span className="text-xs text-emerald-500">Active</span>
+      <div className={cn(base, className, "border-0")}>
+        <div className={"border p-2 rounded-xl border-border/60 "}>
+          <div className="relative  h-82 w-full rounded-lg border bg-card/40 p-4 text-white/80 shadow-[0_45px_120px_-70px_rgba(0,0,0,0.9)]">
+            <div className="flex items-center gap-3 text-[11px] text-white/50">
+              <span>
+                <HugeiconsIcon icon={File} className="size-4" />
+              </span>
+              <span className="text-white/55">Spice harvester</span>
+              <span className="text-white/25">&gt;</span>
+              <span className="text-white/70">Project specs</span>
+              <span className="ml-auto text-white/20">...</span>
             </div>
-          ))}
-        </div>
-        <div className="absolute -right-6 top-10 h-24 w-24 rounded-full bg-primary/20 blur-[70px] animate-glow motion-reduce:animate-none" />
-        <div className="absolute -left-6 bottom-8 rounded-2xl border border-border/70 bg-background/80 px-3 py-2 text-[11px] text-muted-foreground shadow-sm backdrop-blur animate-float motion-reduce:animate-none">
-          5 teammates collaborating
+            <div className="mt-4 h-px w-full bg-white/5" />
+
+            <div className="mt-6 space-y-5">
+              <div className="flex items-start gap-4">
+                <div className="flex -space-x-2 bg-emerald-500/10 rounded p-1">
+                  <HugeiconsIcon
+                    icon={Users}
+                    className="size-4 text-emerald-400"
+                  />
+                </div>
+                <div>
+                  <div className="text-[19px] font-semibold text-white/90 leading-tight">
+                    <span className="relative inline-flex">
+                      <span className="absolute -top-3 bg-emerald-800 -right-4 text-[10px] text-emerald-200">
+                        zoe
+                      </span>
+                      <span className="ring-1 ring-emerald-500/80">
+                        Collaborate
+                      </span>
+                    </span>
+                    <span className="ml-2">on</span>
+                    <span className="relative ml-2 inline-flex">
+                      <span className=" ">ideas</span>
+                    </span>
+                  </div>
+                  <p className="mt-3 text-sm text-white/55">
+                    Write down product ideas and work together on feature specs
+                    in realtime, multiplayer project documents.
+                  </p>
+                </div>
+              </div>
+              <div className="space-y-2">
+                <div className="h-2 w-full rounded-full bg-white/10" />
+                <div className="h-2 w-11/12 rounded-full bg-white/10" />
+                <div className="h-2 w-9/12 rounded-full bg-white/10" />
+                <div className="h-2 w-7/12 rounded-full bg-white/10" />
+              </div>
+            </div>
+          </div>
+          <div className="absolute left-20 top-14 h-28 w-28 rounded-full bg-emerald-400/15 blur-[80px]" />
+          <div className=" absolute h-1/2 bg-linear-to-b from-transparent  to-background w-full bottom-0 left-0  " />
         </div>
       </div>
-    )
+    );
   }
 
   if (variant === "workspace") {
     return (
-      <div className={cn(base, className)}>
-        <div className="text-xs text-muted-foreground">Workspace map</div>
-        <div className="mt-5 space-y-3">
-          {["Workspace", "Projects", "Issues"].map((item, index) => (
-            <div
-              key={item}
-              className={cn(
-                "rounded-2xl border border-border/70 bg-background/70 px-4 py-3 text-sm font-medium text-foreground",
-                index === 1 && "ml-6",
-                index === 2 && "ml-12"
-              )}
-            >
-              {item}
+      <div className={cn(base, className, "border-0")}>
+        <div className="border p-2 rounded-xl border-border/60">
+          <div className="relative w-full rounded-lg border bg-card/40 p-4 text-white/80 shadow-[0_45px_120px_-70px_rgba(0,0,0,0.9)]">
+            <div className="text-base font-semibold text-white/90">
+              Project Overview
             </div>
-          ))}
-        </div>
-        <div className="mt-6 grid grid-cols-3 gap-3 text-[11px] text-muted-foreground">
-          <div className="rounded-xl border border-border/60 bg-background/60 px-3 py-2">
-            Cycles
+
+            <div className="mt-5 space-y-4 text-sm">
+              <div className="grid grid-cols-[92px_1fr] items-start gap-4">
+                <span className="text-white/40">Properties</span>
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-amber-300">
+                    <span className="h-2 w-2 rotate-45 rounded-[2px] bg-amber-300" />
+                    In Progress
+                  </span>
+                  <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-white/60">
+                    <span className="h-2.5 w-2.5 rounded-sm bg-white/30" />
+                    ENG
+                  </span>
+                  <div className="flex -space-x-2 pl-1">
+                    <span className="h-6 w-6 rounded-full bg-white/10 ring-1 ring-white/10" />
+                    <span className="h-6 w-6 rounded-full bg-white/10 ring-1 ring-white/10" />
+                    <span className="h-6 w-6 rounded-full bg-white/10 ring-1 ring-white/10" />
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-[92px_1fr] items-start gap-4">
+                <span className="text-white/40">Resources</span>
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-white/70">
+                    <span className="h-3 w-3 rounded-[4px] bg-[linear-gradient(135deg,#f97316,#facc15)]" />
+                    Exploration
+                  </span>
+                  <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-white/60">
+                    <span className="h-3 w-3 rounded-[4px] bg-[linear-gradient(135deg,#22c55e,#16a34a)]" />
+                    User interviews
+                  </span>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-[92px_1fr] items-start gap-4">
+                <span className="text-white/40">Milestones</span>
+                <div className="space-y-2 text-xs text-white/50">
+                  <div className="flex items-center gap-3">
+                    <span className="h-2.5 w-2.5 rotate-45 rounded-[2px] bg-indigo-400/80" />
+                    <span className="text-white/70">Design Review</span>
+                    <span className="ml-auto text-white/40">100%</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <span className="h-2.5 w-2.5 rotate-45 rounded-[2px] bg-indigo-400/60" />
+                    <span className="text-white/60">Internal Alpha</span>
+                    <span className="ml-auto text-white/30">100% of 10</span>
+                  </div>
+                  <div className="flex items-center gap-3 opacity-60">
+                    <span className="h-2.5 w-2.5 rotate-45 rounded-[2px] bg-amber-400/70" />
+                    <span>GA</span>
+                    <span className="ml-auto text-white/30">25% of 53</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-5 space-y-2">
+              <div className="h-2 w-full rounded-full bg-white/10" />
+              <div className="h-2 w-10/12 rounded-full bg-white/10" />
+            </div>
           </div>
-          <div className="rounded-xl border border-border/60 bg-background/60 px-3 py-2">
-            Views
-          </div>
-          <div className="rounded-xl border border-border/60 bg-background/60 px-3 py-2">
-            Automations
-          </div>
+          <div className="absolute left-20 top-14 h-28 w-28 rounded-full bg-amber-400/15 blur-[80px]" />
+          <div className="absolute h-1/2 bg-linear-to-b from-transparent to-background w-full bottom-0 left-0" />
         </div>
       </div>
-    )
+    );
   }
 
   return (
-    <div className={cn(base, className)}>
-      <div className="text-xs text-muted-foreground">Board view</div>
-      <div className="mt-6 grid gap-3 sm:grid-cols-3">
-        {["Backlog", "In progress", "Review"].map((col) => (
-          <div
-            key={col}
-            className="rounded-2xl border border-border/70 bg-background/70 p-3 text-[11px] text-muted-foreground"
-          >
-            <div className="mb-2 text-foreground">{col}</div>
-            <div className="space-y-2">
-              <div className="h-2 rounded-full bg-muted/60" />
-              <div className="h-2 rounded-full bg-primary/50" />
-              <div className="h-2 rounded-full bg-muted/60" />
+    <div className={cn(base, "perspective-1200", className, "border-0")}>
+      <div className="border p-2 rounded-xl border-border/60">
+        <div className="relative w-full rounded-lg border bg-card/40 p-4 text-white/80 shadow-[0_45px_120px_-70px_rgba(0,0,0,0.9)]">
+          <div className="relative h-55 w-full preserve-3d">
+            <div
+              className="group absolute left-4 top-8 w-[78%] rounded-2xl border border-white/10 bg-[#0b0e13]/70 p-4 text-xs text-white/40 shadow-[0_20px_60px_-40px_rgba(0,0,0,0.8)] backdrop-blur transition duration-300 hover:border-rose-400/40 hover:text-white/60 hover:shadow-[0_25px_70px_-40px_rgba(244,63,94,0.5)] transform-gpu hover:-translate-y-4 
+-translate-z-30
+-rotate-x-14
+rotate-y-20
+-skew-y-4
+-translate-y-4
+"
+              style={{ "--z": "-28px" } as React.CSSProperties}
+            >
+              <div className="flex items-center gap-2">
+                <span className="h-2 w-2 rounded-full bg-white/25 transition-colors duration-300 group-hover:bg-rose-400/80" />
+                Off track
+              </div>
+              <div className="mt-3 h-2 w-3/4 rounded-full bg-white/10" />
+              <div className="mt-2 h-2 w-1/2 rounded-full bg-white/10" />
+            </div>
+
+            <div
+              className="group absolute left-6 top-12 w-[80%] rounded-2xl border border-white/10 bg-[#0b0e13]/80 p-4 text-xs text-white/45 shadow-[0_20px_60px_-40px_rgba(0,0,0,0.8)] backdrop-blur transition duration-300 hover:border-amber-300/40 hover:text-white/70 hover:shadow-[0_25px_70px_-40px_rgba(251,191,36,0.55)] transform-gpu  hover:[--z:-4px] hover:-translate-y-4 
+-translate-z-10
+-rotate-x-14
+rotate-y-20
+-skew-y-4
+translate-y-2
+translate-x-4
+"
+              style={{ "--z": "-12px" } as React.CSSProperties}
+            >
+              <div className="flex items-center gap-2">
+                <span className="h-2 w-2 rounded-full bg-white/30 transition-colors duration-300 group-hover:bg-amber-300/80" />
+                At risk
+              </div>
+              <div className="mt-3 h-2 w-4/5 rounded-full bg-white/10" />
+              <div className="mt-2 h-2 w-2/3 rounded-full bg-white/10" />
+            </div>
+
+            <div
+              className="group absolute left-4 top-12 w-[84%] rounded-2xl border border-white/10 bg-[#0b0e13]/95 p-5 text-sm text-white/70 shadow-[0_35px_90px_-60px_rgba(0,0,0,0.9)] transition duration-300 hover:brightness-110 hover:border-emerald-400/40 hover:shadow-[0_35px_100px_-60px_rgba(16,185,129,0.65)] transform-gpu  hover:[--z:24px] hover:-translate-y-4
+translate-z-15
+-rotate-x-14
+rotate-y-20
+-skew-y-4
+translate-x-12
+translate-y-8
+  "
+              style={{ "--z": "12px" } as React.CSSProperties}
+            >
+              <div className="absolute inset-0 rounded-xl bg-accent/80" />
+              <div className="relative">
+                <div className="flex items-center gap-2 text-xs">
+                  <span className="flex h-4 w-4 items-center justify-center rounded-full bg-white/10">
+                    <span className="h-2 w-2 rounded-full bg-white/30 transition-colors duration-300 group-hover:bg-emerald-400" />
+                  </span>
+                  <span className="font-semibold text-white/60 transition-colors duration-300 group-hover:text-emerald-300">
+                    On track
+                  </span>
+                </div>
+                <div className="mt-3 text-base font-medium text-white/85">
+                  We are ready to launch next Thursday
+                </div>
+                <div className="mt-3 text-xs text-white/35">Sep 8</div>
+              </div>
             </div>
           </div>
-        ))}
-      </div>
-      <div className="absolute -left-6 bottom-8 rounded-2xl border border-border/70 bg-background/80 px-3 py-2 text-[11px] text-muted-foreground shadow-sm backdrop-blur animate-float-slow motion-reduce:animate-none">
-        Optimistic updates on move
+        </div>
+        <div className="absolute left-20 top-14 h-28 w-28 rounded-full bg-emerald-400/15 blur-[80px]" />
+        <div className="absolute h-1/2 bg-linear-to-b from-transparent to-background w-full bottom-0 left-0" />
+        <div className="absolute h-1/2 w-1/2 bg-linear-to-tr from-transparent to-background blur-2xl top-0 right-0" />
       </div>
     </div>
-  )
+  );
 }
-
-function FeatureBlock({
-  feature,
-  flip,
-}: {
-  feature: Feature
-  flip?: boolean
-}) {
-  const { ref, isVisible } = useReveal<HTMLDivElement>({ threshold: 0.2 })
+function FeatureBlock({ feature, flip }: { feature: Feature; flip?: boolean }) {
+  const { ref, isVisible } = useReveal<HTMLDivElement>({ threshold: 0.2 });
 
   return (
     <div
       ref={ref}
       className={cn(
         "grid items-center gap-10 lg:grid-cols-2",
-        revealClass(isVisible)
+        revealClass(isVisible),
       )}
     >
       <div className={cn(flip && "lg:order-2")}>
@@ -354,16 +482,16 @@ function FeatureBlock({
         className={cn(flip && "lg:order-1")}
       />
     </div>
-  )
+  );
 }
 
 const LandingPage = () => {
-  const hero = useReveal<HTMLDivElement>({ threshold: 0.1 })
-  const logos = useReveal<HTMLDivElement>({ threshold: 0.1 })
-  const pillarsReveal = useReveal<HTMLDivElement>({ threshold: 0.1 })
-  const foundations = useReveal<HTMLDivElement>({ threshold: 0.1 })
-  const integrationsReveal = useReveal<HTMLDivElement>({ threshold: 0.1 })
-  const cta = useReveal<HTMLDivElement>({ threshold: 0.1 })
+  const hero = useReveal<HTMLDivElement>({ threshold: 0.1 });
+  const logos = useReveal<HTMLDivElement>({ threshold: 0.1 });
+  const pillarsReveal = useReveal<HTMLDivElement>({ threshold: 0.1 });
+  const foundations = useReveal<HTMLDivElement>({ threshold: 0.1 });
+  const integrationsReveal = useReveal<HTMLDivElement>({ threshold: 0.1 });
+  const cta = useReveal<HTMLDivElement>({ threshold: 0.1 });
 
   return (
     <div className="relative overflow-hidden bg-background text-foreground w-full">
@@ -406,10 +534,7 @@ const LandingPage = () => {
               >
                 Log in
               </Link>
-              <Link
-                to="/register"
-                className={buttonVariants({ size: "sm" })}
-              >
+              <Link to="/register" className={buttonVariants({ size: "sm" })}>
                 Get started
               </Link>
             </div>
@@ -423,10 +548,7 @@ const LandingPage = () => {
           <div className="mx-auto w-full max-w-6xl px-6">
             <div
               ref={hero.ref}
-              className={cn(
-                "relative z-10",
-                revealClass(hero.isVisible)
-              )}
+              className={cn("relative z-10", revealClass(hero.isVisible))}
             >
               <div className="max-w-2xl lg:max-w-3xl">
                 <div className="flex flex-col gap-6 sm:gap-7">
@@ -465,7 +587,6 @@ const LandingPage = () => {
                   </div>
                 </div>
               </div>
-           
             </div>
           </div>
         </section>
@@ -476,11 +597,11 @@ const LandingPage = () => {
               ref={logos.ref}
               className={cn(
                 "rounded-3xl border border-border/60 bg-card/60 px-8 py-10 text-center",
-                revealClass(logos.isVisible)
+                revealClass(logos.isVisible),
               )}
             >
               <p className="text-xs font-semibold uppercase tracking-[0.3em] text-muted-foreground">
-                Trusted by focused teams
+                Built for cross-functional teams
               </p>
               <div className="mt-6 flex flex-wrap items-center justify-center gap-3 text-sm text-muted-foreground">
                 {logoCloud.map((logo) => (
@@ -500,7 +621,10 @@ const LandingPage = () => {
           <div className="mx-auto w-full max-w-6xl px-6">
             <div
               ref={pillarsReveal.ref}
-              className={cn("text-center", revealClass(pillarsReveal.isVisible))}
+              className={cn(
+                "text-center",
+                revealClass(pillarsReveal.isVisible),
+              )}
             >
               <p className="text-xs font-semibold uppercase tracking-[0.3em] text-muted-foreground">
                 Made for modern product teams
@@ -517,13 +641,11 @@ const LandingPage = () => {
                   className={cn(
                     "rounded-3xl border border-border/60 bg-card/60 p-6 text-left transition-all duration-500",
                     "hover:-translate-y-1 hover:border-primary/40 hover:shadow-[0_18px_60px_-40px_rgba(99,102,241,0.6)]",
-                    "animate-fade-up motion-reduce:animate-none"
+                    "animate-fade-up motion-reduce:animate-none",
                   )}
                 >
                   <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-primary/10 text-primary">
-                    <span className="text-sm font-semibold">
-                      {index + 1}
-                    </span>
+                    <span className="text-sm font-semibold">{index + 1}</span>
                   </div>
                   <h3 className="mt-5 text-xl font-semibold text-foreground">
                     {pillar.title}
@@ -557,7 +679,7 @@ const LandingPage = () => {
               ref={foundations.ref}
               className={cn(
                 "rounded-3xl border border-border/60 bg-card/60 px-8 py-10",
-                revealClass(foundations.isVisible)
+                revealClass(foundations.isVisible),
               )}
             >
               <div className="grid gap-8 lg:grid-cols-[1.1fr_0.9fr]">
@@ -576,15 +698,15 @@ const LandingPage = () => {
                   <ul className="mt-6 grid gap-3 text-sm text-muted-foreground">
                     <li className="flex items-start gap-3">
                       <span className="mt-1 h-2 w-2 rounded-full bg-primary/80" />
-                      Built-in audit trails and workspace-level permissions.
+                      Team invites with role-aware membership.
                     </li>
                     <li className="flex items-start gap-3">
                       <span className="mt-1 h-2 w-2 rounded-full bg-primary/80" />
-                      Optimistic UI with reliable Firestore reconciliation.
+                      Optimistic UI backed by Firestore listeners.
                     </li>
                     <li className="flex items-start gap-3">
                       <span className="mt-1 h-2 w-2 rounded-full bg-primary/80" />
-                      Designed for real-time collaboration at scale.
+                      Updates for projects and tasks keep everyone aligned.
                     </li>
                   </ul>
                 </div>
@@ -608,32 +730,35 @@ const LandingPage = () => {
           </div>
         </section>
 
-        <section id="integrations" className="py-16 sm:py-20">
+        <section id="modules" className="py-16 sm:py-20">
           <div className="mx-auto w-full max-w-6xl px-6">
             <div
               ref={integrationsReveal.ref}
-              className={cn("text-center", revealClass(integrationsReveal.isVisible))}
+              className={cn(
+                "text-center",
+                revealClass(integrationsReveal.isVisible),
+              )}
             >
               <p className="text-xs font-semibold uppercase tracking-[0.3em] text-muted-foreground">
-                Integrations
+                Core modules
               </p>
               <h2 className="mt-4 text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
-                Connect the tools you already rely on.
+                Everything you need to run the workspace.
               </h2>
               <p className="mt-4 text-base text-muted-foreground">
-                Designed to plug into your stack with clean, lightweight
-                connections.
+                Taskflow ships with the essentials for planning, execution, and
+                team coordination.
               </p>
             </div>
             <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              {integrations.map((integration) => (
+              {modules.map((module) => (
                 <div
-                  key={integration}
+                  key={module}
                   className="flex items-center justify-between rounded-2xl border border-border/60 bg-card/60 px-4 py-3 text-sm"
                 >
-                  <span className="text-foreground">{integration}</span>
+                  <span className="text-foreground">{module}</span>
                   <span className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
-                    Planned
+                    Built-in
                   </span>
                 </div>
               ))}
@@ -647,7 +772,7 @@ const LandingPage = () => {
               ref={cta.ref}
               className={cn(
                 "relative overflow-hidden rounded-3xl border border-border/60 bg-card/70 px-8 py-12 text-center shadow-[0_40px_140px_-100px_rgba(99,102,241,0.7)]",
-                revealClass(cta.isVisible)
+                revealClass(cta.isVisible),
               )}
             >
               <div className="absolute inset-0 pointer-events-none">
@@ -734,7 +859,7 @@ const LandingPage = () => {
         </div>
       </footer>
     </div>
-  )
-}
+  );
+};
 
-export default LandingPage
+export default LandingPage;
