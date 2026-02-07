@@ -183,7 +183,13 @@ const ProfileSettings = () => {
       await signOut(auth);
       
       // Clear local store
-      setUser(null);
+      setUser({
+        id: "",
+        email: "",
+        name: "",
+        createdAt: "",
+        avatar: undefined,
+      });
       setActiveWorkspace(null);
       setWorkspaces([]);
       
