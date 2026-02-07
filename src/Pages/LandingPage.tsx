@@ -1,6 +1,4 @@
 import { Link } from "react-router";
-
-import ThemeToggler from "@/components/Common/ThemeToggler";
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
