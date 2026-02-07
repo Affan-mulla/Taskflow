@@ -13,8 +13,9 @@ import { updateUserName, updateUserAvatar } from "@/db/users/users.update";
 import { toast } from "sonner";
 import { Spinner } from "@/components/ui/spinner";
 import { useWorkspaceStore } from "@/shared/store/store.workspace";
-import { db } from "@/lib/firebase";
+import { db, auth } from "@/lib/firebase";
 import { doc, deleteDoc } from "firebase/firestore";
+import { signOut } from "firebase/auth";
 import { useNavigate } from "react-router";
 import {
   AlertDialog,
@@ -42,6 +43,7 @@ const ProfileSettings = () => {
   const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
   const [isSavingName, setIsSavingName] = useState(false);
   const [isLeavingWorkspace, setIsLeavingWorkspace] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
   
   // Track original name to detect changes
   const originalNameRef = useRef(user?.name || "");
@@ -173,6 +175,27 @@ const ProfileSettings = () => {
     }
   };
 
+  // Handle logout
+  const handleLogout = async () => {
+    setIsLoggingOut(true);
+
+    try {
+      await signOut(auth);
+      
+      // Clear local store
+      setUser(null);
+      setActiveWorkspace(null);
+      setWorkspaces([]);
+      
+      toast.success("Logged out successfully");
+      navigate("/");
+    } catch (error) {
+      console.error("Error logging out:", error);
+      toast.error("Failed to log out");
+      setIsLoggingOut(false);
+    }
+  };
+
   return (
     <div className="space-y-6 max-w-lg mx-auto w-full my-8">
       {/* Header */}
@@ -293,6 +316,47 @@ const ProfileSettings = () => {
                   className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                 >
                   Leave workspace
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        </CardContent>
+      </Card>
+
+      <div>
+        <h2 className="text-xl font-semibold">Account</h2>
+      </div>
+
+      <Card className="rounded-md">
+        <CardContent className="flex items-center justify-between gap-4">
+          <CardTitle>Sign out of your account</CardTitle>
+          <AlertDialog>
+            <AlertDialogTrigger>
+              <Button variant="destructive" disabled={isLoggingOut}>
+                {isLoggingOut ? (
+                  <>
+                    <Spinner className="size-4 mr-2" />
+                    Logging out...
+                  </>
+                ) : (
+                  "Logout"
+                )}
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Logout from Taskflow?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Are you sure you want to log out? You'll need to sign in again to access your workspaces.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={handleLogout}
+                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                >
+                  Logout
                 </AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>
