@@ -1,5 +1,6 @@
 import { Link } from "react-router";
 
+import ThemeToggler from "@/components/Common/ThemeToggler";
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -174,7 +175,7 @@ function HeroArt() {
           {/* Base glow sitting behind everything. */}
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(99,102,241,0.3),transparent_70%)] opacity-80" />
           {/* Light rays: subtle, masked and blurred for depth. */}
-          <div className="absolute inset-0 hero-rays opacity-65 blur-[10px] mix-blend-screen" />
+          <div className="absolute inset-0 hero-rays opacity-70 blur-[10px] mix-blend-multiply dark:mix-blend-screen" />
           {/* Cool accent bloom to add color variation. */}
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_18%,_rgba(56,189,248,0.22),_transparent_55%)] opacity-70" />
           <div
@@ -210,9 +211,9 @@ function HeroArt() {
             ))}
           </div>
           {/* Moving highlight that sweeps across the center. */}
-          <div className="absolute inset-y-0 left-1/2 w-[42%] -translate-x-1/2 bg-[linear-gradient(90deg,transparent,rgba(255,255,255,0.35),transparent)] opacity-35 mix-blend-screen animate-hero-glint motion-reduce:animate-none" />
+          <div className="absolute inset-y-0 left-1/2 w-[42%] -translate-x-1/2 bg-[linear-gradient(90deg,transparent,rgba(99,102,241,0.26),transparent)] opacity-45 mix-blend-multiply animate-hero-glint motion-reduce:animate-none dark:bg-[linear-gradient(90deg,transparent,rgba(255,255,255,0.35),transparent)] dark:opacity-35 dark:mix-blend-screen" />
           {/* Subtle vignette to ground the effect. */}
-          <div className="absolute inset-0 bg-[linear-gradient(to_bottom,rgba(15,23,42,0.08),transparent_35%,rgba(15,23,42,0.18))]" />
+          <div className="absolute inset-0 bg-[linear-gradient(to_bottom,rgba(148,163,184,0.08),transparent_35%,rgba(148,163,184,0.18))] dark:bg-[linear-gradient(to_bottom,rgba(15,23,42,0.08),transparent_35%,rgba(15,23,42,0.18))]" />
         </div>
       </div>
     </div>
@@ -227,23 +228,23 @@ function FeatureArt({
   className?: string;
 }) {
   const base =
-    "relative  overflow-hidden md:min-h-[320px] sm:min-h-[260px] rounded-xl border border-border/60 p-2 shadow-[0_30px_120px_-80px_rgba(15,23,42,0.5)] backdrop-blur";
+    "relative overflow-hidden rounded-xl border border-border bg-background/40 backdrop-blur sm:min-h-[260px] md:min-h-[320px]";
 
   if (variant === "collab") {
     return (
       <div className={cn(base, className, "border-0")}>
         <div className={"border p-2 rounded-xl border-border/60 "}>
-          <div className="relative  h-82 w-full rounded-lg border bg-card/40 p-4 text-white/80 shadow-[0_45px_120px_-70px_rgba(0,0,0,0.9)]">
-            <div className="flex items-center gap-3 text-[11px] text-white/50">
+          <div className="relative h-82 w-full rounded-lg border bg-card/40 p-4 text-muted-foreground shadow-[0_35px_100px_-80px_rgba(15,23,42,0.35)]">
+            <div className="flex items-center gap-3 text-[11px] ">
               <span>
                 <HugeiconsIcon icon={File} className="size-4" />
               </span>
-              <span className="text-white/55">Spice harvester</span>
-              <span className="text-white/25">&gt;</span>
-              <span className="text-white/70">Project specs</span>
-              <span className="ml-auto text-white/20">...</span>
+              <span className="text-muted-foreground">Spice harvester</span>
+              <span className="text-muted-foreground/25">&gt;</span>
+              <span className="text-muted-foreground/70">Project specs</span>
+              <span className="ml-auto text-muted-foreground/20">...</span>
             </div>
-            <div className="mt-4 h-px w-full bg-white/5" />
+            <div className="mt-4 h-px w-full bg-muted-foreground/5" />
 
             <div className="mt-6 space-y-5">
               <div className="flex items-start gap-4">
@@ -254,12 +255,12 @@ function FeatureArt({
                   />
                 </div>
                 <div>
-                  <div className="text-[19px] font-semibold text-white/90 leading-tight">
+                  <div className="text-[19px] font-semibold leading-tight text-foreground">
                     <span className="relative inline-flex">
-                      <span className="absolute -top-3 bg-emerald-800 -right-4 text-[10px] text-emerald-200">
+                      <span className="absolute -top-3 -right-4 bg-emerald-600/20 text-[10px] text-emerald-700 dark:bg-emerald-800/60 dark:text-emerald-200">
                         zoe
                       </span>
-                      <span className="ring-1 ring-emerald-500/80">
+                      <span className="ring-1 ring-emerald-500/70 dark:ring-emerald-500/80">
                         Collaborate
                       </span>
                     </span>
@@ -268,17 +269,17 @@ function FeatureArt({
                       <span className=" ">ideas</span>
                     </span>
                   </div>
-                  <p className="mt-3 text-sm text-white/55">
+                  <p className="mt-3 text-sm text-muted-foreground">
                     Write down product ideas and work together on feature specs
                     in realtime, multiplayer project documents.
                   </p>
                 </div>
               </div>
               <div className="space-y-2">
-                <div className="h-2 w-full rounded-full bg-white/10" />
-                <div className="h-2 w-11/12 rounded-full bg-white/10" />
-                <div className="h-2 w-9/12 rounded-full bg-white/10" />
-                <div className="h-2 w-7/12 rounded-full bg-white/10" />
+                <div className="h-2 w-full rounded-full bg-muted-foreground/10" />
+                <div className="h-2 w-11/12 rounded-full bg-muted-foreground/10" />
+                <div className="h-2 w-9/12 rounded-full bg-muted-foreground/10" />
+                <div className="h-2 w-7/12 rounded-full bg-muted-foreground/10" />
               </div>
             </div>
           </div>
@@ -293,39 +294,39 @@ function FeatureArt({
     return (
       <div className={cn(base, className, "border-0")}>
         <div className="border p-2 rounded-xl border-border/60">
-          <div className="relative w-full rounded-lg border bg-card/40 p-4 text-white/80 shadow-[0_45px_120px_-70px_rgba(0,0,0,0.9)]">
-            <div className="text-base font-semibold text-white/90">
+          <div className="relative w-full rounded-lg border bg-card/40 p-4 text-muted-foreground/80 shadow-[0_45px_120px_-70px_rgba(0,0,0,0.9)]">
+            <div className="text-base font-semibold text-muted-foreground/90">
               Project Overview
             </div>
 
             <div className="mt-5 space-y-4 text-sm">
               <div className="grid grid-cols-[92px_1fr] items-start gap-4">
-                <span className="text-white/40">Properties</span>
+                <span className="text-muted-foreground/40">Properties</span>
                 <div className="flex flex-wrap items-center gap-2">
-                  <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-amber-300">
+                  <span className="inline-flex items-center gap-2 rounded-full border border-muted-foreground/10 bg-muted-foreground/5 px-3 py-1 text-xs text-amber-700 dark:text-amber-300">
                     <span className="h-2 w-2 rotate-45 rounded-[2px] bg-amber-300" />
                     In Progress
                   </span>
-                  <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-white/60">
-                    <span className="h-2.5 w-2.5 rounded-sm bg-white/30" />
+                  <span className="inline-flex items-center gap-2 rounded-full border border-muted-foreground/10 bg-muted-foreground/5 px-3 py-1 text-xs text-foreground/60 dark:text-white/60">
+                    <span className="h-2.5 w-2.5 rounded-sm bg-muted-foreground/30" />
                     ENG
                   </span>
                   <div className="flex -space-x-2 pl-1">
-                    <span className="h-6 w-6 rounded-full bg-white/10 ring-1 ring-white/10" />
-                    <span className="h-6 w-6 rounded-full bg-white/10 ring-1 ring-white/10" />
-                    <span className="h-6 w-6 rounded-full bg-white/10 ring-1 ring-white/10" />
+                    <span className="h-6 w-6 rounded-full bg-muted-foreground/10 ring-1 ring-muted-foreground/10" />
+                    <span className="h-6 w-6 rounded-full bg-muted-foreground/10 ring-1 ring-muted-foreground/10" />
+                    <span className="h-6 w-6 rounded-full bg-muted-foreground/10 ring-1 ring-muted-foreground/10" />
                   </div>
                 </div>
               </div>
 
               <div className="grid grid-cols-[92px_1fr] items-start gap-4">
-                <span className="text-white/40">Resources</span>
+                <span className="text-muted-foreground/40">Resources</span>
                 <div className="flex flex-wrap items-center gap-2">
-                  <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-white/70">
+                  <span className="inline-flex items-center gap-2 rounded-full border border-muted-foreground/10 bg-muted-foreground/5 px-3 py-1 text-xs text-muted-foreground/70">
                     <span className="h-3 w-3 rounded-[4px] bg-[linear-gradient(135deg,#f97316,#facc15)]" />
                     Exploration
                   </span>
-                  <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-white/60">
+                  <span className="inline-flex items-center gap-2 rounded-full border border-muted-foreground/10 bg-muted-foreground/5 px-3 py-1 text-xs text-muted-foreground/60">
                     <span className="h-3 w-3 rounded-[4px] bg-[linear-gradient(135deg,#22c55e,#16a34a)]" />
                     User interviews
                   </span>
@@ -333,30 +334,30 @@ function FeatureArt({
               </div>
 
               <div className="grid grid-cols-[92px_1fr] items-start gap-4">
-                <span className="text-white/40">Milestones</span>
-                <div className="space-y-2 text-xs text-white/50">
+                <span className="text-muted-foreground/40">Milestones</span>
+                <div className="space-y-2 text-xs text-muted-foreground/50">
                   <div className="flex items-center gap-3">
                     <span className="h-2.5 w-2.5 rotate-45 rounded-[2px] bg-indigo-400/80" />
-                    <span className="text-white/70">Design Review</span>
-                    <span className="ml-auto text-white/40">100%</span>
+                    <span className="text-muted-foreground/70">Design Review</span>
+                    <span className="ml-auto text-muted-foreground/40">100%</span>
                   </div>
                   <div className="flex items-center gap-3">
                     <span className="h-2.5 w-2.5 rotate-45 rounded-[2px] bg-indigo-400/60" />
-                    <span className="text-white/60">Internal Alpha</span>
-                    <span className="ml-auto text-white/30">100% of 10</span>
+                    <span className="text-muted-foreground/60">Internal Alpha</span>
+                    <span className="ml-auto text-muted-foreground/30">100% of 10</span>
                   </div>
                   <div className="flex items-center gap-3 opacity-60">
                     <span className="h-2.5 w-2.5 rotate-45 rounded-[2px] bg-amber-400/70" />
                     <span>GA</span>
-                    <span className="ml-auto text-white/30">25% of 53</span>
+                    <span className="ml-auto text-muted-foreground/30">25% of 53</span>
                   </div>
                 </div>
               </div>
             </div>
 
             <div className="mt-5 space-y-2">
-              <div className="h-2 w-full rounded-full bg-white/10" />
-              <div className="h-2 w-10/12 rounded-full bg-white/10" />
+              <div className="h-2 w-full rounded-full bg-muted-foreground/10" />
+              <div className="h-2 w-10/12 rounded-full bg-muted-foreground/10" />
             </div>
           </div>
           <div className="absolute left-20 top-14 h-28 w-28 rounded-full bg-amber-400/15 blur-[80px]" />
@@ -369,10 +370,10 @@ function FeatureArt({
   return (
     <div className={cn(base, "perspective-1200", className, "border-0")}>
       <div className="border p-2 rounded-xl border-border/60">
-        <div className="relative w-full rounded-lg border bg-card/40 p-4 text-white/80 shadow-[0_45px_120px_-70px_rgba(0,0,0,0.9)]">
+        <div className="relative w-full rounded-lg border bg-card/40 p-4 text-muted-foreground/80 shadow-[0_45px_120px_-70px_rgba(0,0,0,0.9)]">
           <div className="relative h-55 w-full preserve-3d">
             <div
-              className="group absolute left-4 top-8 w-[78%] rounded-2xl border border-white/10 bg-[#0b0e13]/70 p-4 text-xs text-white/40 shadow-[0_20px_60px_-40px_rgba(0,0,0,0.8)] backdrop-blur transition duration-300 hover:border-rose-400/40 hover:text-white/60 hover:shadow-[0_25px_70px_-40px_rgba(244,63,94,0.5)] transform-gpu hover:-translate-y-4 
+              className="group absolute left-4 top-8 w-[78%] rounded-2xl border border-border/70 bg-background/90 p-4 text-xs text-muted-foreground/70 shadow-[0_20px_60px_-40px_rgba(15,23,42,0.35)] backdrop-blur transition duration-300 hover:-translate-y-4 hover:border-rose-400/40 hover:text-foreground/90 hover:shadow-[0_25px_70px_-40px_rgba(244,63,94,0.35)] dark:border-white/10 dark:bg-[#0b0e13]/70 dark:text-white/40 dark:hover:text-white/60 dark:hover:shadow-[0_25px_70px_-40px_rgba(244,63,94,0.5)] transform-gpu
 -translate-z-30
 -rotate-x-14
 rotate-y-20
@@ -382,15 +383,15 @@ rotate-y-20
               style={{ "--z": "-28px" } as React.CSSProperties}
             >
               <div className="flex items-center gap-2">
-                <span className="h-2 w-2 rounded-full bg-white/25 transition-colors duration-300 group-hover:bg-rose-400/80" />
+                <span className="h-2 w-2 rounded-full bg-muted-foreground/30 transition-colors duration-300 group-hover:bg-rose-400/80 dark:bg-white/25" />
                 Off track
               </div>
-              <div className="mt-3 h-2 w-3/4 rounded-full bg-white/10" />
-              <div className="mt-2 h-2 w-1/2 rounded-full bg-white/10" />
+              <div className="mt-3 h-2 w-3/4 rounded-full bg-muted-foreground/15 dark:bg-white/10" />
+              <div className="mt-2 h-2 w-1/2 rounded-full bg-muted-foreground/15 dark:bg-white/10" />
             </div>
 
             <div
-              className="group absolute left-6 top-12 w-[80%] rounded-2xl border border-white/10 bg-[#0b0e13]/80 p-4 text-xs text-white/45 shadow-[0_20px_60px_-40px_rgba(0,0,0,0.8)] backdrop-blur transition duration-300 hover:border-amber-300/40 hover:text-white/70 hover:shadow-[0_25px_70px_-40px_rgba(251,191,36,0.55)] transform-gpu  hover:[--z:-4px] hover:-translate-y-4 
+              className="group absolute left-6 top-12 w-[80%] rounded-2xl border border-border/70 bg-background/95 p-4 text-xs text-muted-foreground/70 shadow-[0_20px_60px_-40px_rgba(15,23,42,0.35)] backdrop-blur transition duration-300 hover:border-amber-300/40 hover:text-foreground/90 hover:shadow-[0_25px_70px_-40px_rgba(251,191,36,0.35)] dark:border-white/10 dark:bg-[#0b0e13]/80 dark:text-white/45 dark:hover:text-white/70 dark:hover:shadow-[0_25px_70px_-40px_rgba(251,191,36,0.55)] transform-gpu hover:[--z:-4px] hover:-translate-y-4
 -translate-z-10
 -rotate-x-14
 rotate-y-20
@@ -401,15 +402,15 @@ translate-x-4
               style={{ "--z": "-12px" } as React.CSSProperties}
             >
               <div className="flex items-center gap-2">
-                <span className="h-2 w-2 rounded-full bg-white/30 transition-colors duration-300 group-hover:bg-amber-300/80" />
+                <span className="h-2 w-2 rounded-full bg-muted-foreground/35 transition-colors duration-300 group-hover:bg-amber-300/80 dark:bg-white/30" />
                 At risk
               </div>
-              <div className="mt-3 h-2 w-4/5 rounded-full bg-white/10" />
-              <div className="mt-2 h-2 w-2/3 rounded-full bg-white/10" />
+              <div className="mt-3 h-2 w-4/5 rounded-full bg-muted-foreground/15 dark:bg-white/10" />
+              <div className="mt-2 h-2 w-2/3 rounded-full bg-muted-foreground/15 dark:bg-white/10" />
             </div>
 
             <div
-              className="group absolute left-4 top-12 w-[84%] rounded-2xl border border-white/10 bg-[#0b0e13]/95 p-5 text-sm text-white/70 shadow-[0_35px_90px_-60px_rgba(0,0,0,0.9)] transition duration-300 hover:brightness-110 hover:border-emerald-400/40 hover:shadow-[0_35px_100px_-60px_rgba(16,185,129,0.65)] transform-gpu  hover:[--z:24px] hover:-translate-y-4
+              className="group absolute left-4 top-12 w-[84%] rounded-2xl border border-border/70 bg-card/95 p-5 text-sm text-foreground/75 shadow-[0_35px_90px_-60px_rgba(15,23,42,0.42)] transition duration-300 hover:[--z:24px] hover:-translate-y-4 hover:brightness-105 hover:border-emerald-400/40 hover:shadow-[0_35px_100px_-60px_rgba(16,185,129,0.45)] dark:border-white/10 dark:bg-[#0b0e13]/95 dark:text-white/70 dark:hover:brightness-110 dark:hover:shadow-[0_35px_100px_-60px_rgba(16,185,129,0.65)] transform-gpu
 translate-z-15
 -rotate-x-14
 rotate-y-20
@@ -422,17 +423,17 @@ translate-y-8
               <div className="absolute inset-0 rounded-xl bg-accent/80" />
               <div className="relative">
                 <div className="flex items-center gap-2 text-xs">
-                  <span className="flex h-4 w-4 items-center justify-center rounded-full bg-white/10">
-                    <span className="h-2 w-2 rounded-full bg-white/30 transition-colors duration-300 group-hover:bg-emerald-400" />
+                  <span className="flex h-4 w-4 items-center justify-center rounded-full bg-muted-foreground/10 dark:bg-white/10">
+                    <span className="h-2 w-2 rounded-full bg-muted-foreground/35 transition-colors duration-300 group-hover:bg-emerald-400 dark:bg-white/30" />
                   </span>
-                  <span className="font-semibold text-white/60 transition-colors duration-300 group-hover:text-emerald-300">
+                  <span className="font-semibold text-foreground/70 transition-colors duration-300 group-hover:text-emerald-700 dark:text-white/60 dark:group-hover:text-emerald-300">
                     On track
                   </span>
                 </div>
-                <div className="mt-3 text-base font-medium text-white/85">
+                <div className="mt-3 text-base font-medium text-foreground/90 dark:text-white/85">
                   We are ready to launch next Thursday
                 </div>
-                <div className="mt-3 text-xs text-white/35">Sep 8</div>
+                <div className="mt-3 text-xs text-muted-foreground dark:text-white/35">Sep 8</div>
               </div>
             </div>
           </div>
@@ -494,7 +495,7 @@ const LandingPage = () => {
   const cta = useReveal<HTMLDivElement>({ threshold: 0.1 });
 
   return (
-    <div className="relative overflow-hidden bg-background text-foreground w-full">
+    <div className="relative w-full overflow-hidden bg-background text-foreground transition-colors">
       <div className="absolute inset-0 -z-10">
         <div className="absolute left-1/2 top-[-20%] h-[36rem] w-[36rem] -translate-x-1/2 rounded-full bg-primary/10 blur-[160px]" />
         <div className="absolute right-[-10%] top-0 h-[32rem] w-[32rem] rounded-full bg-sky-400/10 blur-[180px]" />
