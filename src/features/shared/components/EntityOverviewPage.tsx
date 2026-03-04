@@ -166,12 +166,12 @@ export function EntityOverviewPage({
   const creator = members.find((m) => m.value === createdBy);
 
   return (
-    <div className="w-full h-full">
+    <>
       {navbar}
       <Separator />
-      <ScrollArea className="h-full w-full">
-        <div className="flex justify-center w-full bg-background">
-          <div className="w-full max-w-220 px-6 py-10 pb-20 flex flex-col gap-10">
+      <ScrollArea orientation="vertical" className="flex-1 w-full h-full " >
+        <div className="flex justify-center w-full h-full">
+          <div className="w-full max-w-220 h-full px-6 py-10 pb-20 flex flex-col gap-10">
             {/* 1. Header Section */}
             <header className="flex flex-col gap-4">
               <div className="flex items-start gap-4">
@@ -333,7 +333,7 @@ export function EntityOverviewPage({
                   onRemoveUpdate={onRemoveUpdate}
                   currentUserId={currentUserId}
                   viewAllLink={viewAllUpdatesLink}
-                  maxPreviewUpdates={3}
+                  maxPreviewUpdates={2}
                 />
               ) : null}
             </div>
@@ -399,7 +399,7 @@ export function EntityOverviewPage({
           </div>
         </div>
       </ScrollArea>
-    </div>
+    </>
   );
 }
 

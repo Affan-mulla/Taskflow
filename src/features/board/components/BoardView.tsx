@@ -65,7 +65,7 @@ const BoardView = () => {
     <DropdownMenu>
       <DropdownMenuTrigger
         render={
-          <Button variant="outline" className="gap-2 group">
+          <Button variant="outline" size={"sm"} className="gap-2 group">
             {currentView && (
               <HugeiconsIcon
                 icon={currentView.icon}
