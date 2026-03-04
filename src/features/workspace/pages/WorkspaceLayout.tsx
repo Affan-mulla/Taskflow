@@ -38,7 +38,7 @@ const WorkspaceLayout = () => {
       <div className="flex h-screen w-full overflow-hidden p-1 bg-background">
         <AppSidebar />
 
-        <div className="flex-1 flex flex-col h-full overflow-hidden rounded-lg border border-border bg-background shadow-sm">
+        <div className="w-full flex-1 flex  h-full overflow-hidden rounded-lg border border-border bg-background shadow-sm">
         <SidebarInset>
           <Outlet />
         </SidebarInset>
