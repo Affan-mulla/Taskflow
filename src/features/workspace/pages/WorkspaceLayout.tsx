@@ -38,11 +38,11 @@ const WorkspaceLayout = () => {
       <div className="flex h-screen w-full overflow-hidden p-1 bg-background">
         <AppSidebar />
 
-        {/* <div className="flex-1 flex flex-col h-full overflow-hidden rounded-lg border border-border bg-background shadow-sm"> */}
+        <div className="flex-1 flex flex-col h-full overflow-hidden rounded-lg border border-border bg-background shadow-sm">
         <SidebarInset>
           <Outlet />
         </SidebarInset>
-        {/* </div> */}
+        </div>
       </div>
     </WorkspaceProvider>
   );
