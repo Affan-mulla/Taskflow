@@ -8,7 +8,7 @@ import { HugeiconsIcon } from "@hugeicons/react";
 import { Pen } from "@hugeicons/core-free-icons";
 import SettingRow from "../components/SettingRow";
 import EmailChangeButton from "../components/EmailChangeButton";
-import { uploadAvatar } from "@/lib/storage";
+import { uploadToCloudinary } from "@/lib/cloudinary";
 import { updateUserName, updateUserAvatar } from "@/db/users/users.update";
 import { toast } from "sonner";
 import { Spinner } from "@/components/ui/spinner";
@@ -28,6 +28,8 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+
+const MAX_AVATAR_SIZE_BYTES = 2 * 1024 * 1024;
 
 const ProfileSettings = () => {
   const { user, setUser } = useUserStore();
@@ -59,19 +61,26 @@ const ProfileSettings = () => {
     const file = e.target.files?.[0];
     if (!file || !user) return;
 
+    if (!file.type.startsWith("image/")) {
+      toast.error("Please select an image file");
+      return;
+    }
+
+    if (file.size > MAX_AVATAR_SIZE_BYTES) {
+      toast.error("Avatar must be 2MB or smaller");
+      return;
+    }
+
     setIsUploadingAvatar(true);
 
     try {
-      // Upload to Firebase Storage
-      const uploadResult = await uploadAvatar(file);
-      
-      if (!uploadResult.success || !uploadResult.url) {
-        toast.error(uploadResult.error || "Failed to upload avatar");
-        return;
-      }
+      const uploadResult = await uploadToCloudinary({
+        file,
+        folder: "avatars",
+      });
 
       // Update Firestore
-      const updateResult = await updateUserAvatar(uploadResult.url);
+      const updateResult = await updateUserAvatar(uploadResult.secureUrl);
       
       if (!updateResult.success) {
         toast.error(updateResult.error || "Failed to save avatar");
@@ -79,8 +88,8 @@ const ProfileSettings = () => {
       }
 
       // Update local state and store
-      setFormData((prev) => ({ ...prev, avatar: uploadResult.url! }));
-      setUser({ ...user, avatar: uploadResult.url });
+      setFormData((prev) => ({ ...prev, avatar: uploadResult.secureUrl }));
+      setUser({ ...user, avatar: uploadResult.secureUrl });
       
       toast.success("Profile picture updated");
     } catch (error) {
