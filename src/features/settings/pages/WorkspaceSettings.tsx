@@ -13,10 +13,16 @@ import AvatarImg from "@/components/Common/AvatarImage";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { Pen } from "@hugeicons/core-free-icons";
 import { useWorkspaceStore } from "@/shared/store/store.workspace";
-import { updateWorkspaceName, updateWorkspaceUrl, deleteWorkspace } from "@/db/workspace/workspace.update";
+import {
+  updateWorkspaceName,
+  updateWorkspaceUrl,
+  updateWorkspaceLogo,
+  deleteWorkspace,
+} from "@/db/workspace/workspace.update";
 import { toast } from "sonner";
 import { Spinner } from "@/components/ui/spinner";
 import { useNavigate } from "react-router";
+import { uploadToCloudinary } from "@/lib/cloudinary";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -29,6 +35,8 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 
+const MAX_WORKSPACE_LOGO_SIZE_BYTES = 2 * 1024 * 1024;
+
 const WorkspaceSettings = () => {
   const { activeWorkspace, setActiveWorkspace, workspaces, setWorkspaces } = useWorkspaceStore();
   const navigate = useNavigate();
@@ -36,21 +44,89 @@ const WorkspaceSettings = () => {
   const [formData, setFormData] = useState({
     workspaceName: activeWorkspace?.workspaceName || "",
     workspaceSlug: activeWorkspace?.workspaceUrl || "",
+    workspaceLogo: activeWorkspace?.logoUrl || "",
   });
 
   const [isSavingName, setIsSavingName] = useState(false);
   const [isSavingSlug, setIsSavingSlug] = useState(false);
+  const [isUploadingLogo, setIsUploadingLogo] = useState(false);
   const [isDeletingWorkspace, setIsDeletingWorkspace] = useState(false);
 
   // Track original values to detect changes
   const originalNameRef = useRef(activeWorkspace?.workspaceName || "");
   const originalSlugRef = useRef(activeWorkspace?.workspaceUrl || "");
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement>
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleWorkspaceLogoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+
+    if (!file || !activeWorkspace) {
+      return;
+    }
+
+    if (!file.type.startsWith("image/")) {
+      toast.error("Please select an image file");
+      return;
+    }
+
+    if (file.size > MAX_WORKSPACE_LOGO_SIZE_BYTES) {
+      toast.error("Workspace logo must be 2MB or smaller");
+      return;
+    }
+
+    setIsUploadingLogo(true);
+
+    try {
+      const uploadResult = await uploadToCloudinary({
+        file,
+        folder: "workspace-logos",
+      });
+
+      const updateResult = await updateWorkspaceLogo(
+        activeWorkspace.id,
+        uploadResult.secureUrl
+      );
+
+      if (!updateResult.success) {
+        toast.error(updateResult.error || "Failed to save workspace logo");
+        return;
+      }
+
+      setFormData((prev) => ({
+        ...prev,
+        workspaceLogo: uploadResult.secureUrl,
+      }));
+
+      setActiveWorkspace({
+        ...activeWorkspace,
+        logoUrl: uploadResult.secureUrl,
+      });
+
+      setWorkspaces(
+        workspaces.map((workspace) =>
+          workspace.id === activeWorkspace.id
+            ? { ...workspace, logoUrl: uploadResult.secureUrl }
+            : workspace
+        )
+      );
+
+      toast.success("Workspace logo updated");
+    } catch (error) {
+      console.error("Workspace logo upload error:", error);
+      toast.error("Failed to upload workspace logo");
+    } finally {
+      setIsUploadingLogo(false);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+    }
   };
 
   // Handle workspace name blur - save on blur if changed
@@ -225,26 +301,42 @@ const WorkspaceSettings = () => {
 
         <CardContent className="divide-y">
           <SettingRow
-            title="Profile picture"
+            title="Workspace logo"
             description="This will be shown across the workspace"
           >
             <div className="relative group">
               <div className="size-10">
-                <AvatarImg
-                  src=""
-                  fallbackText={formData.workspaceSlug.charAt(0).toUpperCase()}
-                />
+                {isUploadingLogo ? (
+                  <div className="size-10 rounded-full bg-muted flex items-center justify-center">
+                    <Spinner className="size-5" />
+                  </div>
+                ) : (
+                  <AvatarImg
+                    src={formData.workspaceLogo}
+                    fallbackText={formData.workspaceSlug.charAt(0).toUpperCase()}
+                  />
+                )}
               </div>
 
-              <label
-                htmlFor="avatar"
-                className="absolute inset-0 grid place-items-center rounded-full
-                  bg-black/40 opacity-0 group-hover:opacity-100 cursor-pointer transition"
-              >
-                <HugeiconsIcon icon={Pen} className="size-4 text-white" />
-              </label>
+              {!isUploadingLogo && (
+                <label
+                  htmlFor="workspace-logo"
+                  className="absolute inset-0 grid place-items-center rounded-full
+                    bg-black/40 opacity-0 group-hover:opacity-100 cursor-pointer transition"
+                >
+                  <HugeiconsIcon icon={Pen} className="size-4 text-white" />
+                </label>
+              )}
 
-              <input id="avatar" type="file" className="hidden" accept="image/*" disabled />
+              <input
+                ref={fileInputRef}
+                id="workspace-logo"
+                type="file"
+                className="hidden"
+                accept="image/*"
+                onChange={handleWorkspaceLogoChange}
+                disabled={isUploadingLogo}
+              />
             </div>
           </SettingRow>
 

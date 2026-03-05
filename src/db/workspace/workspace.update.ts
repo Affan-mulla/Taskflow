@@ -56,6 +56,25 @@ export const updateWorkspaceUrl = async (workspaceId: string, newUrl: string) =>
 };
 
 /**
+ * Update workspace logo URL in Firestore
+ */
+export const updateWorkspaceLogo = async (workspaceId: string, logoUrl: string) => {
+  try {
+    await updateDoc(doc(db, "workspaces", workspaceId), {
+      logoUrl,
+    });
+
+    return { success: true };
+  } catch (error) {
+    console.error("Error updating workspace logo:", error);
+    return {
+      error: error instanceof Error ? error.message : "Failed to update workspace logo",
+      success: false,
+    };
+  }
+};
+
+/**
  * Delete workspace and all its subcollections
  */
 export const deleteWorkspace = async (workspaceId: string) => {

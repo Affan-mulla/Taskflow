@@ -24,6 +24,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import FileUpload from "@/components/ui/FileUpload";
 import {
   Add01Icon,
   UserIcon,
@@ -52,6 +53,7 @@ import {
 } from "../validation/addTask";
 import { useCreateTask } from "../hooks/useCreateTask";
 import type { LinkAttachment } from "@/db/tasks/tasks.create";
+import type { CloudinaryUploadResult } from "@/lib/cloudinary";
 import { Spinner } from "@/components/ui/spinner";
 
 // ============================================================================
@@ -91,6 +93,8 @@ const AddTask = ({ defaultProjectId, triggerVariant = "default" }: AddTaskProps)
   // Store link attachments
   const [attachments, setAttachments] = useState<LinkAttachment[]>([]);
   const [attachmentForm, setAttachmentForm] = useState({ title: "", link: "" });
+  const [uploadError, setUploadError] = useState<string | null>(null);
+  const [uploadType, setUploadType] = useState<"link" | "file">("link");
   
   // Stores
   const { members: workspaceMembers, activeWorkspace, projects } = useWorkspaceStore();
@@ -202,6 +206,7 @@ const AddTask = ({ defaultProjectId, triggerVariant = "default" }: AddTaskProps)
       reset(createDefaultTaskFormValues(defaultProjectId));
       setAttachments([]);
       setAttachmentForm({ title: "", link: "" });
+      setUploadType("link");
     }
   };
 
@@ -232,6 +237,7 @@ const AddTask = ({ defaultProjectId, triggerVariant = "default" }: AddTaskProps)
 
     setAttachments([...attachments, newAttachment]);
     setAttachmentForm({ title: "", link: "" });
+    setUploadType("link");
     setAttachmentOpen(false);
     toast.success("Link added");
   };
@@ -239,6 +245,22 @@ const AddTask = ({ defaultProjectId, triggerVariant = "default" }: AddTaskProps)
   // Handle removing attachment
   const handleRemoveAttachment = (index: number) => {
     setAttachments(attachments.filter((_, i) => i !== index));
+  };
+
+  const handleUploadedAttachments = (results: CloudinaryUploadResult[]) => {
+    const mapped: LinkAttachment[] = results.map((result) => ({
+      title:
+        result.originalFilename ||
+        result.publicId.split("/").pop() ||
+        "Attachment",
+      url: result.secureUrl,
+    }));
+
+    setAttachments((prev) => [...prev, ...mapped]);
+    setUploadError(null);
+    setUploadType("link");
+    setAttachmentOpen(false); // Close dialog
+    toast.success(`${mapped.length} file${mapped.length > 1 ? "s" : ""} uploaded`);
   };
 
   return (
@@ -418,13 +440,19 @@ const AddTask = ({ defaultProjectId, triggerVariant = "default" }: AddTaskProps)
               <div className="space-y-2">
                 <h4 className="text-xs font-medium text-muted-foreground">Links</h4>
                 <div className="flex flex-col gap-1">
-                  {attachments.map((attachment, index) => (
+                  {attachments.map((attachment, index) => {
+                    const isImage = attachment.url?.includes("/image/upload/") || /\.(jpeg|jpg|gif|png|webp|svg|bmp)(?:\?.*)?$/i.test(attachment.url);
+                    return (
                     <div
                       key={index}
-                      className="flex items-center gap-3 p-2 rounded-md bg-secondary/40 group -mx-2"
+                      className="flex items-center gap-3 p-2 rounded-md bg-secondary/40 border border-border/50 group -mx-2"
                     >
-                      <div className="size-8 rounded grid place-items-center bg-secondary/50 text-muted-foreground">
-                        <HugeiconsIcon icon={Link04Icon} className="size-4" />
+                      <div className="size-10 rounded-md grid place-items-center bg-secondary/50 text-muted-foreground overflow-hidden">
+                        {isImage ? (
+                          <img src={attachment.url} alt={attachment.title} className="h-full w-full object-cover" />
+                        ) : (
+                          <HugeiconsIcon icon={Link04Icon} className="size-4" />
+                        )}
                       </div>
                       <div className="flex flex-col flex-1 min-w-0">
                         <span className="text-sm font-medium text-foreground/90 truncate">
@@ -444,7 +472,7 @@ const AddTask = ({ defaultProjectId, triggerVariant = "default" }: AddTaskProps)
                         <HugeiconsIcon icon={Delete02Icon} className="size-4" />
                       </Button>
                     </div>
-                  ))}
+                  )})}
                 </div>
               </div>
               </>
@@ -454,7 +482,14 @@ const AddTask = ({ defaultProjectId, triggerVariant = "default" }: AddTaskProps)
           {/* Footer Actions */}
           <DialogFooter className="mt-4">
             <div className="mr-auto flex items-center gap-2">
-              <AlertDialog open={attachmentOpen} onOpenChange={setAttachmentOpen}>
+              <AlertDialog open={attachmentOpen} onOpenChange={(open) => {
+                setAttachmentOpen(open);
+                if (!open) {
+                  setAttachmentForm({ title: "", link: "" });
+                  setUploadType("link");
+                  setUploadError(null);
+                }
+              }}>
                 <AlertDialogTrigger>
                   <Button
                     variant={"ghost"}
@@ -474,48 +509,84 @@ const AddTask = ({ defaultProjectId, triggerVariant = "default" }: AddTaskProps)
                 <AlertDialogContent className="max-w-md">
                   <AlertDialogHeader className="space-y-1">
                     <AlertDialogTitle className="text-base font-semibold">
-                      Add link
+                      Add attachment
                     </AlertDialogTitle>
                     <AlertDialogDescription className="text-sm">
-                      Add a link to help your team access resources.
+                      Add a link to an external resource or upload a file.
                     </AlertDialogDescription>
                   </AlertDialogHeader>
 
-                  {/* Form */}
-                  <div className="mt-4 space-y-4">
-                    {/* Title */}
-                    <div className="space-y-1">
-                      <Label className="text-xs">Title</Label>
-                      <Input
-                        placeholder="e.g. PRD, Design specs, API doc"
-                        value={attachmentForm.title}
-                        onChange={(e) =>
-                          setAttachmentForm({ ...attachmentForm, title: e.target.value })
-                        }
-                      />
-                    </div>
-
-                    {/* Link */}
-                    <div className="space-y-1">
-                      <Label className="text-xs">Link</Label>
-                      <Input
-                        placeholder="https://…"
-                        value={attachmentForm.link}
-                        onChange={(e) =>
-                          setAttachmentForm({ ...attachmentForm, link: e.target.value })
-                        }
-                      />
-                      <p className="text-[11px] text-muted-foreground">
-                        Paste a Google Doc, Notion, Figma, or any public URL
-                      </p>
-                    </div>
+                  <div className="flex bg-secondary/30 p-0.5 rounded-lg gap-1 border border-border/40">
+                    <Button
+                    size={"sm"}
+                      className="flex-1"
+                      variant={uploadType === "link" ? "default" : "ghost"}
+                      onClick={() => setUploadType("link")}
+                    >
+                      <HugeiconsIcon icon={Link04Icon} className="size-3.5" />
+                      Add Link
+                    </Button>
+                    <Button
+                    size={"sm"}
+                      className="flex-1"
+                      variant={uploadType === "file" ? "default" : "ghost"} 
+                      onClick={() => setUploadType("file")}
+                    >
+                      <HugeiconsIcon icon={Attachment01Icon} className="size-3.5" />
+                      Upload File
+                    </Button>
                   </div>
 
-                  <AlertDialogFooter className="mt-6">
+                  {uploadType === "link" ? (
+                    <div className="mt-2 space-y-4 py-2">
+                      <div className="space-y-1">
+                        <Label className="text-xs">Title</Label>
+                        <Input
+                          placeholder="e.g. PRD, Design specs, API doc"
+                          value={attachmentForm.title}
+                          onChange={(e) =>
+                            setAttachmentForm({ ...attachmentForm, title: e.target.value })
+                          }
+                        />
+                      </div>
+
+                      <div className="space-y-1">
+                        <Label className="text-xs">Link</Label>
+                        <Input
+                          placeholder="https://…"
+                          value={attachmentForm.link}
+                          onChange={(e) =>
+                            setAttachmentForm({ ...attachmentForm, link: e.target.value })
+                          }
+                        />
+                        <p className="text-[11px] text-muted-foreground">
+                          Paste a Google Doc, Notion, Figma, or any public URL
+                        </p>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="space-y-3 py-2 mt-2">
+                      <FileUpload
+                        folder="task-attachments"
+                        multiple
+                        maxSizeMB={15}
+                        accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.zip,.rar,.txt,.csv"
+                        onUploadComplete={handleUploadedAttachments}
+                        onError={setUploadError}
+                      />
+                      {uploadError && (
+                        <p className="text-xs text-destructive">{uploadError}</p>
+                      )}
+                    </div>
+                  )}
+
+                  <AlertDialogFooter className="mt-4">
                     <AlertDialogCancel>Cancel</AlertDialogCancel>
-                    <AlertDialogAction onClick={handleAddAttachment}>
-                      Add link
-                    </AlertDialogAction>
+                    {uploadType === "link" && (
+                      <AlertDialogAction onClick={handleAddAttachment} disabled={!attachmentForm.title.trim() || !attachmentForm.link.trim()}>
+                        Add link
+                      </AlertDialogAction>
+                    )}
                   </AlertDialogFooter>
                 </AlertDialogContent>
               </AlertDialog>
@@ -523,7 +594,7 @@ const AddTask = ({ defaultProjectId, triggerVariant = "default" }: AddTaskProps)
               {/* Show attachment count if any */}
               {attachments.length > 0 && (
                 <span className="text-xs text-muted-foreground">
-                  {attachments.length} link{attachments.length !== 1 ? "s" : ""}
+                  {attachments.length} attachment{attachments.length !== 1 ? "s" : ""}
                 </span>
               )}
             </div>

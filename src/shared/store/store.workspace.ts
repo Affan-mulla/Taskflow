@@ -10,6 +10,7 @@ export interface Workspace {
   id: string;
   workspaceName: string;
   workspaceUrl: string;
+  logoUrl?: string;
   createdAt: string;
 }
 
