@@ -67,6 +67,7 @@ const UserDropdown = ({userName, avatar }: {userName: string, avatar?: string}) 
                 <AvatarImg
                   variant="workspace"
                   fallbackText={activeWorkspace?.workspaceName || "No Workspace"}
+                  src={activeWorkspace?.logoUrl || ""}
                 />
               </div>
 
@@ -136,6 +137,7 @@ const UserDropdown = ({userName, avatar }: {userName: string, avatar?: string}) 
                         <AvatarImg
                           variant="workspace"
                           fallbackText={workspace.workspaceName}
+                          src={workspace.logoUrl || ""}
                         />
                       </div>
                       <span className="flex-1 font-medium text-sm">
