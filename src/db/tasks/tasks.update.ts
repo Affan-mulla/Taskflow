@@ -1,6 +1,15 @@
 import { db } from "@/lib/firebase";
 import type { IssuePriority, IssueStatus, TaskAttachment } from "@/shared/types/db";
-import { doc, updateDoc, serverTimestamp } from "firebase/firestore";
+import {
+  collectionGroup,
+  doc,
+  documentId,
+  getDocs,
+  query,
+  serverTimestamp,
+  updateDoc,
+  where,
+} from "firebase/firestore";
 
 /**
  * Get reference to a task document
@@ -140,6 +149,26 @@ export async function updateTaskAttachments(
 ): Promise<void> {
   const taskRef = getTaskRef(workspaceId, projectId, taskId);
   await updateDoc(taskRef, {
+    attachments,
+    updatedAt: serverTimestamp(),
+  });
+}
+
+/**
+ * Update task attachments by task document ID (project/workspace inferred from path)
+ */
+export async function updateTaskAttachmentsById(
+  taskId: string,
+  attachments: TaskAttachment[]
+): Promise<void> {
+  const taskQuery = query(collectionGroup(db, "tasks"), where(documentId(), "==", taskId));
+  const snapshot = await getDocs(taskQuery);
+
+  if (snapshot.empty) {
+    throw new Error("Task not found");
+  }
+
+  await updateDoc(snapshot.docs[0].ref, {
     attachments,
     updatedAt: serverTimestamp(),
   });

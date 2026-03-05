@@ -52,3 +52,28 @@ export const updateUserAvatar = async (avatarUrl: string) => {
     };
   }
 };
+
+/**
+ * Update user avatar URL by user ID in Firestore
+ */
+export const updateUserAvatarById = async (userId: string, avatarUrl: string) => {
+  if (!userId?.trim()) {
+    return {
+      error: "User ID is required",
+      success: false,
+    };
+  }
+
+  try {
+    await updateDoc(doc(db, "users", userId), {
+      avatar: avatarUrl,
+    });
+    return { success: true };
+  } catch (error) {
+    console.error("Error updating user avatar:", error);
+    return {
+      error: error instanceof Error ? error.message : "Failed to update avatar",
+      success: false,
+    };
+  }
+};

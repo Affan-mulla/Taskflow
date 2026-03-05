@@ -2,7 +2,7 @@ import { useState } from "react";
 import { formatDistanceToNow } from "date-fns";
 import { Timestamp } from "firebase/firestore";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { Link04Icon, Delete02Icon, Add01Icon, ArrowRight01Icon } from "@hugeicons/core-free-icons";
+import { Link04Icon, Delete02Icon, ArrowRight01Icon, Attachment01Icon } from "@hugeicons/core-free-icons";
 import { Link } from "react-router";
 
 import { Button } from "@/components/ui/button";
@@ -10,6 +10,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
+import FileUpload from "@/components/ui/FileUpload";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -23,7 +24,9 @@ import {
 } from "@/components/ui/alert-dialog";
 import AvatarImg from "@/components/Common/AvatarImage";
 import type { Update, UpdateStatus, UpdateLink } from "@/shared/types/db";
+import type { CloudinaryUploadResult } from "@/lib/cloudinary";
 import type { MemberOption } from "@/features/projects/components/projects.types";
+import { cn } from "@/lib/utils";
 
 // ============================================================================
 // Types
@@ -106,16 +109,17 @@ function UpdateComposer({ onSubmit, onCancel, isSubmitting }: UpdateComposerProp
   const [content, setContent] = useState("");
   const [status, setStatus] = useState<UpdateStatus>("on-track");
   const [links, setLinks] = useState<UpdateLink[]>([]);
-  const [showLinkInput, setShowLinkInput] = useState(false);
   const [linkTitle, setLinkTitle] = useState("");
   const [linkUrl, setLinkUrl] = useState("");
+  const [uploadError, setUploadError] = useState<string | null>(null);
+  const [uploadType, setUploadType] = useState<"link" | "file" | null>(null);
 
   const handleAddLink = () => {
     if (linkTitle.trim() && linkUrl.trim()) {
       setLinks([...links, { title: linkTitle.trim(), url: linkUrl.trim() }]);
       setLinkTitle("");
       setLinkUrl("");
-      setShowLinkInput(false);
+      setUploadType(null);
     }
   };
 
@@ -126,6 +130,20 @@ function UpdateComposer({ onSubmit, onCancel, isSubmitting }: UpdateComposerProp
   const handleSubmit = async () => {
     if (!content.trim()) return;
     await onSubmit(content, status, links);
+  };
+
+  const handleUploadedLinks = (results: CloudinaryUploadResult[]) => {
+    const mapped = results.map((result) => ({
+      title:
+        result.originalFilename ||
+        result.publicId.split("/").pop() ||
+        "Attachment",
+      url: result.secureUrl,
+    }));
+
+    setLinks((prev) => [...prev, ...mapped]);
+    setUploadError(null);
+    setUploadType(null);
   };
 
   return (
@@ -168,28 +186,37 @@ function UpdateComposer({ onSubmit, onCancel, isSubmitting }: UpdateComposerProp
         {/* Links Section */}
         {links.length > 0 && (
           <div className="flex flex-wrap gap-2">
-            {links.map((link, index) => (
-              <div
-                key={index}
-                className="flex items-center gap-1.5 px-2 py-1 bg-secondary/50 rounded-md text-xs"
-              >
-                <HugeiconsIcon icon={Link04Icon} className="size-3" />
-                <span className="text-foreground/80">{link.title}</span>
-                <button
-                  type="button"
-                  onClick={() => handleRemoveLink(index)}
-                  className="text-muted-foreground hover:text-destructive transition-colors ml-1"
+            {links.map((link, index) => {
+              const isImage = link.url?.includes("/image/upload/") || /\.(jpeg|jpg|gif|png|webp|svg|bmp)(?:\?.*)?$/i.test(link.url);
+              return (
+                <div
+                  key={index}
+                  className="flex items-center gap-1.5 pl-1 pr-2 py-1 bg-secondary/50 rounded-md text-xs border border-border/50 max-w-full"
                 >
-                  <HugeiconsIcon icon={Delete02Icon} className="size-3" />
-                </button>
-              </div>
-            ))}
+                  {isImage ? (
+                    <div className="size-5 shrink-0 rounded-sm bg-secondary overflow-hidden">
+                      <img src={link.url} alt={link.title} className="h-full w-full object-cover" />
+                    </div>
+                  ) : (
+                    <HugeiconsIcon icon={Link04Icon} className="size-3 shrink-0 text-muted-foreground ml-1" />
+                  )}
+                  <span className="text-foreground/80 font-medium truncate min-w-0">{link.title}</span>
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveLink(index)}
+                    className="text-muted-foreground shrink-0 hover:text-destructive transition-colors ml-1"
+                  >
+                    <HugeiconsIcon icon={Delete02Icon} className="size-3" />
+                  </button>
+                </div>
+              );
+            })}
           </div>
         )}
 
         {/* Add Link Input */}
-        {showLinkInput ? (
-          <div className="flex flex-col sm:flex-row gap-2">
+        {uploadType === "link" && (
+          <div className="flex flex-col sm:flex-row gap-2 mt-2">
             <Input
               placeholder="Link title"
               value={linkTitle}
@@ -208,7 +235,7 @@ function UpdateComposer({ onSubmit, onCancel, isSubmitting }: UpdateComposerProp
                 variant="ghost"
                 size="sm"
                 onClick={() => {
-                  setShowLinkInput(false);
+                  setUploadType(null);
                   setLinkTitle("");
                   setLinkUrl("");
                 }}
@@ -226,34 +253,70 @@ function UpdateComposer({ onSubmit, onCancel, isSubmitting }: UpdateComposerProp
               </Button>
             </div>
           </div>
-        ) : (
-          <button
-            type="button"
-            onClick={() => setShowLinkInput(true)}
-            className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
-          >
-            <HugeiconsIcon icon={Add01Icon} className="size-3" />
-            Add link
-          </button>
+        )}
+
+        {uploadType === "file" && (
+          <div className="space-y-2 mt-2">
+            <FileUpload
+              folder="task-attachments"
+              multiple
+              maxSizeMB={15}
+              accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.zip,.rar,.txt,.csv"
+              onUploadComplete={handleUploadedLinks}
+              onError={setUploadError}
+            />
+            {uploadError && <p className="text-xs text-destructive">{uploadError}</p>}
+          </div>
         )}
 
         {/* Actions */}
-        <div className="flex items-center justify-end gap-2">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={onCancel}
-            disabled={isSubmitting}
-          >
-            Cancel
-          </Button>
-          <Button
-            size="sm"
-            onClick={handleSubmit}
-            disabled={!content.trim() || isSubmitting}
-          >
-            {isSubmitting ? "Posting..." : "Post update"}
-          </Button>
+        <div className="flex items-center justify-between mt-2">
+          <div className="flex gap-1 bg-secondary/30 p-1 rounded-lg border border-border/40">
+            <button
+              type="button"
+              className={cn(
+                "px-3 py-1.5 text-xs font-medium rounded-md transition-colors flex items-center gap-1.5",
+                uploadType === "link"
+                  ? "bg-background shadow-sm text-foreground"
+                  : "text-muted-foreground hover:text-foreground"
+              )}
+              onClick={() => setUploadType(uploadType === "link" ? null : "link")}
+            >
+              <HugeiconsIcon icon={Link04Icon} className="size-3.5" />
+              Add Link
+            </button>
+            <button
+              type="button"
+              className={cn(
+                "px-3 py-1.5 text-xs font-medium rounded-md transition-colors flex items-center gap-1.5",
+                uploadType === "file"
+                  ? "bg-background shadow-sm text-foreground"
+                  : "text-muted-foreground hover:text-foreground"
+              )}
+              onClick={() => setUploadType(uploadType === "file" ? null : "file")}
+            >
+              <HugeiconsIcon icon={Attachment01Icon} className="size-3.5" />
+              Upload File
+            </button>
+          </div>
+          
+          <div className="flex items-center justify-end gap-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onCancel}
+              disabled={isSubmitting}
+            >
+              Cancel
+            </Button>
+            <Button
+              size="sm"
+              onClick={handleSubmit}
+              disabled={!content.trim() || isSubmitting}
+            >
+              {isSubmitting ? "Posting..." : "Post update"}
+            </Button>
+          </div>
         </div>
       </div>
     </Card>
@@ -280,14 +343,6 @@ function UpdateItem({ update, member, onDelete, canDelete }: UpdateItemProps) {
   const createdAt = update.createdAt instanceof Timestamp
     ? update.createdAt.toDate()
     : new Date(update.createdAt as any);
-
-  const getHostname = (url: string) => {
-    try {
-      return new URL(url).hostname.replace("www.", "");
-    } catch {
-      return "Link";
-    }
-  };
 
   const handleConfirmDelete = async () => {
     setIsDeleting(true);
@@ -365,26 +420,34 @@ function UpdateItem({ update, member, onDelete, canDelete }: UpdateItemProps) {
         {/* Links */}
         {update.links && update.links.length > 0 && (
           <div className="flex flex-wrap gap-2 pt-1">
-            {update.links.map((link, index) => (
-              <a
-                key={index}
-                href={link.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-1.5 px-2 py-1 bg-secondary/50 hover:bg-secondary rounded-md text-xs transition-colors group"
-              >
-                <HugeiconsIcon
-                  icon={Link04Icon}
-                  className="size-3 text-muted-foreground group-hover:text-foreground"
-                />
-                <span className="text-foreground/80 group-hover:text-foreground">
-                  {link.title}
-                </span>
-                <span className="text-muted-foreground">
-                  · {getHostname(link.url)}
-                </span>
-              </a>
-            ))}
+            {update.links.map((link, index) => {
+              const isImage = link.url?.includes("/image/upload/") || /\.(jpeg|jpg|gif|png|webp|svg|bmp)(?:\?.*)?$/i.test(link.url);
+              return (
+                <a
+                  key={index}
+                  href={link.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 pl-1 pr-2 py-1 bg-secondary/50 hover:bg-secondary rounded-md text-xs transition-colors group border border-border/50 max-w-full"
+                >
+                  {isImage ? (
+                    <div className="size-6 shrink-0 rounded bg-secondary overflow-hidden">
+                      <img src={link.url} alt={link.title} className="h-full w-full object-cover" />
+                    </div>
+                  ) : (
+                    <div className="size-6 shrink-0 rounded bg-secondary/80 flex items-center justify-center">
+                      <HugeiconsIcon
+                        icon={Link04Icon}
+                        className="size-3 text-muted-foreground group-hover:text-foreground"
+                      />
+                    </div>
+                  )}
+                  <span className="text-foreground/80 group-hover:text-foreground font-medium truncate min-w-0">
+                    {link.title}
+                  </span>
+                </a>
+              );
+            })}
           </div>
         )}
       </div>

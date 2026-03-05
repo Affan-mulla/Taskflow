@@ -5,6 +5,7 @@ import {
   ArrowRight02Icon,
   Link04Icon,
   Delete02Icon,
+  Attachment01Icon,
 } from "@hugeicons/core-free-icons";
 
 import { Button } from "@/components/ui/button";
@@ -25,7 +26,9 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import FileUpload from "@/components/ui/FileUpload";
 import AvatarImg from "@/components/Common/AvatarImage";
+import { cn } from "@/lib/utils";
 
 // Inline Editors
 import { InlineStatusSelect } from "@/features/projects/components/inline/InlineStatusSelect";
@@ -36,6 +39,7 @@ import type {
   ProjectPriority,
   MemberOption,
 } from "@/features/projects/components/projects.types";
+import type { CloudinaryUploadResult } from "@/lib/cloudinary";
 import type { IssueStatus, TaskAttachment, ProjectResource, Update, UpdateStatus, UpdateLink } from "@/shared/types/db";
 import { UpdatesSection } from "./UpdatesSection";
 
@@ -423,6 +427,8 @@ function ItemsSection({ title, items, onAddItem, onRemoveItem, entityType }: Ite
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [deletingIndex, setDeletingIndex] = useState<number | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+  const [uploadType, setUploadType] = useState<"link" | "file">("link");
 
   const getHostname = (urlString: string) => {
     try {
@@ -440,6 +446,7 @@ function ItemsSection({ title, items, onAddItem, onRemoveItem, entityType }: Ite
     if (success) {
       setItemTitle("");
       setUrl("");
+      setUploadType("link");
       setIsDialogOpen(false);
     }
     setLoading(false);
@@ -469,12 +476,44 @@ function ItemsSection({ title, items, onAddItem, onRemoveItem, entityType }: Ite
     setDeleteDialogOpen(true);
   };
 
+  const handleUploadedItems = async (results: CloudinaryUploadResult[]) => {
+    if (!onAddItem) return;
+
+    setLoading(true);
+    setUploadError(null);
+
+    try {
+      for (const result of results) {
+        const title =
+          result.originalFilename ||
+          result.publicId.split("/").pop() ||
+          (entityType === "project" ? "Resource" : "Attachment");
+
+        await onAddItem(title, result.secureUrl);
+      }
+      setUploadType("link");
+      setIsDialogOpen(false); // Close dialog after successful upload
+    } catch (error) {
+      setUploadError(error instanceof Error ? error.message : "Failed to add uploaded file");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <section>
       <SectionTitle
         action={
           onAddItem && (
-            <AlertDialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+            <AlertDialog open={isDialogOpen} onOpenChange={(open) => {
+              setIsDialogOpen(open);
+              if (!open) {
+                setItemTitle("");
+                setUrl("");
+                setUploadType("link");
+                setUploadError(null);
+              }
+            }}>
               <AlertDialogTrigger>
                 <Button
                   variant="ghost"
@@ -491,40 +530,78 @@ function ItemsSection({ title, items, onAddItem, onRemoveItem, entityType }: Ite
                     Add {entityType === "project" ? "Resource" : "Attachment"}
                   </AlertDialogTitle>
                   <AlertDialogDescription>
-                    {entityType === "project" 
-                      ? "Add a link to external resources, documents, or files."
-                      : "Add a link to external resources, documents, or files."}
+                    Add a link to an external resource or upload a file.
                   </AlertDialogDescription>
                 </AlertDialogHeader>
-                <div className="flex flex-col gap-4 py-4">
-                  <div className="flex flex-col gap-2">
-                    <Label htmlFor="title">Title</Label>
-                    <Input
-                      id="title"
-                      placeholder={entityType === "project" ? "e.g., PRD, Design specs" : "e.g., Design Mockup"}
-                      value={itemTitle}
-                      onChange={(e) => setItemTitle(e.target.value)}
-                    />
-                  </div>
-                  <div className="flex flex-col gap-2">
-                    <Label htmlFor="url">URL</Label>
-                    <Input
-                      id="url"
-                      type="url"
-                      placeholder="https://..."
-                      value={url}
-                      onChange={(e) => setUrl(e.target.value)}
-                    />
-                  </div>
+
+                <div className="flex bg-secondary/30 p-0.5 rounded-lg gap-1 border border-border/40">
+                  <Button
+                    size={"sm"}
+                    variant={uploadType === "link" ? "default" : "ghost"}
+                    className="flex-1"
+                    onClick={() => setUploadType("link")}
+                  >
+                    <HugeiconsIcon icon={Link04Icon} className="size-3.5" />
+                    Add Link
+                  </Button>
+                  <Button 
+                    size={"sm"}
+                    variant={uploadType === "file" ? "default" : "ghost"}
+                    className="flex-1"
+                    onClick={() => setUploadType("file")}
+                  >
+                    <HugeiconsIcon icon={Attachment01Icon} className="size-3.5" />
+                    Upload File
+                  </Button>
                 </div>
-                <AlertDialogFooter>
+
+                {uploadType === "link" ? (
+                  <div className="flex flex-col gap-4 py-2">
+                    <div className="flex flex-col gap-2">
+                      <Label htmlFor="title">Title</Label>
+                      <Input
+                        id="title"
+                        placeholder={entityType === "project" ? "e.g., PRD, Design specs" : "e.g., Design Mockup"}
+                        value={itemTitle}
+                        onChange={(e) => setItemTitle(e.target.value)}
+                      />
+                    </div>
+                    <div className="flex flex-col gap-2">
+                      <Label htmlFor="url">URL</Label>
+                      <Input
+                        id="url"
+                        type="url"
+                        placeholder="https://..."
+                        value={url}
+                        onChange={(e) => setUrl(e.target.value)}
+                      />
+                    </div>
+                  </div>
+                ) : (
+                  <div className="space-y-3 py-2">
+                    <FileUpload
+                      folder="task-attachments"
+                      multiple
+                      maxSizeMB={15}
+                      accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.zip,.rar,.txt,.csv"
+                      onUploadComplete={handleUploadedItems}
+                      onError={setUploadError}
+                    />
+                    {uploadError && <p className="text-xs text-destructive">{uploadError}</p>}
+                  </div>
+                )}
+
+                <AlertDialogFooter className="mt-4">
                   <AlertDialogCancel onClick={() => { setItemTitle(""); setUrl(""); }}>
                     Cancel
                   </AlertDialogCancel>
-                  <AlertDialogAction onClick={handleAddItem} disabled={loading}>
-                    Add {entityType === "project" ? "Resource" : "Attachment"}
-                  </AlertDialogAction>
+                  {uploadType === "link" && (
+                    <AlertDialogAction onClick={handleAddItem} disabled={loading || !itemTitle.trim() || !url.trim()}>
+                      Add {entityType === "project" ? "Resource" : "Attachment"}
+                    </AlertDialogAction>
+                  )}
                 </AlertDialogFooter>
+                
               </AlertDialogContent>
             </AlertDialog>
           )
@@ -550,8 +627,12 @@ function ItemsSection({ title, items, onAddItem, onRemoveItem, entityType }: Ite
                 rel="noopener noreferrer"
                 className="flex items-center gap-3 flex-1 min-w-0"
               >
-                <div className="size-8 rounded grid place-items-center bg-secondary/50 text-muted-foreground group-hover:text-foreground group-hover:bg-secondary shrink-0">
-                  <HugeiconsIcon icon={Link04Icon} className="size-4" />
+                <div className="size-10 rounded-md grid place-items-center bg-secondary/50 text-muted-foreground group-hover:text-foreground group-hover:bg-secondary shrink-0 overflow-hidden border border-border/50">
+                  {item.url?.includes("/image/upload/") || /\.(jpeg|jpg|gif|png|webp|svg|bmp)(?:\?.*)?$/i.test(item.url) ? (
+                    <img src={item.url} alt={item.title} className="h-full w-full object-cover" />
+                  ) : (
+                    <HugeiconsIcon icon={Link04Icon} className="size-4" />
+                  )}
                 </div>
                 <div className="flex flex-col min-w-0">
                   <span className="text-sm font-medium text-foreground/90 truncate">

@@ -3,11 +3,18 @@
 // =============================================================================
 export { createUserProfile } from "./users/users.create";
 export { getUserProfile } from "./users/users.read";
+export { updateUserAvatar, updateUserAvatarById, updateUserName } from "./users/users.update";
 
 // =============================================================================
 // Workspaces
 // =============================================================================
 export { createWorkspace } from "./workspace/workspace.create";
+export {
+  deleteWorkspace,
+  updateWorkspaceLogo,
+  updateWorkspaceName,
+  updateWorkspaceUrl,
+} from "./workspace/workspace.update";
 export {
   getUserWorkspacesIds,
   isWorkspaceUrlUnique,
@@ -61,6 +68,7 @@ export {
   updateTaskDescription,
   updateTaskDates,
   updateTaskAttachments,
+  updateTaskAttachmentsById,
 } from "./tasks/tasks.update";
 export { deleteTask } from "./tasks/tasks.delete";
 
