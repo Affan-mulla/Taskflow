@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Spinner } from "@/components/ui/spinner";
 import { auth } from "@/lib/firebase";
 import { useWorkspaceStore } from "@/shared/store/store.workspace";
+import { useUserStore } from "@/shared/store/store.user";
 import type { BulkInviteResponse } from "@/shared/types/email-response";
 import { Alert, Sent02Icon, UserPlus, X } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
@@ -22,7 +23,13 @@ const InviteMembersItem = ({ variant = "default" }: { variant?: "default" | "ico
   >([]);
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
-  const {activeWorkspace} = useWorkspaceStore();
+  const { activeWorkspace, members } = useWorkspaceStore();
+  const { user } = useUserStore();
+
+  const currentMemberRole = members.find((member) => member.userId === user?.id)?.role;
+  const normalizedCurrentMemberRole = currentMemberRole?.toLowerCase();
+  const canInviteMembers =
+    normalizedCurrentMemberRole === "owner" || normalizedCurrentMemberRole === "admin";
 
   const validateEmail = (email: string) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -68,6 +75,11 @@ const InviteMembersItem = ({ variant = "default" }: { variant?: "default" | "ico
   };
 
   const handleSendInvites = async () => {
+    if (!canInviteMembers) {
+      toast.error("Only workspace owners or admins can invite members");
+      return;
+    }
+
     try {
       setLoading(true);
       const api = import.meta.env.VITE_EMAIL_SERVICE_API_URL;
@@ -110,7 +122,10 @@ const InviteMembersItem = ({ variant = "default" }: { variant?: "default" | "ico
       }
 
       if (!res.ok) {
-        const message = (data as any)?.message || `Request failed (${res.status})`;
+        const message =
+          data && typeof data === "object" && "message" in data && typeof data.message === "string"
+            ? data.message
+            : `Request failed (${res.status})`;
         toast.error(message);
         return;
       }
@@ -133,7 +148,8 @@ const InviteMembersItem = ({ variant = "default" }: { variant?: "default" | "ico
         setEmails([]);
         setInputValue("");
       }
-    } catch (err) {
+    } catch (error) {
+      console.error("Unexpected error while sending invites:", error);
       toast.error("Unexpected error while sending invites.");
     } finally {
       setLoading(false);
@@ -156,11 +172,23 @@ const InviteMembersItem = ({ variant = "default" }: { variant?: "default" | "ico
     <AlertDialog
       open={open}
       onOpenChange={(next) => {
+        if (next && !canInviteMembers) {
+          toast.error("Only workspace owners or admins can invite members");
+          return;
+        }
+
         // Prevent closing while a send is in progress
         if (!loading) setOpen(next);
       }}
     >
-      <AlertDialogTrigger className={cn(buttonVariants({ variant: variant === "icon" ? "ghost" : "default", size: variant === "icon" ? "icon" : "default" }), variant === "icon" ? "shrink-0" : "text-sm gap-2")}>
+      <AlertDialogTrigger
+        disabled={!canInviteMembers}
+        className={cn(
+          buttonVariants({ variant: variant === "icon" ? "ghost" : "default", size: variant === "icon" ? "icon" : "default" }),
+          variant === "icon" ? "shrink-0" : "text-sm gap-2",
+          !canInviteMembers && "pointer-events-none opacity-50"
+        )}
+      >
         {variant === "icon" ? (
              <HugeiconsIcon strokeWidth={2} icon={UserPlus} className="size-5" />
         ) : (
@@ -193,7 +221,7 @@ const InviteMembersItem = ({ variant = "default" }: { variant?: "default" | "ico
               onKeyDown={handleKeyDown}
               onBlur={handleAddEmails}
               className="w-full text-sm"
-              disabled={loading || isAtLimit}
+              disabled={loading || isAtLimit || !canInviteMembers}
             />
             <div className="flex items-center justify-between">
               <p className="text-xs text-muted-foreground">Press Enter, comma, or semicolon to add.</p>
@@ -236,7 +264,12 @@ const InviteMembersItem = ({ variant = "default" }: { variant?: "default" | "ico
                 ) : (
                   <span className="text-xs text-muted-foreground">All emails look valid.</span>
                 )}
-                <Button variant="ghost" size="sm" onClick={() => setEmails([])} disabled={loading}>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setEmails([])}
+                  disabled={loading || !canInviteMembers}
+                >
                   Clear all
                 </Button>
               </div>
@@ -248,7 +281,7 @@ const InviteMembersItem = ({ variant = "default" }: { variant?: "default" | "ico
           <AlertDialogCancel disabled={loading}>Cancel</AlertDialogCancel>
           <AlertDialogAction
             onClick={handleSendInvites}
-            disabled={!hasValidEmails || loading || validCount > MAX_INVITES}
+            disabled={!hasValidEmails || loading || validCount > MAX_INVITES || !canInviteMembers}
           >
             {loading ? (
               <Spinner />

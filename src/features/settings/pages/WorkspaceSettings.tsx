@@ -45,7 +45,7 @@ const WorkspaceSettings = () => {
 
   const currentMemberRole = members.find((member) => member.userId === user?.id)?.role;
   const normalizedCurrentMemberRole = currentMemberRole?.toLowerCase();
-  const canDeleteWorkspace =
+  const canManageWorkspace =
     normalizedCurrentMemberRole === "owner" || normalizedCurrentMemberRole === "admin";
 
   const [formData, setFormData] = useState({
@@ -72,6 +72,11 @@ const WorkspaceSettings = () => {
   };
 
   const handleWorkspaceLogoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!canManageWorkspace) {
+      toast.error("Only workspace owners or admins can update workspace data");
+      return;
+    }
+
     const file = e.target.files?.[0];
 
     if (!file || !activeWorkspace) {
@@ -138,6 +143,11 @@ const WorkspaceSettings = () => {
 
   // Handle workspace name blur - save on blur if changed
   const handleNameBlur = async () => {
+    if (!canManageWorkspace) {
+      setFormData((prev) => ({ ...prev, workspaceName: originalNameRef.current }));
+      return;
+    }
+
     const trimmedName = formData.workspaceName.trim();
 
     // Don't save if unchanged or empty
@@ -190,6 +200,11 @@ const WorkspaceSettings = () => {
 
   // Handle workspace slug blur - save on blur if changed
   const handleSlugBlur = async () => {
+    if (!canManageWorkspace) {
+      setFormData((prev) => ({ ...prev, workspaceSlug: originalSlugRef.current }));
+      return;
+    }
+
     const trimmedSlug = formData.workspaceSlug.trim().toLowerCase().replace(/\s+/g, "-");
 
     // Don't save if unchanged or empty
@@ -255,7 +270,7 @@ const WorkspaceSettings = () => {
   const handleDeleteWorkspace = async () => {
     if (!activeWorkspace) return;
 
-    if (!canDeleteWorkspace) {
+    if (!canManageWorkspace) {
       toast.error("Only workspace owners or admins can delete this workspace");
       return;
     }
@@ -314,6 +329,12 @@ const WorkspaceSettings = () => {
         </CardHeader>
 
         <CardContent className="divide-y">
+          {!canManageWorkspace && (
+            <div className="pb-4 text-xs text-muted-foreground">
+              Only workspace owners or admins can update workspace details.
+            </div>
+          )}
+
           <SettingRow
             title="Workspace logo"
             description="This will be shown across the workspace"
@@ -332,7 +353,7 @@ const WorkspaceSettings = () => {
                 )}
               </div>
 
-              {!isUploadingLogo && (
+              {!isUploadingLogo && canManageWorkspace && (
                 <label
                   htmlFor="workspace-logo"
                   className="absolute inset-0 grid place-items-center rounded-full
@@ -349,7 +370,7 @@ const WorkspaceSettings = () => {
                 className="hidden"
                 accept="image/*"
                 onChange={handleWorkspaceLogoChange}
-                disabled={isUploadingLogo}
+                disabled={isUploadingLogo || !canManageWorkspace}
               />
             </div>
           </SettingRow>
@@ -366,7 +387,7 @@ const WorkspaceSettings = () => {
                 onChange={handleChange}
                 onBlur={handleNameBlur}
                 className="max-w-xs pr-8"
-                disabled={isSavingName}
+                disabled={isSavingName || !canManageWorkspace}
               />
               {isSavingName && (
                 <div className="absolute right-2 top-1/2 -translate-y-1/2">
@@ -388,7 +409,7 @@ const WorkspaceSettings = () => {
                 onChange={handleChange}
                 onBlur={handleSlugBlur}
                 className="max-w-xs pr-8"
-                disabled={isSavingSlug}
+                disabled={isSavingSlug || !canManageWorkspace}
               />
               {isSavingSlug && (
                 <div className="absolute right-2 top-1/2 -translate-y-1/2">
@@ -416,7 +437,7 @@ const WorkspaceSettings = () => {
           >
             <AlertDialog>
               <AlertDialogTrigger>
-                <Button variant="destructive" disabled={isDeletingWorkspace || !canDeleteWorkspace}>
+                <Button variant="destructive" disabled={isDeletingWorkspace || !canManageWorkspace}>
                   {isDeletingWorkspace ? (
                     <>
                       <Spinner className="size-4 mr-2" />
@@ -443,7 +464,7 @@ const WorkspaceSettings = () => {
                   <AlertDialogCancel>Cancel</AlertDialogCancel>
                   <AlertDialogAction
                     onClick={handleDeleteWorkspace}
-                    disabled={!canDeleteWorkspace}
+                    disabled={!canManageWorkspace}
                     className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                   >
                     Delete workspace
@@ -451,7 +472,7 @@ const WorkspaceSettings = () => {
                 </AlertDialogFooter>
               </AlertDialogContent>
             </AlertDialog>
-            {!canDeleteWorkspace && (
+            {!canManageWorkspace && (
               <p className="mt-2 text-xs text-muted-foreground">
                 Members cannot delete a workspace.
               </p>
