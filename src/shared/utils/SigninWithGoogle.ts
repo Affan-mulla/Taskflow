@@ -16,7 +16,7 @@ export async function signInWithGoogle() {
         name: result.user.displayName || "Unnamed User",
         createdAt:
           result.user.metadata.creationTime || new Date().toISOString(),
-        avatar: result.user.photoURL || undefined,
+        avatar: result.user.photoURL || undefined,  
       });
 
       if (user.success === false) {

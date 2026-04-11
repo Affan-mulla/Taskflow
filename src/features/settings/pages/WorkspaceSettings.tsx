@@ -13,6 +13,7 @@ import AvatarImg from "@/components/Common/AvatarImage";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { Pen } from "@hugeicons/core-free-icons";
 import { useWorkspaceStore } from "@/shared/store/store.workspace";
+import { useUserStore } from "@/shared/store/store.user";
 import {
   updateWorkspaceName,
   updateWorkspaceUrl,
@@ -38,8 +39,14 @@ import {
 const MAX_WORKSPACE_LOGO_SIZE_BYTES = 2 * 1024 * 1024;
 
 const WorkspaceSettings = () => {
-  const { activeWorkspace, setActiveWorkspace, workspaces, setWorkspaces } = useWorkspaceStore();
+  const { activeWorkspace, members, setActiveWorkspace, workspaces, setWorkspaces } = useWorkspaceStore();
+  const { user } = useUserStore();
   const navigate = useNavigate();
+
+  const currentMemberRole = members.find((member) => member.userId === user?.id)?.role;
+  const normalizedCurrentMemberRole = currentMemberRole?.toLowerCase();
+  const canDeleteWorkspace =
+    normalizedCurrentMemberRole === "owner" || normalizedCurrentMemberRole === "admin";
 
   const [formData, setFormData] = useState({
     workspaceName: activeWorkspace?.workspaceName || "",
@@ -174,6 +181,7 @@ const WorkspaceSettings = () => {
       originalNameRef.current = previousName;
       setFormData((prev) => ({ ...prev, workspaceName: previousName }));
       setActiveWorkspace({ ...activeWorkspace, workspaceName: previousName });
+      console.error("Error updating workspace name:", error);
       toast.error("Failed to update workspace name");
     } finally {
       setIsSavingName(false);
@@ -236,6 +244,7 @@ const WorkspaceSettings = () => {
       originalSlugRef.current = previousSlug;
       setFormData((prev) => ({ ...prev, workspaceSlug: previousSlug }));
       setActiveWorkspace({ ...activeWorkspace, workspaceUrl: previousSlug });
+      console.error("Error updating workspace URL:", error);
       toast.error("Failed to update workspace URL");
     } finally {
       setIsSavingSlug(false);
@@ -245,6 +254,11 @@ const WorkspaceSettings = () => {
   // Handle delete workspace
   const handleDeleteWorkspace = async () => {
     if (!activeWorkspace) return;
+
+    if (!canDeleteWorkspace) {
+      toast.error("Only workspace owners or admins can delete this workspace");
+      return;
+    }
 
     setIsDeletingWorkspace(true);
 
@@ -402,7 +416,7 @@ const WorkspaceSettings = () => {
           >
             <AlertDialog>
               <AlertDialogTrigger>
-                <Button variant="destructive" disabled={isDeletingWorkspace}>
+                <Button variant="destructive" disabled={isDeletingWorkspace || !canDeleteWorkspace}>
                   {isDeletingWorkspace ? (
                     <>
                       <Spinner className="size-4 mr-2" />
@@ -429,6 +443,7 @@ const WorkspaceSettings = () => {
                   <AlertDialogCancel>Cancel</AlertDialogCancel>
                   <AlertDialogAction
                     onClick={handleDeleteWorkspace}
+                    disabled={!canDeleteWorkspace}
                     className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                   >
                     Delete workspace
@@ -436,6 +451,11 @@ const WorkspaceSettings = () => {
                 </AlertDialogFooter>
               </AlertDialogContent>
             </AlertDialog>
+            {!canDeleteWorkspace && (
+              <p className="mt-2 text-xs text-muted-foreground">
+                Members cannot delete a workspace.
+              </p>
+            )}
           </SettingRow>
         </CardContent>
       </Card>
